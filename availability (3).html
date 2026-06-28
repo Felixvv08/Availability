@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wanneer kunnen we?</title>
+<style>
+  :root {
+    --bg: #1a1a1a; --surface: #222; --header-bg: #2c2c2c; --week-col: #2a3a2a;
+    --available: #3a7a50; --unavailable: #7a3a3a; --text: #e8e8e8; --text-muted: #888;
+    --accent: #5a9a80; --modal-bg: #2a2a2a; --input-bg: #1a1a1a; --time-col: #242424;
+    --font: 'Segoe UI', system-ui, sans-serif; --row-h: 40px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* ── Fullscreen overlays ── */
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.88); z-index: 200; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 30px 20px; }
+  .overlay.open { display: flex; }
+  .overlay-box { background: var(--modal-bg); border: 2px solid var(--accent); border-radius: 12px; width: 480px; max-width: 100%; padding: 28px; }
+  .overlay-box h1 { font-size: 1.35rem; color: var(--accent); margin-bottom: 6px; }
+  .overlay-box .sub { font-size: .85rem; color: var(--text-muted); margin-bottom: 18px; line-height: 1.5; }
+  .overlay-box label { display: block; font-size: .8rem; color: var(--text-muted); margin: 12px 0 4px; }
+  .overlay-box input { width: 100%; background: var(--input-bg); border: 1px solid rgba(90,154,128,.5); border-radius: 6px; color: var(--text); padding: 9px 11px; font-size: .9rem; }
+  .overlay-box input:focus { outline: 2px solid var(--accent); }
+  .overlay-error { font-size: .8rem; color: #e08080; margin-top: 8px; min-height: 18px; }
+  hr.div { border: none; border-top: 1px solid #3a3a3a; margin: 18px 0; }
+
+  /* ── Setup screen ── */
+  details.guide summary { cursor: pointer; font-size: .85rem; color: var(--accent); padding: 10px 0; user-select: none; }
+  details.guide[open] summary { margin-bottom: 2px; }
+  .guide-body h3 { font-size: .82rem; color: var(--text); margin: 12px 0 5px; }
+  .guide-body ol { font-size: .8rem; color: var(--text-muted); padding-left: 18px; line-height: 1.75; }
+  .guide-body ol b { color: var(--text); }
+  .guide-body pre { background: #111; border: 1px solid #444; border-radius: 4px; padding: 8px 10px; font-size: .79rem; color: #7ecba1; margin: 5px 0; overflow-x: auto; }
+  .guide-body code { background: #111; border-radius: 3px; padding: 1px 5px; font-size: .79rem; color: #7ecba1; }
+  .guide-body a { color: var(--accent); }
+  .guide-note { font-size: .78rem; color: var(--text-muted); margin-top: 10px; padding: 8px 10px; background: rgba(90,154,128,.1); border-radius: 5px; }
+
+  /* ── User selection screen ── */
+  .user-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+  .user-card {
+    background: var(--available); color: #c8ecd6; border: none; border-radius: 8px;
+    padding: 10px 18px; font-size: .9rem; font-weight: 700; cursor: pointer;
+    transition: filter .15s, transform .1s;
+  }
+  .user-card:hover { filter: brightness(1.12); transform: scale(1.03); }
+  .user-card.empty-hint { background: #2a3a2a; color: var(--text-muted); font-weight: 400; font-style: italic; cursor: default; }
+  .new-user-row { display: flex; gap: 8px; margin-top: 4px; }
+  .new-user-row input { flex: 1; }
+  .btn-create { background: var(--available); border: none; border-radius: 6px; color: #c8ecd6; padding: 9px 16px; font-size: .88rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .btn-create:hover { filter: brightness(1.1); }
+  .btn-create:disabled { opacity: .5; cursor: wait; }
+
+  /* ── Generic action button ── */
+  .action-btn { width: 100%; margin-top: 14px; padding: 11px; background: var(--available); border: none; border-radius: 8px; color: #c8ecd6; font-size: .95rem; font-weight: 700; cursor: pointer; transition: filter .15s; }
+  .action-btn:hover:not(:disabled) { filter: brightness(1.1); }
+  .action-btn:disabled { opacity: .6; cursor: wait; }
+
+  /* ── Site header ── */
+  .site-header { background: var(--header-bg); border-bottom: 2px solid var(--accent); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .site-header h1 { font-size: 1.2rem; font-weight: 800; }
+  .site-header h1 span { color: var(--accent); }
+  .user-area { display: flex; align-items: center; gap: 8px; }
+  .user-badge { display: flex; align-items: center; gap: 8px; background: rgba(90,154,128,.15); border: 1px solid var(--accent); border-radius: 20px; padding: 5px 14px 5px 10px; cursor: pointer; transition: background .15s; }
+  .user-badge:hover { background: rgba(90,154,128,.25); }
+  .user-avatar { width: 26px; height: 26px; background: var(--available); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 800; color: #c8ecd6; flex-shrink: 0; }
+  .user-name { font-size: .88rem; font-weight: 700; color: var(--text); }
+  .user-switch { font-size: .7rem; color: var(--text-muted); }
+  .icon-btn { background: none; border: 1px solid #555; border-radius: 6px; color: var(--text-muted); width: 30px; height: 30px; font-size: .88rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Tabs ── */
+  .tabs { display: flex; background: var(--header-bg); border-bottom: 2px solid var(--accent); }
+  .tab-btn { padding: 9px 20px; font-size: .87rem; font-weight: 700; background: none; border: none; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: color .15s, border-color .15s; }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── Status bar ── */
+  .status-bar { display: flex; align-items: center; justify-content: space-between; padding: 5px 20px; background: var(--surface); border-bottom: 1px solid rgba(90,154,128,.18); font-size: .74rem; color: var(--text-muted); gap: 10px; }
+  .sync-btn { background: none; border: 1px solid #444; border-radius: 5px; color: var(--text-muted); padding: 3px 10px; font-size: .74rem; cursor: pointer; white-space: nowrap; }
+  .sync-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .sync-btn:disabled { opacity: .5; cursor: default; }
+
+  /* ── Tab panels ── */
+  .tab-panel { display: none; flex: 1; flex-direction: column; }
+  .tab-panel.active { display: flex; }
+
+  /* ── Week nav ── */
+  .week-nav { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 10px 20px; background: var(--surface); border-bottom: 1px solid rgba(90,154,128,.18); }
+  .week-nav button { background: none; border: 1px solid var(--accent); color: var(--accent); border-radius: 6px; width: 30px; height: 30px; font-size: 1rem; cursor: pointer; }
+  .week-nav button:hover { background: rgba(90,154,128,.12); }
+  .week-label { font-size: .88rem; font-weight: 600; min-width: 200px; text-align: center; }
+
+  /* ── Calendar ── */
+  .cal-wrap { flex: 1; overflow-x: auto; padding: 14px 20px 28px; }
+  .calendar { border: 2px solid var(--accent); border-radius: 4px; overflow: hidden; min-width: 500px; width: 100%; table-layout: fixed; border-collapse: collapse; }
+  .calendar thead tr { background: #2e4a3a; }
+  .calendar thead th { padding: 9px 5px; font-size: .74rem; font-weight: 700; text-align: center; border-right: 1px solid rgba(90,154,128,.3); color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; }
+  .calendar thead th.week-th { width: 52px; background: var(--week-col); }
+  .calendar thead th.day-th { color: var(--text); }
+  .calendar thead th .day-name { display: block; font-size: .68rem; color: var(--text-muted); }
+  .calendar thead th .day-num { display: block; font-size: 1.1rem; font-weight: 800; color: var(--accent); }
+  .calendar tbody tr { border-top: 1px solid rgba(255,255,255,.04); }
+  .calendar td { vertical-align: top; border-right: 1px solid rgba(90,154,128,.13); padding: 0; position: relative; }
+  .time-cell { width: 52px; background: var(--time-col); color: var(--text-muted); font-size: .7rem; text-align: right; padding: 5px 6px 0 0; border-right: 1px solid var(--accent) !important; white-space: nowrap; vertical-align: top; user-select: none; height: var(--row-h); }
+  .day-cell { height: var(--row-h); padding: 2px; cursor: default; transition: background .1s; position: relative; }
+  .day-cell.clickable:hover { background: rgba(90,154,128,.07); cursor: pointer; }
+  .span-block { position: absolute; left: 2px; right: 2px; top: 2px; bottom: 2px; border-radius: 5px; padding: 3px 5px; font-size: .7rem; font-weight: 700; text-align: center; cursor: pointer; z-index: 2; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: filter .15s; line-height: 1.3; }
+  .span-block:hover { filter: brightness(1.15); }
+  .span-block.avail { background: var(--available); color: #c8ecd6; }
+  .span-block.unavail { background: var(--unavailable); color: #ecc8c8; }
+  .span-block .block-time { font-size: .6rem; opacity: .7; }
+  .add-btn { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: #2e4a3a; border: none; border-radius: 50%; color: rgba(255,255,255,.45); font-size: .9rem; cursor: pointer; margin: 6px auto; transition: background .15s, transform .1s; flex-shrink: 0; }
+  .add-btn:hover { background: var(--available); color: #fff; transform: scale(1.1); }
+  .add-btn.overlay { position: absolute; bottom: 3px; right: 3px; z-index: 3; width: 17px; height: 17px; font-size: .65rem; margin: 0; }
+
+  /* ── Overview ── */
+  .overview-wrap { flex: 1; overflow-x: auto; padding: 14px 20px 28px; }
+  .ov-cal { border: 2px solid var(--accent); border-radius: 4px; overflow: hidden; min-width: 500px; width: 100%; table-layout: fixed; border-collapse: collapse; }
+  .ov-cal thead tr { background: #2e4a3a; }
+  .ov-cal thead th { padding: 9px 5px; font-size: .74rem; font-weight: 700; text-align: center; border-right: 1px solid rgba(90,154,128,.3); color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; }
+  .ov-cal thead th.week-th { width: 52px; background: var(--week-col); }
+  .ov-cal thead th.day-th { color: var(--text); }
+  .ov-cal tbody tr { border-top: 1px solid rgba(255,255,255,.04); }
+  .ov-cal td { vertical-align: top; border-right: 1px solid rgba(90,154,128,.13); padding: 0; position: relative; }
+  .ov-time-cell { width: 52px; background: var(--time-col); color: var(--text-muted); font-size: .7rem; text-align: right; padding: 5px 6px 0 0; border-right: 1px solid var(--accent) !important; white-space: nowrap; vertical-align: top; user-select: none; height: var(--row-h); }
+  .ov-cell { height: var(--row-h); padding: 2px; position: relative; }
+  .ov-block { position: absolute; left: 2px; right: 2px; top: 2px; bottom: 2px; border-radius: 5px; padding: 3px 5px; font-size: .7rem; font-weight: 700; text-align: center; z-index: 2; display: flex; align-items: center; justify-content: center; line-height: 1.3; overflow: hidden; }
+  .ov-block.avail { background: var(--available); color: #c8ecd6; }
+  .ov-block.nobody { background: var(--unavailable); color: #ecc8c8; }
+
+  /* ── Modal ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.72); z-index: 100; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--modal-bg); border: 2px solid var(--accent); border-radius: 10px; width: 310px; max-width: 94vw; padding: 22px; position: relative; }
+  .modal h2 { font-size: .93rem; margin-bottom: 14px; color: var(--accent); }
+  .modal label { display: block; font-size: .77rem; color: var(--text-muted); margin: 10px 0 3px; }
+  .modal input, .modal select { width: 100%; background: var(--input-bg); border: 1px solid rgba(90,154,128,.45); border-radius: 6px; color: var(--text); padding: 7px 9px; font-size: .87rem; }
+  .modal input:focus, .modal select:focus { outline: 2px solid var(--accent); }
+  .modal-row { display: flex; gap: 10px; }
+  .modal-row > div { flex: 1; }
+  .modal-actions { display: flex; gap: 8px; margin-top: 15px; }
+  .btn { flex: 1; padding: 8px; border: none; border-radius: 7px; font-size: .82rem; font-weight: 700; cursor: pointer; transition: filter .15s; }
+  .btn:hover:not(:disabled) { filter: brightness(1.15); }
+  .btn:disabled { opacity: .55; cursor: wait; }
+  .btn-avail { background: var(--available); color: #c8ecd6; }
+  .btn-unavail { background: var(--unavailable); color: #ecc8c8; }
+  .btn-cancel { background: #333; color: var(--text-muted); }
+  .btn-delete { background: #5a2222; color: #ecc8c8; flex: 0 0 auto; padding: 8px 12px; }
+  .modal-close { position: absolute; top: 10px; right: 12px; background: none; border: none; color: var(--text-muted); font-size: 1.1rem; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<!-- ── Setup overlay (Firebase URL) ── -->
+<div class="overlay" id="setupOverlay">
+  <div class="overlay-box">
+    <h1>&#128197; Wanneer kunnen we?</h1>
+    <p class="sub">Verbind eenmalig een gratis Firebase database. Daarna kunnen al jouw vrienden hetzelfde bestand openen, hun beschikbaarheid invullen en het groepsoverzicht zien.</p>
+
+    <details class="guide">
+      <summary>&#128203; Hoe maak ik een gratis Firebase database? (~5 min)</summary>
+      <div class="guide-body">
+        <h3>Stap 1 — Maak een Firebase project</h3>
+        <ol>
+          <li>Ga naar <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> en log in</li>
+          <li>Klik op <b>"Project toevoegen"</b> en geef het een naam</li>
+          <li>Schakel Google Analytics <b>uit</b> &#8594; klik <b>"Project maken"</b></li>
+        </ol>
+        <h3>Stap 2 — Maak een Realtime Database</h3>
+        <ol>
+          <li>Klik links op <b>"Build"</b> &#8594; <b>"Realtime Database"</b></li>
+          <li>Klik <b>"Database aanmaken"</b>, kies locatie, kies <b>"In testmodus starten"</b></li>
+        </ol>
+        <h3>Stap 3 — Stel de beveiligingsregels in</h3>
+        <ol>
+          <li>Ga naar tabblad <b>"Regels"</b> en vervang alles met:
+            <pre>{"rules": {".read": true, ".write": true}}</pre>
+          </li>
+          <li>Klik <b>"Publiceren"</b></li>
+        </ol>
+        <h3>Stap 4 — Kopieer de database URL</h3>
+        <ol>
+          <li>Ga naar tabblad <b>"Data"</b></li>
+          <li>Kopieer de URL bovenaan (bijv. <code>https://project-default-rtdb.firebaseio.com</code>)</li>
+        </ol>
+        <p class="guide-note">&#128228; Stuur dit HTML-bestand + de URL naar je vrienden. Zij vullen de URL eenmalig in en kunnen meteen starten.</p>
+      </div>
+    </details>
+
+    <hr class="div">
+    <label for="setupUrl">Firebase Database URL</label>
+    <input type="url" id="setupUrl" placeholder="https://jouw-project-default-rtdb.firebaseio.com">
+    <button class="action-btn" id="setupBtn">Verbinden &#8594;</button>
+    <div class="overlay-error" id="setupError"></div>
+  </div>
+</div>
+
+<!-- ── User selection overlay ── -->
+<div class="overlay" id="userOverlay">
+  <div class="overlay-box">
+    <h1>&#128075; Wie ben je?</h1>
+    <p class="sub">Selecteer jouw naam of maak een nieuw account aan. Elke gebruiker heeft een eigen persoonlijke planning.</p>
+
+    <div class="user-grid" id="userGrid">
+      <span class="user-card empty-hint">Laden&#8230;</span>
+    </div>
+
+    <hr class="div">
+    <p style="font-size:.82rem; color:var(--text-muted); margin-bottom:10px;">Nieuw account aanmaken:</p>
+    <div class="new-user-row">
+      <input type="text" id="newUserInput" placeholder="Jouw naam&#8230;" maxlength="20">
+      <button class="btn-create" id="newUserBtn">+ Aanmaken</button>
+    </div>
+    <div class="overlay-error" id="userError"></div>
+  </div>
+</div>
+
+<!-- ── App ── -->
+<header class="site-header">
+  <h1>Wanneer <span>kunnen we?</span></h1>
+  <div class="user-area">
+    <div class="user-badge" id="userBadge" title="Klik om van gebruiker te wisselen">
+      <div class="user-avatar" id="userAvatar">?</div>
+      <div>
+        <div class="user-name" id="userNameDisplay">-</div>
+        <div class="user-switch">wissel &#8595;</div>
+      </div>
+    </div>
+    <button class="icon-btn" id="settingsBtn" title="Database-instellingen">&#9881;&#65039;</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" data-tab="invoer">&#128197; Mijn beschikbaarheid</button>
+  <button class="tab-btn" data-tab="overview">&#128101; Groepsoverzicht</button>
+</div>
+
+<div class="status-bar">
+  <span id="statusText">Verbinding maken&#8230;</span>
+  <button class="sync-btn" id="syncBtn">&#8635; Vernieuwen</button>
+</div>
+
+<!-- Invoer tab -->
+<div class="tab-panel active" id="tab-invoer">
+  <nav class="week-nav">
+    <button id="prevWeek">&#8249;</button>
+    <span class="week-label" id="weekLabel"></span>
+    <button id="nextWeek">&#8250;</button>
+  </nav>
+  <div class="cal-wrap">
+    <table class="calendar"><thead id="calHead"></thead><tbody id="calBody"></tbody></table>
+  </div>
+</div>
+
+<!-- Overview tab -->
+<div class="tab-panel" id="tab-overview">
+  <nav class="week-nav">
+    <button id="prevWeekOv">&#8249;</button>
+    <span class="week-label" id="weekLabelOv"></span>
+    <button id="nextWeekOv">&#8250;</button>
+  </nav>
+  <div class="overview-wrap">
+    <table class="ov-cal"><thead id="ovHead"></thead><tbody id="ovBody"></tbody></table>
+  </div>
+</div>
+
+<!-- Availability modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" id="modalClose">&#10005;</button>
+    <h2 id="modalTitle">Beschikbaarheid toevoegen</h2>
+    <div class="modal-row">
+      <div><label>Van</label><select id="modalFrom"></select></div>
+      <div><label>Tot</label><select id="modalTo"></select></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-avail" id="btnAvail">&#10003; Beschikbaar</button>
+      <button class="btn btn-unavail" id="btnUnavail">&#10005; Niet beschikbaar</button>
+      <button class="btn btn-cancel" id="btnCancel">Annuleer</button>
+    </div>
+    <div class="modal-actions" id="deleteRow" style="display:none; margin-top:4px;">
+      <button class="btn btn-delete" id="btnDelete">&#128465; Verwijderen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Constants & State ─────────────────────────────────────────────────────────
+const DEFAULT_URL = 'https://beschikbaarheid-841a9-default-rtdb.europe-west1.firebasedatabase.app';
+const LS_URL  = 'avail_firebase_url';
+const LS_DATA = 'avail_v3';
+const LS_USER = 'avail_user';
+
+let FIREBASE_URL = localStorage.getItem(LS_URL) || DEFAULT_URL;
+// entries = {dateKey: [{name, type, from, to, _id}]}
+let entries     = JSON.parse(localStorage.getItem(LS_DATA) || '{}');
+let currentUser = localStorage.getItem(LS_USER) || '';
+let weekStart   = getMonday(new Date());
+let weekStartOv = getMonday(new Date());
+let modalCtx    = null;
+let refreshTimer = null;
+
+const HOURS = [];
+for (let h = 7; h <= 22; h++) HOURS.push(String(h).padStart(2,'0') + ':00');
+const DAYS_NL = ['Maandag','Dinsdag','Woensdag','Donderdag','Vrijdag','Zaterdag','Zondag'];
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function getMonday(d) {
+  const r = new Date(d); r.setHours(0,0,0,0);
+  r.setDate(r.getDate() + (r.getDay() === 0 ? -6 : 1 - r.getDay()));
+  return r;
+}
+function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
+function dkey(d) { return d.toISOString().slice(0, 10); }
+function weekDays(ws) { return Array.from({length:7}, (_,i) => addDays(ws, i)); }
+function getWeekNum(d) {
+  const u = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  u.setUTCDate(u.getUTCDate() + 4 - (u.getUTCDay() || 7));
+  const y = new Date(Date.UTC(u.getUTCFullYear(), 0, 1));
+  return Math.ceil((((u - y) / 86400000) + 1) / 7);
+}
+function hi(h) { return HOURS.indexOf(h); }
+function getAllNames() {
+  const s = new Set();
+  Object.values(entries).forEach(arr => arr.forEach(e => s.add(e.name)));
+  return [...s];
+}
+function weekLabel(ws) {
+  const days = weekDays(ws);
+  const o = {day:'numeric', month:'long'};
+  return 'Week ' + getWeekNum(ws) + ' \u00B7 ' + days[0].toLocaleDateString('nl-NL', o) + ' \u2013 ' + days[6].toLocaleDateString('nl-NL', o);
+}
+function initials(name) { return name.trim().slice(0, 2).toUpperCase(); }
+
+// ── Firebase ──────────────────────────────────────────────────────────────────
+function fbBase() { return FIREBASE_URL.replace(/\/$/, ''); }
+async function fbGet(path) {
+  const r = await fetch(fbBase() + path + '.json');
+  if (r.status === 401 || r.status === 403) throw new Error('Toegang geweigerd \u2014 controleer de Firebase-beveiligingsregels');
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+async function fbPost(path, data) {
+  const r = await fetch(fbBase() + path + '.json', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+async function fbPut(path, data) {
+  const r = await fetch(fbBase() + path + '.json', {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+async function fbDelete(path) {
+  const r = await fetch(fbBase() + path + '.json', {method:'DELETE'});
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+}
+
+// ── Data ──────────────────────────────────────────────────────────────────────
+async function loadAll(quiet) {
+  if (!quiet) setStatus('Laden\u2026', true);
+  try {
+    const data = await fbGet('/entries');
+    entries = {};
+    if (data) {
+      Object.entries(data).forEach(([dk, de]) => {
+        if (!de) return;
+        entries[dk] = Object.entries(de).map(([id, e]) => Object.assign({}, e, {_id: id}));
+      });
+    }
+    localStorage.setItem(LS_DATA, JSON.stringify(entries));
+    const t = new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'});
+    setStatus('\u2713 Bijgewerkt om ' + t, false);
+    renderInvoer();
+    renderOverview();
+  } catch (err) {
+    setStatus('\u274C ' + err.message, false);
+  }
+}
+
+function setStatus(msg, loading) {
+  document.getElementById('statusText').textContent = msg;
+  const btn = document.getElementById('syncBtn');
+  btn.disabled = loading;
+  btn.textContent = loading ? '\u21BB Laden\u2026' : '\u21BB Vernieuwen';
+}
+
+function startAutoRefresh() {
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(() => loadAll(true), 30000);
+}
+
+// ── Calendar head ─────────────────────────────────────────────────────────────
+function buildHead(days, ws) {
+  const tr = document.createElement('tr');
+  const wth = document.createElement('th');
+  wth.className = 'week-th';
+  wth.innerHTML = '<span style="font-size:.63rem">Week</span><br>' + getWeekNum(ws);
+  tr.appendChild(wth);
+  days.forEach((d, i) => {
+    const th = document.createElement('th'); th.className = 'day-th';
+    const today = dkey(d) === dkey(new Date());
+    const style = today ? 'color:#fff;background:var(--accent);border-radius:4px;padding:0 3px;' : '';
+    th.innerHTML = '<span class="day-name">' + DAYS_NL[i] + '</span><span class="day-num" style="' + style + '">' + d.getDate() + '</span>';
+    tr.appendChild(th);
+  });
+  return tr;
+}
+
+// ── Invoer calendar (personal — only current user) ───────────────────────────
+function renderInvoer() {
+  if (!currentUser) return;
+  document.getElementById('weekLabel').textContent = weekLabel(weekStart);
+  const days = weekDays(weekStart);
+
+  document.getElementById('calHead').innerHTML = '';
+  document.getElementById('calHead').appendChild(buildHead(days, weekStart));
+
+  // Only current user's entries, but keep original index in entries[dk] for CRUD
+  const covered   = Array.from({length:7}, () => ({}));
+  const blockList = Array.from({length:7}, () => []);
+
+  days.forEach((d, di) => {
+    const dk = dkey(d);
+    (entries[dk] || []).forEach((e, idx) => {
+      if (e.name !== currentUser) return;  // <-- personal filter
+      const fi = hi(e.from);
+      if (fi < 0) return;
+      const ti = hi(e.to);
+      const span = Math.max(1, ti > fi ? ti - fi : 1);
+      blockList[di].push({e, ei: idx, dk, fi, span});
+      for (let r = fi; r < fi + span; r++) covered[di][r] = true;
+    });
+  });
+
+  const body = document.getElementById('calBody');
+  body.innerHTML = '';
+
+  HOURS.forEach((hour, hIdx) => {
+    const row = document.createElement('tr');
+    const tc = document.createElement('td');
+    tc.className = 'time-cell'; tc.textContent = hour;
+    row.appendChild(tc);
+
+    days.forEach((d, di) => {
+      const dk = dkey(d);
+      if (covered[di][hIdx] && !blockList[di].find(b => b.fi === hIdx)) return;
+
+      const td = document.createElement('td'); td.className = 'day-cell';
+      const block = blockList[di].find(b => b.fi === hIdx);
+
+      if (block) {
+        td.rowSpan = block.span;
+        const div = document.createElement('div');
+        div.className = 'span-block ' + block.e.type;
+        div.innerHTML = '<span>' + block.e.name + '</span><span class="block-time">' + block.e.from + '\u2013' + block.e.to + '</span>';
+        div.title = 'Klik om te bewerken';
+        div.onclick = () => openModal(dk, block.e.from, block.ei);
+        td.appendChild(div);
+        const aBtn = makeAddBtn(() => openModal(dk, hour));
+        aBtn.classList.add('overlay');
+        td.appendChild(aBtn);
+      } else {
+        td.classList.add('clickable');
+        const aBtn = makeAddBtn(() => openModal(dk, hour));
+        td.appendChild(aBtn);
+        td.onclick = () => openModal(dk, hour);
+      }
+      row.appendChild(td);
+    });
+    body.appendChild(row);
+  });
+}
+
+function makeAddBtn(onClick) {
+  const btn = document.createElement('button');
+  btn.className = 'add-btn'; btn.textContent = '+'; btn.title = 'Beschikbaarheid toevoegen';
+  btn.onclick = ev => { ev.stopPropagation(); onClick(); };
+  return btn;
+}
+
+// ── Overview calendar (all users combined) ────────────────────────────────────
+function renderOverview() {
+  document.getElementById('weekLabelOv').textContent = weekLabel(weekStartOv);
+  const days = weekDays(weekStartOv);
+
+  document.getElementById('ovHead').innerHTML = '';
+  document.getElementById('ovHead').appendChild(buildHead(days, weekStartOv));
+
+  // Per day+hour: who is available / unavailable
+  const ovData = days.map(d => {
+    const dk = dkey(d);
+    return HOURS.map((_, hIdx) => {
+      const avail = [], unavail = [];
+      (entries[dk] || []).forEach(e => {
+        const fi = hi(e.from), ti = hi(e.to);
+        if (fi < 0) return;
+        const end = Math.max(fi + 1, ti);
+        if (hIdx >= fi && hIdx < end) (e.type === 'avail' ? avail : unavail).push(e.name);
+      });
+      return {avail, unavail};
+    });
+  });
+
+  // Merge consecutive rows with identical available-set into one rowspan block
+  function mergeBlocks(di, getKey) {
+    const blocks = []; let hIdx = 0;
+    while (hIdx < HOURS.length) {
+      const key = getKey(ovData[di][hIdx]);
+      if (!key) { hIdx++; continue; }
+      let span = 1;
+      while (hIdx + span < HOURS.length && getKey(ovData[di][hIdx + span]) === key) span++;
+      blocks.push({fromHi: hIdx, span, key});
+      hIdx += span;
+    }
+    return blocks;
+  }
+
+  const ovBlocks = days.map((_, di) =>
+    mergeBlocks(di, ({avail}) => avail.length > 0 ? [...avail].sort().join(',') : null)
+  );
+  const nbBlocks = days.map((_, di) =>
+    mergeBlocks(di, ({avail, unavail}) => avail.length === 0 && unavail.length > 0 ? 'nobody' : null)
+  );
+
+  const covOv = Array.from({length:7}, () => ({}));
+  const covNb = Array.from({length:7}, () => ({}));
+  days.forEach((_, di) => {
+    ovBlocks[di].forEach(b => { for (let r = b.fromHi; r < b.fromHi + b.span; r++) covOv[di][r] = true; });
+    nbBlocks[di].forEach(b => { for (let r = b.fromHi; r < b.fromHi + b.span; r++) covNb[di][r] = true; });
+  });
+
+  const body = document.getElementById('ovBody'); body.innerHTML = '';
+
+  HOURS.forEach((_, hIdx) => {
+    const row = document.createElement('tr');
+    const tc = document.createElement('td'); tc.className = 'ov-time-cell'; tc.textContent = HOURS[hIdx];
+    row.appendChild(tc);
+
+    days.forEach((_, di) => {
+      const skipOv = covOv[di][hIdx] && !ovBlocks[di].find(b => b.fromHi === hIdx);
+      const skipNb = covNb[di][hIdx] && !nbBlocks[di].find(b => b.fromHi === hIdx);
+      if (skipOv || skipNb) return;
+
+      const td = document.createElement('td'); td.className = 'ov-cell';
+      const ovB = ovBlocks[di].find(b => b.fromHi === hIdx);
+      const nbB = nbBlocks[di].find(b => b.fromHi === hIdx);
+
+      if (ovB) {
+        td.rowSpan = ovB.span;
+        const div = document.createElement('div'); div.className = 'ov-block avail';
+        div.textContent = ovB.key.split(',').join(', ');
+        td.appendChild(div);
+      } else if (nbB) {
+        td.rowSpan = nbB.span;
+        const div = document.createElement('div'); div.className = 'ov-block nobody';
+        div.textContent = 'Niemand beschikbaar';
+        td.appendChild(div);
+      }
+      row.appendChild(td);
+    });
+    body.appendChild(row);
+  });
+}
+
+// ── Modal ─────────────────────────────────────────────────────────────────────
+function openModal(dk, fromHour, existingIdx = null) {
+  modalCtx = {dk, fromHour, existingIdx};
+  const fromSel = document.getElementById('modalFrom');
+  const toSel   = document.getElementById('modalTo');
+  fromSel.innerHTML = ''; toSel.innerHTML = '';
+  HOURS.forEach(h => { fromSel.appendChild(new Option(h, h)); toSel.appendChild(new Option(h, h)); });
+  fromSel.value = fromHour;
+  toSel.selectedIndex = Math.min(hi(fromHour) + 1, HOURS.length - 1);
+
+  if (existingIdx !== null) {
+    const e = (entries[dk] || [])[existingIdx];
+    if (e) { fromSel.value = e.from; toSel.value = e.to; }
+  }
+
+  document.getElementById('modalTitle').textContent = existingIdx !== null
+    ? 'Beschikbaarheid bewerken (' + currentUser + ')'
+    : 'Beschikbaarheid toevoegen (' + currentUser + ')';
+  document.getElementById('deleteRow').style.display = existingIdx !== null ? '' : 'none';
+  setModalBtns(false);
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); modalCtx = null; }
+
+function setModalBtns(loading) {
+  ['btnAvail','btnUnavail','btnCancel','btnDelete'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.disabled = loading;
+  });
+}
+
+async function submitModal(type) {
+  const from = document.getElementById('modalFrom').value;
+  const to   = document.getElementById('modalTo').value;
+  const {dk, existingIdx} = modalCtx;
+  const data = {name: currentUser, type, from, to};
+  setModalBtns(true);
+  try {
+    if (existingIdx !== null) {
+      const old = (entries[dk] || [])[existingIdx];
+      await fbPut('/entries/' + dk + '/' + old._id, data);
+      entries[dk][existingIdx] = Object.assign({}, data, {_id: old._id});
+    } else {
+      const res = await fbPost('/entries/' + dk, data);
+      if (!entries[dk]) entries[dk] = [];
+      entries[dk].push(Object.assign({}, data, {_id: res.name}));
+    }
+    localStorage.setItem(LS_DATA, JSON.stringify(entries));
+    closeModal(); renderInvoer(); renderOverview();
+  } catch (err) { setModalBtns(false); alert('\u274C Opslaan mislukt: ' + err.message); }
+}
+
+async function deleteEntry() {
+  const {dk, existingIdx} = modalCtx;
+  if (existingIdx === null || !entries[dk]) { closeModal(); return; }
+  const old = entries[dk][existingIdx];
+  setModalBtns(true);
+  try {
+    await fbDelete('/entries/' + dk + '/' + old._id);
+    entries[dk].splice(existingIdx, 1);
+    if (!entries[dk].length) delete entries[dk];
+    localStorage.setItem(LS_DATA, JSON.stringify(entries));
+    closeModal(); renderInvoer(); renderOverview();
+  } catch (err) { setModalBtns(false); alert('\u274C Verwijderen mislukt: ' + err.message); }
+}
+
+// ── User selection ────────────────────────────────────────────────────────────
+function showUserOverlay() {
+  const grid = document.getElementById('userGrid');
+  const names = getAllNames();
+  grid.innerHTML = '';
+  if (names.length === 0) {
+    grid.innerHTML = '<span class="user-card empty-hint">Nog geen gebruikers \u2014 maak hieronder een account aan.</span>';
+  } else {
+    names.forEach(name => {
+      const btn = document.createElement('button');
+      btn.className = 'user-card';
+      btn.textContent = name;
+      btn.onclick = () => selectUser(name);
+      grid.appendChild(btn);
+    });
+  }
+  document.getElementById('userError').textContent = '';
+  document.getElementById('newUserInput').value = '';
+  document.getElementById('userOverlay').classList.add('open');
+}
+
+function selectUser(name) {
+  currentUser = name;
+  localStorage.setItem(LS_USER, name);
+  document.getElementById('userOverlay').classList.remove('open');
+  updateUserDisplay();
+  renderInvoer();
+}
+
+function updateUserDisplay() {
+  document.getElementById('userAvatar').textContent = initials(currentUser);
+  document.getElementById('userNameDisplay').textContent = currentUser;
+}
+
+document.getElementById('newUserBtn').onclick = () => {
+  const name = document.getElementById('newUserInput').value.trim();
+  const errEl = document.getElementById('userError');
+  if (!name) { errEl.textContent = '\u274C Voer een naam in.'; return; }
+  if (getAllNames().map(n => n.toLowerCase()).includes(name.toLowerCase())) {
+    errEl.textContent = '\u274C Deze naam bestaat al. Selecteer hem hierboven.'; return;
+  }
+  selectUser(name);
+};
+
+document.getElementById('newUserInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('newUserBtn').click();
+});
+
+document.getElementById('userBadge').onclick = () => showUserOverlay();
+
+// ── Setup (Firebase URL) ──────────────────────────────────────────────────────
+function showSetup() {
+  document.getElementById('setupUrl').value = FIREBASE_URL;
+  document.getElementById('setupError').textContent = '';
+  document.getElementById('setupOverlay').classList.add('open');
+}
+
+document.getElementById('setupBtn').onclick = async () => {
+  const url = document.getElementById('setupUrl').value.trim().replace(/\/$/, '');
+  const errEl = document.getElementById('setupError');
+  if (!url.startsWith('https://')) { errEl.textContent = '\u274C Voer een geldige Firebase URL in (begint met https://)'; return; }
+  errEl.textContent = '\u23F3 Verbinding testen\u2026';
+  document.getElementById('setupBtn').disabled = true;
+  try {
+    const r = await fetch(url + '/entries.json');
+    if (r.status === 401 || r.status === 403) throw new Error('Toegang geweigerd \u2014 stel de Firebase-beveiligingsregels in');
+    if (!r.ok && r.status !== 404) throw new Error('HTTP ' + r.status);
+    FIREBASE_URL = url;
+    localStorage.setItem(LS_URL, url);
+    document.getElementById('setupOverlay').classList.remove('open');
+    document.getElementById('setupBtn').disabled = false;
+    startAutoRefresh();
+    await loadAll();
+    if (!currentUser) showUserOverlay();
+  } catch (err) {
+    errEl.textContent = '\u274C ' + err.message;
+    document.getElementById('setupBtn').disabled = false;
+  }
+};
+
+document.getElementById('settingsBtn').onclick = showSetup;
+
+// ── Events ────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  };
+});
+
+document.getElementById('prevWeek').onclick    = () => { weekStart   = addDays(weekStart,   -7); renderInvoer(); };
+document.getElementById('nextWeek').onclick    = () => { weekStart   = addDays(weekStart,    7); renderInvoer(); };
+document.getElementById('prevWeekOv').onclick  = () => { weekStartOv = addDays(weekStartOv, -7); renderOverview(); };
+document.getElementById('nextWeekOv').onclick  = () => { weekStartOv = addDays(weekStartOv,  7); renderOverview(); };
+document.getElementById('syncBtn').onclick     = () => loadAll();
+document.getElementById('modalClose').onclick  = closeModal;
+document.getElementById('btnCancel').onclick   = closeModal;
+document.getElementById('btnAvail').onclick    = () => submitModal('avail');
+document.getElementById('btnUnavail').onclick  = () => submitModal('unavail');
+document.getElementById('btnDelete').onclick   = deleteEntry;
+document.getElementById('modalOverlay').onclick = e => { if (e.target === document.getElementById('modalOverlay')) closeModal(); };
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+renderInvoer();
+renderOverview();
+
+if (currentUser) updateUserDisplay();
+
+startAutoRefresh();
+loadAll().then(() => {
+  if (!currentUser) showUserOverlay();
+});
+</script>
+</body>
+</html>
