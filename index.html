@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html class="dark" lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>FeinyAhPlanning</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<style>
+.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;display:inline-block;line-height:1;text-transform:none;letter-spacing:normal;word-wrap:normal;white-space:nowrap}
+body{background:#121212;color:#e5e2e1;font-family:'Inter',system-ui,sans-serif;overflow-x:hidden}
+.mono{font-family:'JetBrains Mono',monospace}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#121212}
+::-webkit-scrollbar-thumb{background:#353534;border-radius:10px}
+::-webkit-scrollbar-thumb:hover{background:#4ADE80}
+::-webkit-scrollbar-button{display:none}
+.glass-card{background:rgba(26,26,26,.6);backdrop-filter:blur(12px);border:1px solid #2A2A2A}
+.scheduler-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:#2A2A2A;border:1px solid #2A2A2A}
+.scheduler-cell{background:#1A1A1A;min-height:80px;transition:all .2s ease}
+.scheduler-cell:hover{background:#242424;outline:2px solid #4ADE80;outline-offset:-2px;z-index:10}
+/* Nav */
+.nav-link{display:flex;align-items:center;gap:16px;padding:8px 16px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:#bccabb;transition:all .2s;text-decoration:none;cursor:pointer;border:none;background:none;width:100%}
+.nav-link:hover{background:#353534;color:#e5e2e1}
+.nav-link.active{background:#4ade80;color:#003919}
+/* Pages */
+.page{display:none;flex-direction:column;min-height:0}
+.page.active{display:flex;flex:1;min-height:0}
+/* Overlays */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;overflow-y:auto;padding:24px 16px 40px;justify-content:center;align-items:flex-start}
+.overlay.open{display:flex}
+.obox{background:#1c1b1b;border:1px solid #3d4a3e;border-radius:16px;width:500px;max-width:100%;padding:28px;margin:auto}
+.otabs{display:flex;border-bottom:1px solid #3d4a3e;margin-bottom:20px}
+.otab{flex:1;padding:10px;background:none;border:none;color:#bccabb;font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.otab.active{color:#4ade80;border-bottom-color:#4ade80}
+.ofield{width:100%;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:8px;color:#e5e2e1;padding:10px 12px;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;box-sizing:border-box}
+.ofield:focus{border-color:#4ade80}
+.ofield select{appearance:none}
+.olabel{display:block;font-size:11px;color:#bccabb;margin:12px 0 4px;text-transform:uppercase;letter-spacing:.05em;font-family:'JetBrains Mono',monospace}
+.btn-primary{background:#4ade80;color:#003919;border:none;border-radius:10px;padding:12px 20px;font-size:14px;font-weight:700;cursor:pointer;transition:filter .15s;width:100%;margin-top:14px}
+.btn-primary:hover:not(:disabled){filter:brightness(1.1)}
+.btn-primary:disabled{opacity:.6;cursor:wait}
+.btn-secondary{background:#201f1f;color:#bccabb;border:1px solid #3d4a3e;border-radius:10px;padding:10px 20px;font-size:14px;cursor:pointer;width:100%;margin-top:8px;transition:all .15s}
+.btn-secondary:hover{background:#2a2a2a}
+.btn-danger{background:#93000a;color:#ffdad6;border:none;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;transition:filter .15s}
+.btn-danger:hover{filter:brightness(1.15)}
+.oerr{font-size:12px;color:#ffb4ab;margin-top:8px;min-height:16px}
+.oinfo{font-size:12px;color:#4ade80;margin-top:8px;min-height:16px}
+.odivider{border:none;border-top:1px solid #3d4a3e;margin:16px 0}
+.pw-wrap{position:relative}
+.pw-wrap .ofield{padding-right:42px}
+.pw-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:#869486;cursor:pointer;font-size:13px}
+/* Confirm */
+.confirm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;align-items:center;justify-content:center;padding:20px}
+.confirm-overlay.open{display:flex}
+.confirm-box{background:#1c1b1b;border:1px solid #93000a;border-radius:14px;width:320px;max-width:100%;padding:24px;text-align:center}
+/* Calendar grid */
+.cal-table{border-collapse:collapse;width:100%;table-layout:fixed}
+.cal-table th,.cal-table td{border:1px solid #2a2a2a}
+.cal-table th{background:#1a1a1a;padding:10px 4px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:#869486;text-align:center}
+.cal-table .time-cell{background:#0f0f0f;font-family:'JetBrains Mono',monospace;font-size:10px;color:#869486;text-align:right;padding:0 8px;height:48px;width:56px;vertical-align:top;padding-top:6px;position:sticky;left:0;z-index:1;border-right:1px solid #3d4a3e!important}
+.cal-table .day-cell{height:48px;vertical-align:top;position:relative;cursor:pointer;transition:background .1s;background:#1a1a1a}
+.cal-table .day-cell:hover{background:#242424;outline:2px solid #4ade80;outline-offset:-2px;z-index:5}
+.span-block{position:absolute;left:3px;right:3px;top:3px;bottom:3px;border-radius:8px;padding:4px 8px;font-size:11px;font-weight:700;cursor:pointer;z-index:2;display:flex;flex-direction:column;justify-content:center;transition:filter .15s;overflow:hidden}
+.span-block:hover{filter:brightness(1.15)}
+.span-block.avail{background:rgba(74,222,128,.15);border-left:3px solid #4ade80;color:#4ade80}
+.span-block.unavail{background:rgba(160,82,82,.15);border-left:3px solid #a05252;color:#ffd7d5}
+.add-cell-btn{display:flex;align-items:center;justify-content:center;width:22px;height:22px;background:rgba(74,222,128,.06);border:1px dashed #2a2a2a;border-radius:6px;color:#2a2a2a;font-size:16px;cursor:pointer;margin:10px auto;transition:all .15s;line-height:1}
+.day-cell:hover .add-cell-btn{border-color:#4ade80;color:#4ade80;background:rgba(74,222,128,.12)}
+.ov-block{position:absolute;left:3px;right:3px;top:3px;bottom:3px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;text-align:center;overflow:hidden;padding:3px}
+.ov-block.avail{background:rgba(74,222,128,.2);border:1px solid rgba(74,222,128,.3);color:#4ade80}
+.ov-block.nobody{background:rgba(160,82,82,.15);border:1px solid rgba(160,82,82,.25);color:#ffd7d5}
+/* Activity card */
+.activity-card{background:#1c1b1b;border:1px solid #3d4a3e;border-radius:12px;padding:16px;display:flex;gap:16px;transition:border-color .2s;cursor:default}
+.activity-card:hover{border-color:rgba(74,222,128,.5)}
+.activity-icon{width:48px;height:48px;border-radius:8px;background:#2a2a2a;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+/* Group card */
+.group-card{background:#1c1b1b;border:1px solid #3d4a3e;border-radius:12px;padding:16px;transition:border-color .2s;cursor:pointer}
+.group-card:hover{border-color:#4ade80}
+/* Event card */
+.event-card{background:#1c1b1b;border:1px solid #3d4a3e;border-radius:12px;padding:16px;transition:border-color .2s}
+.event-card:hover{border-color:rgba(74,222,128,.5)}
+/* Recur */
+.day-toggle{padding:8px 4px;border:1px solid #3d4a3e;border-radius:8px;background:none;color:#869486;font-size:11px;font-weight:700;cursor:pointer;text-align:center;transition:all .15s;min-height:36px;font-family:'JetBrains Mono',monospace}
+.day-toggle.on{background:#005e2d;border-color:#4ade80;color:#4ade80}
+/* Mobile */
+.mob-slide{flex:0 0 100%;height:100%;overflow-y:auto;padding:14px 14px 80px}
+@media(max-width:767px){
+  .desktop-only{display:none!important}
+  .mob-day-view{display:flex!important;flex-direction:column;flex:1;overflow:hidden}
+  .mob-cal-view{display:none!important}
+}
+@media(min-width:768px){
+  .mob-day-view{display:none!important}
+  .mob-cal-view{display:flex;flex-direction:column;flex:1;overflow:hidden}
+  .mobile-nav-bar{display:none!important}
+}
+</style>
+<script>
+tailwind.config={darkMode:'class',theme:{extend:{colors:{'primary':'#6bfb9a','primary-container':'#4ade80','on-primary':'#003919','on-primary-container':'#005e2d','surface':'#131313','surface-container-low':'#1c1b1b','surface-container':'#201f1f','surface-container-high':'#2a2a2a','surface-container-highest':'#353534','surface-container-lowest':'#0e0e0e','on-surface':'#e5e2e1','on-surface-variant':'#bccabb','outline':'#869486','outline-variant':'#3d4a3e','secondary':'#b5ccc0','secondary-container':'#394d44','on-secondary-container':'#a7beb2','tertiary':'#ffd7d5','tertiary-container':'#ffb0ae','on-tertiary-container':'#833b3c','error':'#ffb4ab','error-container':'#93000a','background':'#131313','inverse-primary':'#006d36','surface-variant':'#353534'},fontFamily:{'label-caps':['JetBrains Mono'],'headline-md':['Inter'],'body-md':['Inter'],'title-sm':['Inter'],'display-lg':['Inter'],'body-sm-mobile':['Inter']},fontSize:{'label-caps':['12px',{lineHeight:'1.0',letterSpacing:'0.05em',fontWeight:'500'}],'headline-md':['24px',{lineHeight:'1.3',fontWeight:'600'}],'body-md':['14px',{lineHeight:'1.6',fontWeight:'400'}],'title-sm':['16px',{lineHeight:'1.5',fontWeight:'600'}],'display-lg':['32px',{lineHeight:'1.2',letterSpacing:'-0.02em',fontWeight:'700'}],'body-sm-mobile':['13px',{lineHeight:'1.5',fontWeight:'400'}]},borderRadius:{DEFAULT:'0.25rem',lg:'0.5rem',xl:'0.75rem',full:'9999px'}}}}
+</script>
+</head>
+<body class="flex flex-col md:flex-row h-screen overflow-hidden">
+
+<!-- ═══════ OVERLAYS ═══════ -->
+
+<!-- Auth -->
+<div class="overlay open" id="authOverlay">
+<div class="obox" style="max-width:400px">
+  <div style="text-align:center;margin-bottom:20px">
+    <div style="font-size:26px;font-weight:900;letter-spacing:-.02em"><span style="color:#4ade80">FeinyAh</span><span style="color:#e5e2e1">Planning</span></div>
+    <div style="font-size:12px;color:#869486;margin-top:4px;font-family:'JetBrains Mono',monospace">Plan samen met je vrienden</div>
+  </div>
+  <div class="otabs">
+    <button class="otab active" id="tabLogin" >Inloggen</button>
+    <button class="otab" id="tabReg" >Account aanmaken</button>
+  </div>
+  <div id="loginForm">
+    <label class="olabel">E-mailadres</label>
+    <input class="ofield" type="email" id="loginEmail" placeholder="jouw@email.com" autocomplete="email">
+    <label class="olabel">Wachtwoord</label>
+    <div class="pw-wrap"><input class="ofield" type="password" id="loginPw" placeholder="••••••••" autocomplete="current-password"><button class="pw-toggle" id="toggleLoginPw" type="button">👁</button></div>
+    <div style="text-align:right;margin-top:6px"><button style="background:none;border:none;color:#4ade80;font-size:12px;cursor:pointer;text-decoration:underline" id="forgotPwBtn">Wachtwoord vergeten?</button></div>
+    <button class="btn-primary" id="loginBtn">Inloggen</button>
+    <div class="oerr" id="loginErr"></div>
+    <div class="oinfo" id="loginInfo"></div>
+  </div>
+  <div id="registerForm" style="display:none">
+    <label class="olabel">Weergavenaam</label>
+    <input class="ofield" type="text" id="regName" placeholder="bijv. Emma" maxlength="24" autocomplete="off">
+    <label class="olabel">E-mailadres</label>
+    <input class="ofield" type="email" id="regEmail" placeholder="jouw@email.com" autocomplete="email">
+    <label class="olabel">Wachtwoord</label>
+    <div class="pw-wrap"><input class="ofield" type="password" id="regPw" placeholder="min. 6 tekens" autocomplete="new-password"><button class="pw-toggle" id="toggleRegPw" type="button">👁</button></div>
+    <label class="olabel">Wachtwoord herhalen</label>
+    <input class="ofield" type="password" id="regPw2" placeholder="••••••••" autocomplete="new-password">
+    <button class="btn-primary" id="regBtn">Account aanmaken</button>
+    <div class="oerr" id="regErr"></div>
+  </div>
+</div>
+</div>
+
+<!-- Email verify -->
+<div class="overlay" id="verifyOverlay">
+<div class="obox" style="max-width:400px;text-align:center">
+  <div style="font-size:40px;margin-bottom:12px">📧</div>
+  <h2 style="font-size:18px;font-weight:700;color:#e5e2e1;margin-bottom:8px">Bevestig je e-mail</h2>
+  <p style="font-size:13px;color:#bccabb;margin-bottom:16px;line-height:1.5">We stuurden een link naar <b id="verifyEmail"></b>.</p>
+  <button class="btn-primary" id="resendBtn">E-mail opnieuw sturen</button>
+  <button class="btn-secondary" id="checkVerifyBtn">Ik heb bevestigd ✓</button>
+  <div class="oerr" id="verifyErr"></div>
+</div>
+</div>
+
+<!-- Group select -->
+<div class="overlay" id="groupOverlay">
+<div class="obox" style="width:560px">
+  <h2 style="font-size:20px;font-weight:700;color:#e5e2e1;margin-bottom:6px">Mijn groepen</h2>
+  <p style="font-size:13px;color:#869486;margin-bottom:16px">Selecteer een groep of maak een nieuwe aan.</p>
+  <div id="groupList" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px"><div style="font-size:13px;color:#869486">Laden…</div></div>
+  <hr class="odivider">
+  <details style="margin-bottom:12px">
+    <summary style="cursor:pointer;font-size:13px;color:#4ade80;padding:6px 0;user-select:none;list-style:none">+ Nieuwe groep aanmaken</summary>
+    <div style="margin-top:10px">
+      <label class="olabel">Groepsnaam</label>
+      <input class="ofield" type="text" id="newGroupName" placeholder="bijv. Zomervakantie 2025" maxlength="32">
+      <button class="btn-primary" id="createGroupBtn" style="margin-top:10px">Aanmaken</button>
+      <div class="oerr" id="createGroupErr"></div>
+    </div>
+  </details>
+  <details>
+    <summary style="cursor:pointer;font-size:13px;color:#4ade80;padding:6px 0;user-select:none;list-style:none">🔗 Joinen via uitnodigingscode</summary>
+    <div style="margin-top:10px">
+      <label class="olabel">Uitnodigingscode</label>
+      <input class="ofield" type="text" id="joinCode" placeholder="bijv. ABC123" maxlength="8" style="text-transform:uppercase;letter-spacing:.1em">
+      <button class="btn-primary" id="joinGroupBtn" style="margin-top:10px">Joinen</button>
+      <div class="oerr" id="joinGroupErr"></div>
+    </div>
+  </details>
+</div>
+</div>
+
+<!-- Create / Edit Activity overlay -->
+<div class="overlay" id="activityOverlay">
+<div class="obox" style="width:520px">
+  <h2 style="font-size:18px;font-weight:700;color:#e5e2e1;margin-bottom:6px" id="actOverlayTitle">Activiteit inplannen</h2>
+  <p style="font-size:13px;color:#869486;margin-bottom:16px">Maak een groepsactiviteit aan die zichtbaar is voor alle leden.</p>
+  <label class="olabel">Naam van de activiteit</label>
+  <input class="ofield" type="text" id="actTitle" placeholder="bijv. Filmavond, Paintball…" maxlength="60">
+  <label class="olabel">Beschrijving (optioneel)</label>
+  <textarea class="ofield" id="actDesc" placeholder="Korte omschrijving…" maxlength="200" rows="2" style="resize:none"></textarea>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px">
+    <div>
+      <label class="olabel">Datum</label>
+      <input class="ofield" type="date" id="actDate">
+    </div>
+    <div>
+      <label class="olabel">Tijd</label>
+      <input class="ofield" type="time" id="actTime" value="18:00">
+    </div>
+  </div>
+  <label class="olabel">Locatie (optioneel)</label>
+  <input class="ofield" type="text" id="actLocation" placeholder="bijv. Bowling Amsterdam" maxlength="80">
+  <div style="display:flex;gap:8px;margin-top:14px">
+    <button class="btn-primary" style="background:#4ade80;color:#003919" id="actSaveBtn">Opslaan</button>
+    <button class="btn-secondary" style="margin:0;flex:0 0 auto;padding:12px 20px" onclick="closeOverlay('activityOverlay')">Annuleer</button>
+  </div>
+  <div id="actErr" class="oerr"></div>
+  <div id="actDeleteRow" style="display:none;margin-top:8px">
+    <button class="btn-danger" style="width:100%" id="actDeleteBtn">🗑 Activiteit verwijderen</button>
+  </div>
+</div>
+</div>
+
+<!-- Recurring -->
+<div class="overlay" id="recurOverlay">
+<div class="obox">
+  <h2 style="font-size:18px;font-weight:700;color:#e5e2e1;margin-bottom:6px">🔄 Vaste beschikbaarheid</h2>
+  <p style="font-size:13px;color:#869486;margin-bottom:14px">Wordt toegepast op de komende 8 weken.</p>
+  <label class="olabel">Dag(en)</label>
+  <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:6px">
+    <button class="day-toggle" data-day="0">Ma</button>
+    <button class="day-toggle" data-day="1">Di</button>
+    <button class="day-toggle" data-day="2">Wo</button>
+    <button class="day-toggle" data-day="3">Do</button>
+    <button class="day-toggle" data-day="4">Vr</button>
+    <button class="day-toggle" data-day="5">Za</button>
+    <button class="day-toggle" data-day="6">Zo</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+    <div><label class="olabel">Van</label><select class="ofield" id="recurFrom"></select></div>
+    <div><label class="olabel">Tot</label><select class="ofield" id="recurTo"></select></div>
+  </div>
+  <label class="olabel">Opmerking (optioneel)</label>
+  <input class="ofield" type="text" id="recurNote" placeholder="bijv. na school" maxlength="40">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px">
+    <button style="padding:11px;border-radius:10px;background:#005e2d;border:none;color:#4ade80;font-weight:700;font-size:13px;cursor:pointer" id="recurAvail">✓ Beschikbaar</button>
+    <button style="padding:11px;border-radius:10px;background:#5c1f1f;border:none;color:#ffd7d5;font-weight:700;font-size:13px;cursor:pointer" id="recurUnavail">✕ Niet beschikbaar</button>
+  </div>
+  <button class="btn-secondary" id="recurCancel">Annuleer</button>
+  <div class="oerr" id="recurError"></div>
+</div>
+</div>
+
+<!-- Availability modal -->
+<div class="overlay" id="modalOverlay">
+<div class="obox" style="max-width:400px">
+  <h2 style="font-size:18px;font-weight:700;color:#e5e2e1;margin-bottom:14px" id="modalTitle">Beschikbaarheid toevoegen</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div><label class="olabel">Van</label><select class="ofield" id="modalFrom"></select></div>
+    <div><label class="olabel">Tot</label><select class="ofield" id="modalTo"></select></div>
+  </div>
+  <label class="olabel">Opmerking (optioneel)</label>
+  <input class="ofield" type="text" id="modalNote" placeholder="bijv. alleen 's ochtends" maxlength="60" autocomplete="off">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px">
+    <button style="padding:11px;border-radius:10px;background:#005e2d;border:none;color:#4ade80;font-weight:700;font-size:13px;cursor:pointer" id="btnAvail">✓ Beschikbaar</button>
+    <button style="padding:11px;border-radius:10px;background:#5c1f1f;border:none;color:#ffd7d5;font-weight:700;font-size:13px;cursor:pointer" id="btnUnavail">✕ Niet beschikbaar</button>
+  </div>
+  <button class="btn-secondary" id="btnCancel">Annuleer</button>
+  <div id="deleteRow" style="display:none;margin-top:8px">
+    <button class="btn-danger" style="width:100%" id="btnDelete">🗑 Verwijderen</button>
+  </div>
+</div>
+</div>
+
+<!-- Confirm -->
+<div class="confirm-overlay" id="confirmOverlay">
+<div class="confirm-box">
+  <div style="font-size:28px;margin-bottom:10px">⚠️</div>
+  <h3 style="font-size:16px;font-weight:700;margin-bottom:8px;color:#e5e2e1" id="confirmTitle">Bevestigen</h3>
+  <p style="font-size:13px;color:#bccabb;margin-bottom:18px;line-height:1.5" id="confirmText"></p>
+  <div style="display:flex;gap:10px">
+    <button class="btn-secondary" style="margin:0;flex:1" id="confirmCancel">Annuleer</button>
+    <button class="btn-danger" style="flex:1" id="confirmDel">Bevestigen</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══════ SIDEBAR ═══════ -->
+<aside class="hidden md:flex flex-col h-full w-64 fixed left-0 top-0 bg-surface-container-low border-r border-outline-variant p-md gap-sm z-50">
+  <div class="flex flex-col gap-xs mb-lg">
+    <div class="flex items-center gap-sm">
+      <div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center text-on-primary-container cursor-pointer" onclick="openOverlay('groupOverlay')" id="sideGroupIcon">
+        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;font-size:20px">groups</span>
+      </div>
+      <div>
+        <h2 class="font-headline-md font-bold text-primary text-sm" id="sideGroupName">Geen groep</h2>
+        <p class="font-label-caps text-label-caps text-on-surface-variant" style="font-size:10px" id="sideGroupSub">Klik om te wisselen</p>
+      </div>
+    </div>
+  </div>
+  <nav class="flex-1 flex flex-col gap-xs">
+    <button class="nav-link active" id="nav-dashboard" onclick="showPage('dashboard')">
+      <span class="material-symbols-outlined">dashboard</span>Dashboard
+    </button>
+    <button class="nav-link" id="nav-planning" onclick="showPage('planning')">
+      <span class="material-symbols-outlined">calendar_view_week</span>Mijn planning
+    </button>
+    <button class="nav-link" id="nav-overview" onclick="showPage('overview')">
+      <span class="material-symbols-outlined">groups</span>Groepsoverzicht
+    </button>
+    <button class="nav-link" id="nav-teams" onclick="showPage('teams')">
+      <span class="material-symbols-outlined">manage_accounts</span>Teams
+    </button>
+  </nav>
+  <button onclick="openModalNew()" class="mt-md px-md py-sm bg-primary-container text-on-primary-container rounded-xl font-title-sm active:scale-95 transition-transform flex items-center justify-center gap-sm" style="font-size:14px;font-weight:600">
+    <span class="material-symbols-outlined" style="font-size:18px">add_circle</span>Beschikbaarheid
+  </button>
+  <div class="mt-auto flex flex-col gap-xs pt-md border-t border-outline-variant">
+    <button onclick="openUserMenu()" class="nav-link" id="sideUserBtn">
+      <span class="material-symbols-outlined">person</span><span id="sideUserName">Account</span>
+    </button>
+  </div>
+</aside>
+
+<!-- ═══════ MAIN ═══════ -->
+<div class="flex-1 flex flex-col md:ml-64 overflow-hidden">
+  <!-- Top nav -->
+  <header class="bg-background border-b border-outline-variant z-40 sticky top-0">
+    <div class="flex justify-between items-center w-full px-md h-16 max-w-[1440px] mx-auto">
+      <div class="flex items-center gap-xl">
+        <span class="font-display-lg font-bold text-primary" style="font-size:22px;letter-spacing:-.02em">FeinyAh<span class="text-on-surface">Planning</span></span>
+        <nav class="hidden md:flex items-center gap-lg">
+          <button onclick="showPage('planning')" class="font-body-md text-on-surface-variant hover:text-primary transition-colors bg-none border-none cursor-pointer text-sm" id="topnav-planning">Mijn Planning</button>
+          <button onclick="showPage('overview')" class="font-body-md text-on-surface-variant hover:text-primary transition-colors bg-none border-none cursor-pointer text-sm border-b-2 border-transparent" id="topnav-overview">Groepsoverzicht</button>
+        </nav>
+      </div>
+      <div class="flex items-center gap-md">
+        <div class="flex items-center gap-sm cursor-pointer" onclick="openOverlay('groupOverlay')" style="background:#1c1b1b;border:1px solid #3d4a3e;border-radius:20px;padding:5px 12px 5px 6px">
+          <div id="topGroupAvatar" style="width:24px;height:24px;background:#005e2d;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#4ade80;font-family:'JetBrains Mono',monospace">?</div>
+          <span id="topGroupName" style="font-size:13px;font-weight:600;color:#e5e2e1;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Geen groep</span>
+          <span style="font-size:10px;color:#869486">▾</span>
+        </div>
+        <button onclick="openUserMenu()" style="background:#1c1b1b;border:1px solid #3d4a3e;border-radius:20px;padding:5px 12px 5px 6px;display:flex;align-items:center;gap:7px;cursor:pointer">
+          <div id="chipAvatar" style="width:24px;height:24px;background:#005e2d;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#4ade80;font-family:'JetBrains Mono',monospace">?</div>
+          <span id="chipName" style="font-size:13px;font-weight:600;color:#e5e2e1;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">-</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Pages -->
+  <main style="display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="page active" id="page-dashboard" style="display:block;overflow-y:auto;padding:24px 32px 80px">
+
+      <!-- Hero: Upcoming activity + coverage -->
+      <section style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:28px">
+        <!-- Upcoming activity card (lg:col-span-2) -->
+        <div class="lg:col-span-2 glass-card rounded-xl p-lg flex flex-col gap-md relative overflow-hidden">
+          <div class="absolute top-0 right-0 p-lg opacity-10 pointer-events-none">
+            <span class="material-symbols-outlined" style="font-size:120px">event</span>
+          </div>
+          <div>
+            <h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-xs">Eerstvolgende activiteit</h3>
+            <div id="dashNextActivity">
+              <p class="font-display-lg text-primary" style="font-size:28px;font-weight:700">Geen activiteiten gepland</p>
+              <p class="font-body-md text-on-surface-variant" style="margin-top:4px">Plan een activiteit in voor je groep</p>
+            </div>
+          </div>
+          <!-- Weekly mini-grid -->
+          <div class="scheduler-grid rounded-lg mt-sm" id="dashWeekGrid">
+            <div class="scheduler-cell p-sm flex flex-col justify-between"><span class="font-label-caps text-on-surface-variant" style="font-size:10px">MA</span><div class="h-1 bg-surface-container-high w-0 rounded-full"></div></div>
+            <div class="scheduler-cell p-sm flex flex-col justify-between border-l border-outline-variant"><span class="font-label-caps text-on-surface-variant" style="font-size:10px">DI</span><div class="h-1 bg-surface-container-high w-0 rounded-full"></div></div>
+            <div class="scheduler-cell p-sm flex flex-col justify-between border-l border-outline-variant"><span class="font-label-caps text-on-surface-variant" style="font-size:10px">WO</span><div class="h-1 bg-surface-container-high w-0 rounded-full"></div></div>
+            <div class="scheduler-cell p-sm flex flex-col justify-between border-l border-outline-variant"><span class="font-label-caps text-on-surface-variant" style="font-size:10px">DO</span><div class="h-1 bg-surface-container-high w-0 rounded-full"></div></div>
+            <div class="scheduler-cell p-sm flex flex-col justify-between border-l border-outline-variant"><span class="font-label-caps text-on-surface-variant" style="font-size:10px">VR</span><div class="h-1 bg-surface-container-high w-0 rounded-full"></div></div>
+            <div class="scheduler-cell p-sm flex flex-col justify-between border-l border-outline-variant"><span class="font-label-caps text-on-surface-variant" style="font-size:10px">ZA</span><div class="h-1 bg-surface-container-high w-0 rounded-full"></div></div>
+            <div class="scheduler-cell p-sm flex flex-col justify-between border-l border-outline-variant"><span class="font-label-caps text-on-surface-variant" style="font-size:10px">ZO</span><div class="h-1 bg-surface-container-high w-0 rounded-full"></div></div>
+          </div>
+        </div>
+        <!-- Coverage / stats -->
+        <div class="glass-card rounded-xl p-lg flex flex-col justify-between bg-primary-container/5 border-primary/20">
+          <div>
+            <h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-md">Groepsoverzicht</h3>
+            <div class="flex items-center gap-md mb-sm">
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1;font-size:28px">groups</span>
+              <span class="font-title-sm text-title-sm" id="dashGroupStat">—</span>
+            </div>
+            <p class="font-body-md text-on-surface-variant" id="dashGroupStatSub">Selecteer een groep om te beginnen</p>
+            <div class="mt-md">
+              <div class="flex justify-between mb-xs"><span style="font-size:12px;color:#869486">Mijn blokken</span><span style="font-size:12px;color:#4ade80;font-weight:700" id="dashMyBlocks">—</span></div>
+              <div class="w-full bg-surface-container-highest h-1 rounded-full"><div class="bg-primary h-full rounded-full" id="dashCoverBar" style="width:0%"></div></div>
+            </div>
+          </div>
+          <button onclick="showPage('overview')" class="w-full py-sm border border-primary/30 text-primary rounded-lg font-label-caps text-label-caps hover:bg-primary/10 transition-colors mt-lg" style="font-size:12px">BEKIJK OVERZICHT</button>
+        </div>
+      </section>
+
+      <!-- Recent Activity + Upcoming activities panel -->
+      <section style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:28px">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <h2 style="font-size:20px;font-weight:700;color:#e5e2e1">Recente activiteit</h2>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px" id="dashActivity">
+            <div style="color:#869486;font-size:13px;padding:16px">Geen recente activiteit</div>
+          </div>
+        </div>
+        <!-- Upcoming group activities -->
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <h2 style="font-size:20px;font-weight:700;color:#e5e2e1">Activiteiten</h2>
+            <button id="dashAddActivityBtn" style="display:none" onclick="openActivityOverlay()" class="flex items-center gap-xs px-sm py-1 bg-primary-container text-on-primary-container rounded-lg text-xs font-bold transition-all hover:bg-primary active:scale-95">
+              <span class="material-symbols-outlined" style="font-size:14px">add</span>Nieuw
+            </button>
+          </div>
+          <div id="dashActivities" class="flex flex-col gap-sm flex-1">
+            <div style="color:#869486;font-size:13px;padding:16px;background:#1c1b1b;border:1px solid #3d4a3e;border-radius:12px">Geen activiteiten gepland.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Active Groups -->
+      <section style="margin-bottom:28px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <h2 style="font-size:20px;font-weight:700;color:#e5e2e1">Actieve groepen</h2>
+          <div class="flex gap-xs">
+            <button onclick="openOverlay('groupOverlay')" class="p-2 bg-surface-container-high border border-outline-variant rounded hover:bg-surface-variant transition-colors" title="Groep toevoegen">
+              <span class="material-symbols-outlined" style="font-size:18px">add</span>
+            </button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px" id="dashGroupGrid">
+          <div style="font-size:13px;color:#869486;padding:16px">Laden…</div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ── PLANNING ── -->
+    <div class="page" id="page-planning">
+      <!-- Desktop week view -->
+      <div class="mob-cal-view" style="flex-direction:column;flex:1;overflow:hidden;min-height:0">
+        <div class="flex items-center justify-between px-md py-sm bg-surface-container-low border-b border-outline-variant flex-shrink-0 flex-wrap gap-sm">
+          <div class="flex items-center gap-sm">
+            <button onclick="prevWeek()" class="bg-surface-container-high border border-outline-variant rounded-lg text-primary px-sm py-1 cursor-pointer hover:bg-surface-variant transition-colors" style="font-size:18px;line-height:1;padding:4px 10px">‹</button>
+            <span id="weekLabel" class="font-body-md text-on-surface font-semibold" style="min-width:190px;text-align:center;font-size:14px"></span>
+            <button onclick="nextWeek()" class="bg-surface-container-high border border-outline-variant rounded-lg text-primary px-sm py-1 cursor-pointer hover:bg-surface-variant transition-colors" style="font-size:18px;line-height:1;padding:4px 10px">›</button>
+          </div>
+          <div class="flex gap-sm flex-wrap">
+            <button onclick="fillWeek('avail')" class="px-sm py-1 bg-primary-container text-on-primary-container rounded-lg text-xs font-bold hover:bg-primary transition-colors">✓ Hele week</button>
+            <button onclick="fillWeek('unavail')" class="px-sm py-1 bg-error-container text-on-error-container rounded-lg text-xs font-bold hover:bg-error/20 transition-colors">✕ Niet beschikbaar</button>
+            <button onclick="clearWeekUser()" class="px-sm py-1 bg-surface-container-high text-on-surface-variant border border-outline-variant rounded-lg text-xs font-bold hover:bg-surface-variant transition-colors">🗑 Wissen</button>
+            <button onclick="openRecur()" class="px-sm py-1 bg-surface-container-high text-primary border border-primary/30 rounded-lg text-xs font-bold hover:bg-primary/10 transition-colors">🔄 Vast</button>
+          </div>
+        </div>
+        <div class="flex-1 overflow-auto p-md" style="scrollbar-width:thin">
+          <table class="cal-table" id="planTable"><thead id="planHead"></thead><tbody id="planBody"></tbody></table>
+        </div>
+      </div>
+      <!-- Mobile day view -->
+      <div class="mob-day-view" style="flex-direction:column;flex:1;overflow:hidden;min-height:0">
+        <div class="bg-surface-container-low border-b border-outline-variant px-md py-sm flex items-center justify-between flex-shrink-0">
+          <button id="mobPrevDay" class="text-primary bg-none border-none cursor-pointer text-2xl px-sm">‹</button>
+          <div class="text-center">
+            <div id="mobDayName" class="font-semibold text-on-surface"></div>
+            <div id="mobDayDate" class="text-on-surface-variant text-xs mt-xs"></div>
+          </div>
+          <button id="mobNextDay" class="text-primary bg-none border-none cursor-pointer text-2xl px-sm">›</button>
+        </div>
+        <div class="flex justify-center gap-xs py-sm" id="mobDots"></div>
+        <div class="flex-1 overflow-hidden relative" id="mobSwipeWrap">
+          <div id="mobSwipeInner" style="display:flex;height:100%;transition:transform .27s cubic-bezier(.4,0,.2,1);will-change:transform"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── OVERVIEW ── -->
+    <div class="page" id="page-overview">
+      <div class="flex items-center justify-between px-md py-sm bg-surface-container-low border-b border-outline-variant flex-shrink-0 flex-wrap gap-sm">
+        <div class="flex items-center gap-sm">
+          <button onclick="prevWeekOv()" class="bg-surface-container-high border border-outline-variant rounded-lg text-primary cursor-pointer hover:bg-surface-variant transition-colors" style="font-size:18px;padding:4px 10px">‹</button>
+          <span id="ovWeekLabel" class="font-semibold text-on-surface" style="min-width:190px;text-align:center;font-size:14px"></span>
+          <button onclick="nextWeekOv()" class="bg-surface-container-high border border-outline-variant rounded-lg text-primary cursor-pointer hover:bg-surface-variant transition-colors" style="font-size:18px;padding:4px 10px">›</button>
+        </div>
+        <button id="syncBtn" onclick="loadGroupAndRender()" class="px-sm py-1 bg-surface-container-high text-on-surface-variant border border-outline-variant rounded-lg text-xs font-bold hover:bg-surface-variant transition-colors">↻ Vernieuwen</button>
+      </div>
+      <div class="flex-1 overflow-auto p-md" style="scrollbar-width:thin">
+        <table class="cal-table" id="ovTable"><thead id="ovHead"></thead><tbody id="ovBody"></tbody></table>
+      </div>
+      <div class="px-md py-sm border-t border-outline-variant bg-surface-container-low flex-shrink-0">
+        <div class="font-label-caps text-on-surface-variant mb-sm uppercase" style="font-size:10px">Leden</div>
+        <div id="memberStrip" class="flex flex-wrap gap-sm"></div>
+      </div>
+    </div>
+
+    <!-- ── TEAMS ── -->
+    <div class="page" id="page-teams">
+      <h1 class="font-headline-md text-headline-md font-bold text-on-surface mb-xs">Teams</h1>
+      <p class="font-body-md text-on-surface-variant mb-lg">Beheer al je groepen en leden</p>
+      <div id="teamsContent"><div class="text-on-surface-variant text-sm">Laden…</div></div>
+    </div>
+
+  </main>
+
+  <!-- Status bar -->
+  <div class="bg-surface-container-lowest border-t border-outline-variant px-md py-xs flex items-center justify-between flex-shrink-0">
+    <span id="statusText" class="font-label-caps text-outline" style="font-size:10px">Laden…</span>
+    <span id="statusTime" class="font-label-caps text-outline" style="font-size:10px"></span>
+  </div>
+</div>
+
+<!-- Mobile bottom nav -->
+<nav class="mobile-nav-bar fixed bottom-0 w-full z-50 bg-surface-container border-t border-outline-variant shadow-lg flex justify-around items-center px-md py-xs md:hidden">
+  <button onclick="showPage('dashboard')" class="flex flex-col items-center justify-center p-2 text-on-surface-variant active:scale-90 transition-all" id="mnav-dashboard">
+    <span class="material-symbols-outlined">dashboard</span>
+    <span style="font-size:11px;margin-top:2px">Dashboard</span>
+  </button>
+  <button onclick="showPage('planning')" class="flex flex-col items-center justify-center p-2 text-on-surface-variant active:scale-90 transition-all" id="mnav-planning">
+    <span class="material-symbols-outlined">calendar_view_week</span>
+    <span style="font-size:11px;margin-top:2px">Planning</span>
+  </button>
+  <button onclick="showPage('overview')" class="flex flex-col items-center justify-center p-2 text-on-surface-variant active:scale-90 transition-all" id="mnav-overview">
+    <span class="material-symbols-outlined">groups</span>
+    <span style="font-size:11px;margin-top:2px">Overzicht</span>
+  </button>
+  <button onclick="showPage('teams')" class="flex flex-col items-center justify-center p-2 text-on-surface-variant active:scale-90 transition-all" id="mnav-teams">
+    <span class="material-symbols-outlined">manage_accounts</span>
+    <span style="font-size:11px;margin-top:2px">Teams</span>
+  </button>
+</nav>
+<!-- FAB mobile -->
+<button onclick="openModalNew()" class="mobile-nav-bar fixed bottom-20 right-md w-14 h-14 bg-primary-container text-on-primary-container rounded-xl shadow-xl flex items-center justify-center z-50 active:scale-90 transition-all md:hidden" style="font-size:24px">+</button>
+
+<script>
+// These run immediately and wire up tab switching without needing the module
+document.addEventListener('DOMContentLoaded', function() {
+  // Auth tab switching - works immediately
+  document.getElementById('tabLogin')?.addEventListener('click', function() {
+    document.getElementById('loginForm').style.display = '';
+    document.getElementById('registerForm').style.display = 'none';
+    document.getElementById('tabLogin').classList.add('active');
+    document.getElementById('tabReg').classList.remove('active');
+  });
+  document.getElementById('tabReg')?.addEventListener('click', function() {
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = '';
+    document.getElementById('tabLogin').classList.remove('active');
+    document.getElementById('tabReg').classList.add('active');
+  });
+  // Password toggle buttons
+  document.getElementById('toggleLoginPw')?.addEventListener('click', function() {
+    var el = document.getElementById('loginPw');
+    el.type = el.type === 'password' ? 'text' : 'password';
+    this.textContent = el.type === 'password' ? '👁' : '🙈';
+  });
+  document.getElementById('toggleRegPw')?.addEventListener('click', function() {
+    var el = document.getElementById('regPw');
+    el.type = el.type === 'password' ? 'text' : 'password';
+    this.textContent = el.type === 'password' ? '👁' : '🙈';
+  });
+  // Show any module load errors in the UI
+  document.getElementById('forgotPwBtn')?.addEventListener('click', function() {
+    if(window.sendPasswordReset) window.sendPasswordReset();
+    else alert('Laden nog bezig, probeer even opnieuw.');
+  });
+  window.addEventListener('unhandledrejection', function(e) {
+    console.error('Unhandled promise rejection:', e.reason);
+  });
+  // Detect file:// and show warning
+  if(window.location.protocol === 'file:') {
+    var warn = document.createElement('div');
+    warn.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#93000a;color:#ffdad6;padding:12px 20px;font-size:13px;font-family:monospace;line-height:1.6;text-align:center';
+    warn.innerHTML = '⚠️ <b>Dit bestand werkt niet als je het direct opent (file://)</b> — Firebase vereist een webserver.<br>Open een terminal in de map van dit bestand en voer uit: <b>python3 -m http.server 8000</b> &nbsp;→&nbsp; ga daarna naar <b>http://localhost:8000</b>';
+    document.body.prepend(warn);
+    // Disable the login button visually
+    var loginErr = document.getElementById('loginErr');
+    if(loginErr) loginErr.textContent = '❌ Open dit bestand via http://localhost:8000 (zie banner bovenaan)';
+  }
+});
+// Stubs so onclick attributes don't throw before module loads
+['switchAuthTab','togglePw','sendPasswordReset','openOverlay','closeOverlay',
+ 'showPage','openModalNew','openUserMenu','openActivityOverlay','prevWeek',
+ 'nextWeek','fillWeek','clearWeekUser','openRecur','prevWeekOv','nextWeekOv',
+ 'kickMember','copyCode','confirmDeleteGroup','confirmLeaveGroup'].forEach(function(fn){
+  window[fn] = window[fn] || function() { console.warn('Function not yet loaded: ' + fn); };
+});
+</script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+         sendEmailVerification, sendPasswordResetEmail, onAuthStateChanged,
+         updateProfile, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getDatabase, ref, get, set, push, remove, update }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+const firebaseConfig={apiKey:"AIzaSyBkI_jheLO5KUKx9Mahuo2jBGC-4R7a52Q",authDomain:"beschikbaarheid-841a9.firebaseapp.com",databaseURL:"https://beschikbaarheid-841a9-default-rtdb.europe-west1.firebasedatabase.app",projectId:"beschikbaarheid-841a9",storageBucket:"beschikbaarheid-841a9.firebasestorage.app",messagingSenderId:"939424220655",appId:"1:939424220655:web:f119d418999006a9aae21a"};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getDatabase(app);
+
+// ── State ─────────────────────────────────────────────────────────────────
+let currentUser=null,displayName='';
+let currentGroup=JSON.parse(localStorage.getItem('fap_group')||'null');
+let entries={},allGroups={},activities=[];
+let weekStart=getMonday(new Date()),weekStartOv=getMonday(new Date());
+let modalCtx=null,refreshTimer=null,confirmCb=null,actEditId=null;
+let mobDayIdx=(()=>{const d=new Date().getDay();return d===0?6:d-1})();
+let mobWeekStart=getMonday(new Date()),mobAnimating=false;
+
+const HOURS=[];for(let h=7;h<=22;h++)HOURS.push(String(h).padStart(2,'0')+':00');
+const DAYS_NL=['Maandag','Dinsdag','Woensdag','Donderdag','Vrijdag','Zaterdag','Zondag'];
+const DAYS_SH=['Ma','Di','Wo','Do','Vr','Za','Zo'];
+
+// ── Utils ────────────────────────────────────────────────────────────────
+function getMonday(d){const r=new Date(d);r.setHours(0,0,0,0);r.setDate(r.getDate()+(r.getDay()===0?-6:1-r.getDay()));return r}
+function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r}
+function dkey(d){return d.toISOString().slice(0,10)}
+function weekDays(ws){return Array.from({length:7},(_,i)=>addDays(ws,i))}
+function getWeekNum(d){const u=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));u.setUTCDate(u.getUTCDate()+4-(u.getUTCDay()||7));const y=new Date(Date.UTC(u.getUTCFullYear(),0,1));return Math.ceil((((u-y)/86400000)+1)/7)}
+function hi(h){return HOURS.indexOf(h)}
+function initials(n){return(n||'?').trim().slice(0,2).toUpperCase()}
+function randCode(){return Math.random().toString(36).slice(2,8).toUpperCase()}
+function wkLabel(ws){const d=weekDays(ws);const o={day:'numeric',month:'short'};return'Week '+getWeekNum(ws)+' · '+d[0].toLocaleDateString('nl-NL',o)+' – '+d[6].toLocaleDateString('nl-NL',o)}
+function relTime(ts){if(!ts)return'';const s=Math.floor((Date.now()-ts)/1000);if(s<60)return'Zojuist';if(s<3600)return Math.floor(s/60)+' min geleden';if(s<86400)return Math.floor(s/3600)+' uur geleden';return Math.floor(s/86400)+' dag(en) geleden'}
+window.openOverlay=function(id){
+  document.getElementById(id).classList.add('open');
+  if(id==='groupOverlay' && typeof renderGroupOverlay==='function') renderGroupOverlay();
+};
+window.closeOverlay=id=>document.getElementById(id).classList.remove('open');
+
+const dbGet=async p=>(await get(ref(db,p))).val();
+const dbSet=(p,v)=>set(ref(db,p),v);
+const dbPush=(p,v)=>push(ref(db,p),v);
+const dbDel=p=>remove(ref(db,p));
+const dbUpd=(p,v)=>update(ref(db,p),v);
+
+// ── Page routing ──────────────────────────────────────────────────────────
+window.showPage=function(name){
+  document.querySelectorAll('.page').forEach(p=>{p.classList.remove('active');p.style.display='none'});
+  document.querySelectorAll('.nav-link').forEach(n=>n.classList.remove('active'));
+  const pg=document.getElementById('page-'+name);
+  pg.classList.add('active');
+  // dashboard and teams scroll, planning/overview use inner flex
+  if(name==='dashboard'){pg.style.cssText='display:block;overflow-y:auto;padding:24px 32px 80px'}
+  else if(name==='teams'){pg.style.cssText='display:block;overflow-y:auto;padding:24px;flex:1'}
+  else{pg.style.cssText='display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0'}
+  const ni=document.getElementById('nav-'+name);if(ni)ni.classList.add('active');
+  // mobile nav highlights
+  document.querySelectorAll('[id^="mnav-"]').forEach(b=>{b.style.color='#bccabb';b.querySelector('.material-symbols-outlined').style.color='#bccabb'});
+  const mn=document.getElementById('mnav-'+name);
+  if(mn){mn.style.color='#4ade80';mn.querySelector('.material-symbols-outlined').style.color='#4ade80'}
+  if(name==='overview'){renderOverview();renderMemberStrip()}
+  if(name==='teams')renderTeams();
+  if(name==='dashboard')renderDashboard();
+  if(name==='planning'){renderPlanning();if(window.innerWidth<768)renderMobile()}
+};
+
+// ── Auth ──────────────────────────────────────────────────────────────────
+window.switchAuthTab=tab=>{
+  document.getElementById('loginForm').style.display=tab==='login'?'':'none';
+  document.getElementById('registerForm').style.display=tab==='register'?'':'none';
+  document.getElementById('tabLogin').classList.toggle('active',tab==='login');
+  document.getElementById('tabReg').classList.toggle('active',tab==='register');
+};
+window.togglePw=(id,btn)=>{const el=document.getElementById(id);el.type=el.type==='password'?'text':'password';btn.textContent=el.type==='password'?'👁':'🙈'};
+window.sendPasswordReset=async()=>{
+  const email=document.getElementById('loginEmail').value.trim();
+  const err=document.getElementById('loginErr'),info=document.getElementById('loginInfo');
+  if(!email){err.textContent='❌ Voer je e-mailadres in';return}
+  info.textContent='⏳ Versturen…';err.textContent='';
+  try{await sendPasswordResetEmail(auth,email);info.textContent='✓ Reset-mail verstuurd!'}
+  catch(e){err.textContent='❌ '+fe(e.code);info.textContent=''}
+};
+
+document.getElementById('loginBtn').onclick=async()=>{
+  const email=document.getElementById('loginEmail').value.trim();
+  const pw=document.getElementById('loginPw').value;
+  const err=document.getElementById('loginErr');
+  document.getElementById('loginInfo').textContent='';
+  if(!email||!pw){err.textContent='❌ Vul alle velden in';return}
+  document.getElementById('loginBtn').disabled=true;err.textContent='⏳ Inloggen…';
+  try{await signInWithEmailAndPassword(auth,email,pw);err.textContent='';document.getElementById('loginBtn').disabled=false}
+  catch(e){err.textContent='❌ '+fe(e.code);document.getElementById('loginBtn').disabled=false}
+};
+document.getElementById('regBtn').onclick=async()=>{
+  const name=document.getElementById('regName').value.trim();
+  const email=document.getElementById('regEmail').value.trim();
+  const pw=document.getElementById('regPw').value;
+  const pw2=document.getElementById('regPw2').value;
+  const err=document.getElementById('regErr');
+  if(!name||!email||!pw){err.textContent='❌ Vul alle velden in';return}
+  if(pw!==pw2){err.textContent='❌ Wachtwoorden komen niet overeen';return}
+  if(pw.length<6){err.textContent='❌ Min. 6 tekens';return}
+  document.getElementById('regBtn').disabled=true;err.textContent='⏳ Account aanmaken…';
+  try{
+    const cred=await createUserWithEmailAndPassword(auth,email,pw);
+    await updateProfile(cred.user,{displayName:name});
+    await dbSet('userProfiles/'+cred.user.uid+'/displayName',name);
+    await sendEmailVerification(cred.user);
+    document.getElementById('verifyEmail').textContent=email;
+    closeOverlay('authOverlay');openOverlay('verifyOverlay');
+    document.getElementById('regBtn').disabled=false;err.textContent='';
+  }catch(e){err.textContent='❌ '+fe(e.code);document.getElementById('regBtn').disabled=false}
+};
+['loginEmail','loginPw'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('loginBtn').click()}));
+['regName','regEmail','regPw','regPw2'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('regBtn').click()}));
+document.getElementById('resendBtn').onclick=async()=>{try{await sendEmailVerification(auth.currentUser);document.getElementById('verifyErr').textContent='✓ Opnieuw verstuurd'}catch(e){document.getElementById('verifyErr').textContent='❌ '+fe(e.code)}};
+document.getElementById('checkVerifyBtn').onclick=async()=>{
+  await auth.currentUser.reload();
+  if(auth.currentUser.emailVerified){closeOverlay('verifyOverlay');afterVerifiedLogin(auth.currentUser)}
+  else document.getElementById('verifyErr').textContent='❌ Nog niet bevestigd.';
+};
+onAuthStateChanged(auth,async user=>{
+  if(user){
+    if(!user.emailVerified){
+      if(!document.getElementById('verifyOverlay').classList.contains('open')){document.getElementById('verifyEmail').textContent=user.email;closeOverlay('authOverlay');openOverlay('verifyOverlay')}
+      return;
+    }
+    closeOverlay('authOverlay');closeOverlay('verifyOverlay');afterVerifiedLogin(user).catch(e=>{console.error('Login error:',e);document.getElementById('loginErr').textContent='❌ Fout bij inloggen: '+e.message});
+  } else {currentUser=null;displayName='';openOverlay('authOverlay')}
+});
+async function afterVerifiedLogin(user){
+  currentUser=user;
+  const stored=await dbGet('userProfiles/'+user.uid+'/displayName');
+  displayName=stored||user.displayName||user.email.split('@')[0];
+  if(!stored&&displayName){try{await dbSet('userProfiles/'+user.uid+'/displayName',displayName)}catch(e){console.warn('profile write failed',e)}}
+  if(currentGroup){try{const ok=await dbGet('groups/'+currentGroup.id+'/members/'+user.uid);if(!ok){currentGroup=null;localStorage.removeItem('fap_group')}}catch{currentGroup=null;localStorage.removeItem('fap_group')}}
+  updateHeader();
+  try{await loadUserGroups()}catch(e){console.warn('loadUserGroups failed',e)}
+  if(currentGroup){try{await loadGroupAndRender();startAutoRefresh()}catch(e){console.warn('loadGroup failed',e)}}
+  else{openOverlay('groupOverlay')}
+  try{renderDashboard()}catch(e){console.warn('renderDashboard failed',e)}
+}
+function fe(code){const m={'auth/email-already-in-use':'E-mailadres al in gebruik','auth/invalid-email':'Ongeldig e-mailadres','auth/weak-password':'Wachtwoord te zwak','auth/user-not-found':'Geen account gevonden','auth/wrong-password':'Onjuist wachtwoord','auth/invalid-credential':'E-mailadres of wachtwoord onjuist','auth/too-many-requests':'Te veel pogingen. Probeer later.','auth/network-request-failed':'Netwerkfout.'};return m[code]||code}
+function updateHeader(){
+  document.getElementById('chipAvatar').textContent=initials(displayName);
+  document.getElementById('chipName').textContent=displayName;
+  document.getElementById('sideUserName').textContent=displayName;
+  updateGroupHeader();
+}
+function updateGroupHeader(){
+  const name=currentGroup?currentGroup.name:'Geen groep';
+  const ini=currentGroup?initials(name):'?';
+  document.getElementById('topGroupAvatar').textContent=ini;
+  document.getElementById('topGroupName').textContent=name;
+  document.getElementById('sideGroupName').textContent=name;
+  document.getElementById('sideGroupSub').textContent=currentGroup?'Klik om te wisselen':'Klik om te selecteren';
+}
+window.openUserMenu=()=>{const uname=displayName||'dit account';confirm2('Uitloggen','Wil je uitloggen als '+uname+'?','Uitloggen',async()=>{currentGroup=null;entries={};activities=[];localStorage.removeItem('fap_group');if(refreshTimer)clearInterval(refreshTimer);await signOut(auth)})};
+
+// ── Groups ────────────────────────────────────────────────────────────────
+async function loadUserGroups(){
+  allGroups={};if(!currentUser)return;
+  const ugs=await dbGet('userGroups/'+currentUser.uid);if(!ugs)return;
+  for(const gid of Object.keys(ugs)){const grp=await dbGet('groups/'+gid);if(grp)allGroups[gid]=grp}
+}
+async function renderGroupOverlay(){
+  const gl=document.getElementById('groupList');
+  if(!gl) return;
+  if(!currentUser){gl.innerHTML='<div style="font-size:13px;color:#869486">Log eerst in.</div>';return}
+  gl.innerHTML='<div style="font-size:13px;color:#869486">Laden…</div>';
+  try{await loadUserGroups()}catch(e){console.warn('renderGroupOverlay loadUserGroups failed',e)}
+  gl.innerHTML='';
+  const gids=Object.keys(allGroups);
+  if(!gids.length){gl.innerHTML='<div style="font-size:13px;color:#869486">Nog geen groepen. Maak er een aan of join via een uitnodigingscode.</div>';return}
+  gids.forEach(gid=>{
+    const grp=allGroups[gid];const active=currentGroup&&currentGroup.id===gid;
+    const mc=grp.members?Object.keys(grp.members).length:1;const isOwner=grp.ownerUid===currentUser.uid;
+    const card=document.createElement('div');
+    card.style.cssText='background:#1c1b1b;border:1px solid '+(active?'#4ade80':'#3d4a3e')+';border-radius:12px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:all .15s';
+    card.onmouseenter=()=>card.style.borderColor='#4ade80';
+    card.onmouseleave=()=>card.style.borderColor=(active?'#4ade80':'#3d4a3e');
+    card.innerHTML=`<div style="display:flex;align-items:center;gap:12px"><div style="width:38px;height:38px;background:#005e2d;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#4ade80;font-family:'JetBrains Mono',monospace">${initials(grp.name)}</div><div><div style="font-size:14px;font-weight:700;color:#e5e2e1">${grp.name}</div><div style="font-size:11px;color:#869486;margin-top:2px;font-family:'JetBrains Mono',monospace">${mc} leden · code: ${grp.inviteCode||'?'}</div></div></div><span style="font-size:11px;background:${isOwner?'#005e2d':'#201f1f'};color:${isOwner?'#4ade80':'#869486'};border-radius:20px;padding:3px 10px;font-weight:600">${isOwner?'Eigenaar':'Lid'}</span>`;
+    card.onclick=()=>selectGroup(gid,grp.name);gl.appendChild(card);
+  });
+}
+document.getElementById('createGroupBtn').onclick=async()=>{
+  const name=document.getElementById('newGroupName').value.trim();
+  const err=document.getElementById('createGroupErr');
+  if(!name){err.textContent='❌ Voer een naam in';return}
+  document.getElementById('createGroupBtn').disabled=true;err.textContent='⏳ Aanmaken…';
+  try{
+    const code=randCode();const members={};members[currentUser.uid]=true;const memberNames={};memberNames[currentUser.uid]=displayName;
+    const gref=await dbPush('groups',{name,ownerUid:currentUser.uid,ownerName:displayName,inviteCode:code,members,memberNames,created:Date.now()});
+    const gid=gref.key;
+    await dbSet('inviteCodes/'+code,gid);await dbSet('userGroups/'+currentUser.uid+'/'+gid,true);
+    document.getElementById('newGroupName').value='';document.getElementById('createGroupBtn').disabled=false;err.textContent='';
+    allGroups[gid]={name,ownerUid:currentUser.uid,inviteCode:code,members,memberNames};
+    renderGroupOverlay();selectGroup(gid,name);
+  }catch(e){err.textContent='❌ '+e.message;document.getElementById('createGroupBtn').disabled=false}
+};
+document.getElementById('joinGroupBtn').onclick=async()=>{
+  const code=document.getElementById('joinCode').value.trim().toUpperCase();
+  const err=document.getElementById('joinGroupErr');
+  if(!code){err.textContent='❌ Voer een code in';return}
+  document.getElementById('joinGroupBtn').disabled=true;err.textContent='⏳ Joinen…';
+  try{
+    const gid=await dbGet('inviteCodes/'+code);if(!gid)throw new Error('Ongeldige code');
+    const grp=await dbGet('groups/'+gid);if(!grp)throw new Error('Groep niet gevonden');
+    await dbSet('groups/'+gid+'/members/'+currentUser.uid,true);
+    await dbSet('groups/'+gid+'/memberNames/'+currentUser.uid,displayName);
+    await dbSet('userGroups/'+currentUser.uid+'/'+gid,true);
+    document.getElementById('joinCode').value='';document.getElementById('joinGroupBtn').disabled=false;err.textContent='';
+    allGroups[gid]=grp;renderGroupOverlay();selectGroup(gid,grp.name);
+  }catch(e){err.textContent='❌ '+e.message;document.getElementById('joinGroupBtn').disabled=false}
+};
+function selectGroup(gid,name){
+  currentGroup={id:gid,name};localStorage.setItem('fap_group',JSON.stringify(currentGroup));
+  closeOverlay('groupOverlay');updateGroupHeader();
+  loadGroupAndRender();renderDashboard();
+}
+
+// ── Data ──────────────────────────────────────────────────────────────────
+function ePath(){return'groupEntries/'+currentGroup.id}
+function aPath(){return'groups/'+currentGroup.id+'/activities'}
+
+window.loadGroupAndRender = async function loadGroupAndRender(){
+  if(!currentGroup||!currentUser)return;
+  setStatus('Laden…');
+  try{
+    const data=await dbGet(ePath());entries={};
+    if(data)Object.entries(data).forEach(([dk,de])=>{if(!de)return;entries[dk]=Object.entries(de).map(([id,e])=>Object.assign({},e,{_id:id}))});
+    await loadActivities();
+    const t=new Date().toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'});
+    setStatus('✓ '+t);
+    renderPlanning();renderOverview();renderMemberStrip();renderDashboard();
+    if(window.innerWidth<768)renderMobile();
+  }catch(e){setStatus('❌ '+e.message)}
+}
+async function loadActivities(){
+  if(!currentGroup)return;
+  const data=await dbGet(aPath());activities=[];
+  if(data)activities=Object.entries(data).map(([id,a])=>Object.assign({},a,{_id:id}));
+  activities.sort((a,b)=>new Date(a.date+'T'+(a.time||'00:00'))-new Date(b.date+'T'+(b.time||'00:00')));
+}
+function setStatus(msg){document.getElementById('statusText').textContent=msg;document.getElementById('statusTime').textContent=new Date().toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'})}
+function startAutoRefresh(){if(refreshTimer)clearInterval(refreshTimer);refreshTimer=setInterval(()=>loadGroupAndRender(),30000)}
+
+// ── Activities ────────────────────────────────────────────────────────────
+function canManageActivities(){
+  if(!currentGroup||!currentUser)return false;
+  const grp=allGroups[currentGroup.id];
+  if(!grp)return false;
+  // Only group owner can manage activities
+  return grp.ownerUid===currentUser.uid;
+}
+
+window.openActivityOverlay=function(actId=null){
+  actEditId=actId;
+  document.getElementById('actErr').textContent='';
+  document.getElementById('actDeleteRow').style.display='none';
+  if(actId){
+    const act=activities.find(a=>a._id===actId);
+    if(act){
+      document.getElementById('actTitle').value=act.title||'';
+      document.getElementById('actDesc').value=act.desc||'';
+      document.getElementById('actDate').value=act.date||'';
+      document.getElementById('actTime').value=act.time||'18:00';
+      document.getElementById('actLocation').value=act.location||'';
+      document.getElementById('actOverlayTitle').textContent='Activiteit bewerken';
+      document.getElementById('actDeleteRow').style.display='';
+    }
+  } else {
+    document.getElementById('actTitle').value='';
+    document.getElementById('actDesc').value='';
+    document.getElementById('actDate').value=new Date().toISOString().slice(0,10);
+    document.getElementById('actTime').value='18:00';
+    document.getElementById('actLocation').value='';
+    document.getElementById('actOverlayTitle').textContent='Activiteit inplannen';
+  }
+  openOverlay('activityOverlay');
+};
+
+document.getElementById('actSaveBtn').onclick=async()=>{
+  const title=document.getElementById('actTitle').value.trim();
+  const desc=document.getElementById('actDesc').value.trim();
+  const date=document.getElementById('actDate').value;
+  const time=document.getElementById('actTime').value;
+  const location=document.getElementById('actLocation').value.trim();
+  const err=document.getElementById('actErr');
+  if(!title){err.textContent='❌ Voer een naam in';return}
+  if(!date){err.textContent='❌ Kies een datum';return}
+  document.getElementById('actSaveBtn').disabled=true;
+  const data={title,desc,date,time,location,createdBy:displayName,createdByUid:currentUser.uid,updatedAt:Date.now()};
+  try{
+    if(actEditId){
+      await dbSet(aPath()+'/'+actEditId,Object.assign(data,{createdAt:(activities.find(a=>a._id===actEditId)||{}).createdAt||Date.now()}));
+    } else {
+      data.createdAt=Date.now();
+      await dbPush(aPath(),data);
+    }
+    await loadActivities();document.getElementById('actSaveBtn').disabled=false;
+    closeOverlay('activityOverlay');renderDashboard();
+  }catch(e){err.textContent='❌ '+e.message;document.getElementById('actSaveBtn').disabled=false}
+};
+
+document.getElementById('actDeleteBtn').onclick=()=>{
+  if(!actEditId)return;
+  confirm2('Activiteit verwijderen','Weet je zeker dat je deze activiteit wilt verwijderen?','Verwijderen',async()=>{
+    await dbDel(aPath()+'/'+actEditId);
+    await loadActivities();closeOverlay('activityOverlay');renderDashboard();
+  });
+};
+
+// ── Dashboard ─────────────────────────────────────────────────────────────
+async function renderDashboard(){
+  // Show/hide add activity button
+  const canManage=canManageActivities();
+  const addBtn=document.getElementById('dashAddActivityBtn');
+  if(addBtn){
+    addBtn.style.display=canManage?'flex':'none';
+  }
+
+  // Next activity hero
+  const now=new Date();
+  const upcoming=activities.filter(a=>{
+    const d=new Date(a.date+'T'+(a.time||'00:00'));return d>=now;
+  });
+  const nextAct=upcoming[0];
+  const heroEl=document.getElementById('dashNextActivity');
+  if(nextAct){
+    const d=new Date(nextAct.date+'T'+(nextAct.time||'00:00'));
+    const dateStr=d.toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long'});
+    const timeStr=nextAct.time?nextAct.time:'';
+    heroEl.innerHTML=`<p class="font-display-lg text-primary" style="font-size:26px;font-weight:700;margin-bottom:4px">${nextAct.title}</p>
+      <p class="font-body-md text-on-surface-variant">${dateStr}${timeStr?' om '+timeStr:''}${nextAct.location?' · '+nextAct.location:''}</p>
+      ${nextAct.desc?`<p style="font-size:12px;color:#869486;margin-top:6px">${nextAct.desc}</p>`:''}`;
+  } else {
+    heroEl.innerHTML=`<p class="font-display-lg text-primary" style="font-size:24px;font-weight:700">Geen activiteiten gepland</p>
+      <p class="font-body-md text-on-surface-variant" style="margin-top:4px">${canManage?'Klik "+ Nieuw" om een activiteit in te plannen':'Wacht op de groepseigenaar om een activiteit in te plannen'}</p>`;
+  }
+
+  // Weekly availability mini-grid
+  const days=weekDays(weekStart);
+  const cells=document.querySelectorAll('#dashWeekGrid .scheduler-cell');
+  days.forEach((d,i)=>{
+    if(!cells[i])return;
+    const dk=dkey(d);
+    const myBlocks=(entries[dk]||[]).filter(e=>currentUser&&e.uid===currentUser.uid&&e.type==='avail');
+    const bar=cells[i].querySelector('div');
+    if(bar){
+      const pct=myBlocks.length>0?Math.min(100,myBlocks.length*25):0;
+      bar.style.width=pct+'%';
+      bar.className='h-1 rounded-full '+(myBlocks.length>0?'bg-primary':'bg-surface-container-high');
+    }
+  });
+
+  // Stats
+  if(currentGroup&&allGroups[currentGroup.id]){
+    const grp=allGroups[currentGroup.id];const mc=grp.members?Object.keys(grp.members).length:0;
+    document.getElementById('dashGroupStat').textContent=currentGroup.name;
+    document.getElementById('dashGroupStatSub').textContent=mc+' leden · '+(grp.inviteCode||'');
+    let myBlocks=0;
+    weekDays(weekStart).forEach(d=>{myBlocks+=(entries[dkey(d)]||[]).filter(e=>currentUser&&e.uid===currentUser.uid).length});
+    document.getElementById('dashMyBlocks').textContent=myBlocks;
+    document.getElementById('dashCoverBar').style.width=Math.min(100,myBlocks*8)+'%';
+  } else {
+    document.getElementById('dashGroupStat').textContent='—';
+    document.getElementById('dashGroupStatSub').textContent='Selecteer een groep';
+    document.getElementById('dashMyBlocks').textContent='—';
+  }
+
+  // Activities list
+  const actEl=document.getElementById('dashActivities');actEl.innerHTML='';
+  const visActs=upcoming.slice(0,5);
+  if(!visActs.length){
+    actEl.innerHTML='<div style="color:#869486;font-size:13px;padding:16px;background:#1c1b1b;border:1px solid #3d4a3e;border-radius:12px">Geen aankomende activiteiten.</div>';
+  } else {
+    visActs.forEach(act=>{
+      const d=new Date(act.date+'T'+(act.time||'00:00'));
+      const dateStr=d.toLocaleDateString('nl-NL',{weekday:'short',day:'numeric',month:'short'});
+      const card=document.createElement('div');card.className='event-card';
+      card.innerHTML=`<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:700;color:#e5e2e1;margin-bottom:3px">${act.title}</div>
+          <div style="font-size:11px;color:#4ade80;font-family:'JetBrains Mono',monospace;margin-bottom:4px">${dateStr}${act.time?' · '+act.time:''}</div>
+          ${act.location?`<div style="font-size:11px;color:#869486">📍 ${act.location}</div>`:''}
+          ${act.desc?`<div style="font-size:11px;color:#869486;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${act.desc}</div>`:''}
+        </div>
+        ${canManage?`<button onclick="openActivityOverlay('${act._id}')" style="background:none;border:1px solid #3d4a3e;border-radius:6px;color:#869486;font-size:10px;padding:3px 7px;cursor:pointer;flex-shrink:0;white-space:nowrap">✏️ Bewerk</button>`:''}
+      </div>`;
+      actEl.appendChild(card);
+    });
+  }
+
+  // Recent activity feed (group joins etc.)
+  const actFeed=document.getElementById('dashActivity');actFeed.innerHTML='';
+  const feedItems=[];
+  // Last added availability entries as activity
+  const allEntries=Object.values(entries).flat().sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,4);
+  if(!allEntries.length){
+    actFeed.innerHTML='<div style="color:#869486;font-size:13px;padding:12px">Nog geen recente activiteit in deze groep.</div>';
+  } else {
+    allEntries.forEach(e=>{
+      const card=document.createElement('div');card.className='activity-card';
+      const icon=e.type==='avail'?'event_available':'event_busy';
+      const col=e.type==='avail'?'text-primary':'text-tertiary';
+      card.innerHTML=`<div class="activity-icon"><span class="material-symbols-outlined ${col}" style="font-variation-settings:'FILL' 1">${icon}</span></div>
+        <div><h4 class="font-title-sm text-on-surface" style="font-size:14px;font-weight:600">${e.name}</h4>
+        <p class="font-body-md text-on-surface-variant" style="font-size:13px">${e.type==='avail'?'Beschikbaar':'Niet beschikbaar'}: ${e.from}–${e.to}</p>
+        <span class="font-label-caps text-outline block mt-xs" style="font-size:10px">${e.ts?relTime(e.ts):'recent'}</span></div>`;
+      actFeed.appendChild(card);
+    });
+  }
+
+  // Group cards
+  const grid=document.getElementById('dashGroupGrid');grid.innerHTML='';
+  const gids=Object.keys(allGroups);
+  if(!gids.length){grid.innerHTML='<div style="font-size:13px;color:#869486;padding:12px">Nog geen groepen.</div>';return}
+  const icons=['terminal','shield','database','groups','event','bolt'];
+  const colors=['text-primary','text-secondary','text-tertiary'];
+  const bgColors=['bg-primary-container/20','bg-secondary-container/20','bg-tertiary-container/20'];
+  gids.forEach((gid,i)=>{
+    const grp=allGroups[gid];const mc=grp.members?Object.keys(grp.members).length:1;
+    const isOwner=grp.ownerUid===currentUser.uid;
+    const active=currentGroup&&currentGroup.id===gid;
+    const col=colors[i%colors.length];const bg=bgColors[i%bgColors.length];
+    const icon=icons[i%icons.length];
+    const card=document.createElement('div');card.className='group-card'+(active?' border-primary':'');
+    card.innerHTML=`<div class="flex justify-between items-start mb-md">
+      <div class="w-10 h-10 rounded-lg ${bg} flex items-center justify-center ${col}">
+        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">${icon}</span>
+      </div>
+      <span class="font-label-caps text-[10px] ${col} px-2 py-0.5 rounded" style="background:rgba(74,222,128,.1);font-size:10px">${mc} LEDEN</span>
+    </div>
+    <h4 class="font-title-sm text-on-surface mb-xs">${grp.name}</h4>
+    <p class="font-body-md text-on-surface-variant" style="font-size:13px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${isOwner?'Eigenaar':'Lid'} · Code: ${grp.inviteCode||'?'}</p>
+    <div class="mt-md pt-md border-t border-outline-variant flex justify-between items-center">
+      <span class="font-label-caps text-outline" style="font-size:10px">${active?'ACTIEF':'INACTIEF'}</span>
+      <span class="material-symbols-outlined ${col}" style="font-size:16px">${isOwner?'star':'person'}</span>
+    </div>`;
+    card.onclick=()=>selectGroup(gid,grp.name);grid.appendChild(card);
+  });
+  // "Create new" card
+  const newCard=document.createElement('div');newCard.className='group-card';
+  newCard.innerHTML=`<div class="flex justify-between items-start mb-md"><div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-outline"><span class="material-symbols-outlined">add</span></div></div>
+    <h4 class="font-title-sm text-on-surface mb-xs">Nieuwe groep</h4>
+    <p class="font-body-md text-on-surface-variant" style="font-size:13px">Maak een nieuwe groep aan of join via een code.</p>
+    <div class="mt-md pt-md border-t border-outline-variant"><span class="font-label-caps text-outline" style="font-size:10px">AANMAKEN</span></div>`;
+  newCard.onclick=()=>openOverlay('groupOverlay');grid.appendChild(newCard);
+}
+
+// ── Calendar head ─────────────────────────────────────────────────────────
+function buildHead(days){
+  const tr=document.createElement('tr');
+  const tc=document.createElement('th');tc.style.width='56px';tc.className='mono';tc.textContent='TIJD';tr.appendChild(tc);
+  days.forEach((d,i)=>{
+    const th=document.createElement('th');
+    const today=dkey(d)===dkey(new Date());
+    th.innerHTML=`<div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.05em;font-weight:500;color:${today?'#4ade80':'#869486'}">${DAYS_SH[i]}</div><div style="font-size:16px;font-weight:700;color:${today?'#4ade80':'#e5e2e1'};margin-top:2px">${d.getDate()}</div>`;
+    tr.appendChild(th);
+  });
+  return tr;
+}
+
+// ── Planning calendar ──────────────────────────────────────────────────────
+function renderPlanning(){
+  if(!currentUser||!currentGroup)return;
+  document.getElementById('weekLabel').textContent=wkLabel(weekStart);
+  const days=weekDays(weekStart);
+  const head=document.getElementById('planHead');head.innerHTML='';head.appendChild(buildHead(days));
+  const covered=Array.from({length:7},()=>({}));
+  const blocks=Array.from({length:7},()=>[]);
+  days.forEach((d,di)=>{const dk=dkey(d);(entries[dk]||[]).forEach((e,idx)=>{if(e.uid!==currentUser.uid)return;const fi=hi(e.from);if(fi<0)return;const span=Math.max(1,hi(e.to)>fi?hi(e.to)-fi:1);blocks[di].push({e,ei:idx,dk,fi,span});for(let r=fi;r<fi+span;r++)covered[di][r]=true})});
+  const body=document.getElementById('planBody');body.innerHTML='';
+  HOURS.forEach((hour,hIdx)=>{
+    const row=document.createElement('tr');
+    const tc=document.createElement('td');tc.className='time-cell';tc.textContent=hour;row.appendChild(tc);
+    days.forEach((d,di)=>{
+      const dk=dkey(d);
+      if(covered[di][hIdx]&&!blocks[di].find(b=>b.fi===hIdx))return;
+      const td=document.createElement('td');td.className='day-cell';
+      const block=blocks[di].find(b=>b.fi===hIdx);
+      if(block){td.rowSpan=block.span;const div=document.createElement('div');div.className='span-block '+block.e.type;div.innerHTML=`<span>${block.e.name}</span><span style="font-size:9px;opacity:.7;margin-top:1px">${block.e.from}–${block.e.to}</span>${block.e.note?`<span style="font-size:9px;opacity:.65;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${block.e.note}</span>`:''}`; div.onclick=()=>openModal(dk,block.e.from,block.ei);td.appendChild(div)}
+      else{const btn=document.createElement('button');btn.className='add-cell-btn';btn.textContent='+';btn.onclick=ev=>{ev.stopPropagation();openModal(dk,hour)};td.appendChild(btn);td.onclick=()=>openModal(dk,hour)}
+      row.appendChild(td);
+    });
+    body.appendChild(row);
+  });
+}
+window.prevWeek=()=>{weekStart=addDays(weekStart,-7);renderPlanning()};
+window.nextWeek=()=>{weekStart=addDays(weekStart,7);renderPlanning()};
+
+// ── Overview calendar ──────────────────────────────────────────────────────
+function renderOverview(){
+  if(!currentGroup)return;
+  document.getElementById('ovWeekLabel').textContent=wkLabel(weekStartOv);
+  const days=weekDays(weekStartOv);
+  const head=document.getElementById('ovHead');head.innerHTML='';head.appendChild(buildHead(days));
+  const ovData=days.map(d=>{const dk=dkey(d);return HOURS.map((_,hIdx)=>{const avail=[],unavail=[];(entries[dk]||[]).forEach(e=>{const fi=hi(e.from),ti=hi(e.to);if(fi<0)return;if(hIdx>=fi&&hIdx<Math.max(fi+1,ti))(e.type==='avail'?avail:unavail).push(e.name)});return{avail,unavail}})});
+  function mergeBlocks(di,getKey){const bl=[];let hIdx=0;while(hIdx<HOURS.length){const key=getKey(ovData[di][hIdx]);if(!key){hIdx++;continue}let span=1;while(hIdx+span<HOURS.length&&getKey(ovData[di][hIdx+span])===key)span++;bl.push({fromHi:hIdx,span,key});hIdx+=span}return bl}
+  const ovB=days.map((_,di)=>mergeBlocks(di,({avail})=>avail.length>0?[...avail].sort().join(','):null));
+  const nbB=days.map((_,di)=>mergeBlocks(di,({avail,unavail})=>avail.length===0&&unavail.length>0?'nobody':null));
+  const cOv=Array.from({length:7},()=>({}));const cNb=Array.from({length:7},()=>({}));
+  days.forEach((_,di)=>{ovB[di].forEach(b=>{for(let r=b.fromHi;r<b.fromHi+b.span;r++)cOv[di][r]=true});nbB[di].forEach(b=>{for(let r=b.fromHi;r<b.fromHi+b.span;r++)cNb[di][r]=true})});
+  const body=document.getElementById('ovBody');body.innerHTML='';
+  HOURS.forEach((_,hIdx)=>{
+    const row=document.createElement('tr');
+    const tc=document.createElement('td');tc.className='time-cell';tc.textContent=HOURS[hIdx];row.appendChild(tc);
+    days.forEach((_,di)=>{
+      if((cOv[di][hIdx]&&!ovB[di].find(b=>b.fromHi===hIdx))||(cNb[di][hIdx]&&!nbB[di].find(b=>b.fromHi===hIdx)))return;
+      const td=document.createElement('td');td.className='day-cell';td.style.cursor='default';
+      const ob=ovB[di].find(b=>b.fromHi===hIdx);const nb=nbB[di].find(b=>b.fromHi===hIdx);
+      if(ob){td.rowSpan=ob.span;const div=document.createElement('div');div.className='ov-block avail';div.textContent=ob.key.split(',').join(', ');td.appendChild(div)}
+      else if(nb){td.rowSpan=nb.span;const div=document.createElement('div');div.className='ov-block nobody';div.textContent='Niemand beschikbaar';td.appendChild(div)}
+      row.appendChild(td);
+    });
+    body.appendChild(row);
+  });
+}
+window.prevWeekOv=()=>{weekStartOv=addDays(weekStartOv,-7);renderOverview()};
+window.nextWeekOv=()=>{weekStartOv=addDays(weekStartOv,7);renderOverview()};
+
+function renderMemberStrip(){
+  if(!currentGroup)return;const grp=allGroups[currentGroup.id];
+  const strip=document.getElementById('memberStrip');strip.innerHTML='';
+  if(!grp||!grp.members)return;
+  const mn=grp.memberNames||{};
+  Object.keys(grp.members).forEach(uid=>{
+    const name=mn[uid]||uid.slice(0,8);
+    const chip=document.createElement('div');
+    chip.className='flex items-center gap-sm bg-surface-container-low border border-outline-variant rounded-full px-sm py-xs pr-md';
+    chip.innerHTML=`<div style="width:24px;height:24px;background:#005e2d;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#4ade80;font-family:'JetBrains Mono',monospace">${initials(name)}</div><span style="font-size:13px;font-weight:600">${name}</span><div style="width:6px;height:6px;border-radius:50%;background:#4ade80;margin-left:4px"></div>`;
+    strip.appendChild(chip);
+  });
+}
+
+// ── Teams ─────────────────────────────────────────────────────────────────
+async function renderTeams(){
+  const el=document.getElementById('teamsContent');el.innerHTML='';
+  const gids=Object.keys(allGroups);
+  if(!gids.length){el.innerHTML='<div class="text-on-surface-variant text-sm">Nog geen groepen.</div>';return}
+  for(const gid of gids){
+    const grp=allGroups[gid];const isOwner=grp.ownerUid===currentUser.uid;
+    const memberUids=grp.members?Object.keys(grp.members):[];const mn=grp.memberNames||{};
+    let membersHtml='';
+    memberUids.forEach(uid=>{
+      const name=mn[uid]||uid.slice(0,8);const isMe=uid===currentUser.uid;const mOwner=uid===grp.ownerUid;
+      membersHtml+=`<div class="flex items-center gap-sm bg-surface-container border border-outline-variant rounded-lg px-md py-sm mb-xs">
+        <div style="width:30px;height:30px;background:#005e2d;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#4ade80;font-family:'JetBrains Mono',monospace">${initials(name)}</div>
+        <div class="flex-1"><div class="text-on-surface font-semibold" style="font-size:13px">${name}${isMe?' <span style="font-size:10px;color:#869486">(jij)</span>':''}</div><div style="font-size:10px;color:#869486">${mOwner?'Eigenaar':'Lid'}</div></div>
+        ${(isOwner&&!isMe&&!mOwner)?`<button onclick="kickMember('${gid}','${uid}','${name}')" style="background:#5c1f1f;border:none;border-radius:6px;color:#ffd7d5;font-size:11px;padding:4px 9px;cursor:pointer">Verwijderen</button>`:''}
+      </div>`;
+    });
+    const card=document.createElement('div');
+    card.className='bg-surface-container-low border border-outline-variant rounded-xl p-lg mb-lg';
+    card.innerHTML=`<div class="flex items-start justify-between mb-md">
+      <div class="flex items-center gap-md">
+        <div style="width:44px;height:44px;background:#005e2d;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#4ade80;font-family:'JetBrains Mono',monospace">${initials(grp.name)}</div>
+        <div><div class="text-on-surface font-bold" style="font-size:16px">${grp.name}</div><div style="font-size:11px;color:#869486;font-family:'JetBrains Mono',monospace">${memberUids.length} leden · ${isOwner?'Eigenaar':'Lid'}</div></div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:10px;color:#869486;font-family:'JetBrains Mono',monospace;margin-bottom:4px">UITNODIGINGSCODE</div>
+        <div onclick="copyCode('${grp.inviteCode}')" class="border border-outline-variant rounded-lg px-sm py-1 font-label-caps text-primary cursor-pointer hover:bg-surface-container transition-colors" style="font-size:14px;letter-spacing:.12em;font-family:'JetBrains Mono',monospace">${grp.inviteCode||'?'}</div>
+      </div>
+    </div>
+    <div style="font-size:10px;color:#869486;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">LEDEN</div>
+    ${membersHtml}
+    <div class="flex gap-sm mt-md pt-md border-t border-outline-variant">
+      ${isOwner?`<button onclick="confirmDeleteGroup('${gid}')" class="btn-danger" style="padding:7px 14px;font-size:12px">🗑 Groep verwijderen</button>`:`<button onclick="confirmLeaveGroup('${gid}')" class="btn-secondary" style="margin:0;padding:7px 14px;font-size:12px;width:auto">Groep verlaten</button>`}
+    </div>`;
+    el.appendChild(card);
+  }
+}
+window.kickMember=(gid,uid,name)=>confirm2('Lid verwijderen','Weet je zeker dat je '+name+' wilt verwijderen?','Verwijderen',async()=>{await dbDel('groups/'+gid+'/members/'+uid);await dbDel('userGroups/'+uid+'/'+gid);await loadUserGroups();renderTeams()});
+window.confirmDeleteGroup=gid=>confirm2('Groep verwijderen','Weet je zeker? Dit verwijdert ook alle plannings- en activiteitsdata.','Verwijderen',async()=>{const grp=allGroups[gid];if(grp&&grp.members)for(const uid of Object.keys(grp.members))await dbDel('userGroups/'+uid+'/'+gid);if(grp&&grp.inviteCode)await dbDel('inviteCodes/'+grp.inviteCode);await dbDel('groups/'+gid);await dbDel('groupEntries/'+gid);// activities are under groups/{gid}/activities, deleted with the groupif(currentGroup&&currentGroup.id===gid){currentGroup=null;localStorage.removeItem('fap_group');entries={};activities=[];updateGroupHeader()}await loadUserGroups();renderTeams();renderDashboard()});
+window.confirmLeaveGroup=gid=>confirm2('Groep verlaten','Weet je zeker?','Verlaten',async()=>{await dbDel('groups/'+gid+'/members/'+currentUser.uid);await dbDel('userGroups/'+currentUser.uid+'/'+gid);if(currentGroup&&currentGroup.id===gid){currentGroup=null;localStorage.removeItem('fap_group');entries={};activities=[];updateGroupHeader()}await loadUserGroups();renderTeams();renderDashboard()});
+window.copyCode=code=>{navigator.clipboard.writeText(code).catch(()=>{});setStatus('✓ Code gekopieerd: '+code)};
+
+// ── Availability modal ─────────────────────────────────────────────────────
+window.openModalNew=()=>{if(!currentGroup){openOverlay('groupOverlay');return}openModal(dkey(new Date()),HOURS[0],null)};
+function openModal(dk,fromHour,existingIdx=null){
+  if(!currentUser||!currentGroup)return;
+  modalCtx={dk,fromHour,existingIdx};
+  const fs=document.getElementById('modalFrom'),ts=document.getElementById('modalTo');
+  fs.innerHTML='';ts.innerHTML='';HOURS.forEach(h=>{fs.appendChild(new Option(h,h));ts.appendChild(new Option(h,h))});
+  fs.value=fromHour;ts.selectedIndex=Math.min(hi(fromHour)+1,HOURS.length-1);
+  document.getElementById('modalNote').value='';
+  if(existingIdx!==null){const e=(entries[dk]||[])[existingIdx];if(e){fs.value=e.from;ts.value=e.to;document.getElementById('modalNote').value=e.note||''}}
+  document.getElementById('modalTitle').textContent=(existingIdx!==null?'Bewerken':'Toevoegen')+' — '+displayName;
+  document.getElementById('deleteRow').style.display=existingIdx!==null?'':'none';
+  setModalBtns(false);openOverlay('modalOverlay');
+}
+function closeModal(){closeOverlay('modalOverlay');modalCtx=null;if(window.innerWidth<768)setTimeout(renderMobile,0)}
+function setModalBtns(l){['btnAvail','btnUnavail','btnCancel','btnDelete'].forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=l})}
+async function submitModal(type){
+  const from=document.getElementById('modalFrom').value,to=document.getElementById('modalTo').value;
+  const note=document.getElementById('modalNote').value.trim();
+  const{dk,existingIdx}=modalCtx;
+  const data={uid:currentUser.uid,name:displayName,type,from,to,ts:Date.now()};if(note)data.note=note;
+  setModalBtns(true);
+  try{
+    if(existingIdx!==null){const old=(entries[dk]||[])[existingIdx];await dbSet(ePath()+'/'+dk+'/'+old._id,data);entries[dk][existingIdx]=Object.assign({},data,{_id:old._id})}
+    else{const res=await dbPush(ePath()+'/'+dk,data);if(!entries[dk])entries[dk]=[];entries[dk].push(Object.assign({},data,{_id:res.key}))}
+    closeModal();renderPlanning();renderOverview();renderDashboard();
+  }catch(e){setModalBtns(false);alert('❌ Opslaan mislukt: '+e.message)}
+}
+document.getElementById('btnCancel').onclick=closeModal;
+document.getElementById('btnAvail').onclick=()=>submitModal('avail');
+document.getElementById('btnUnavail').onclick=()=>submitModal('unavail');
+document.getElementById('btnDelete').onclick=async()=>{
+  const{dk,existingIdx}=modalCtx;if(existingIdx===null||!entries[dk]){closeModal();return}
+  const old=entries[dk][existingIdx];setModalBtns(true);
+  try{await dbDel(ePath()+'/'+dk+'/'+old._id);entries[dk].splice(existingIdx,1);if(!entries[dk].length)delete entries[dk];closeModal();renderPlanning();renderOverview();renderDashboard()}
+  catch(e){setModalBtns(false);alert('❌ '+e.message)}
+};
+document.getElementById('modalOverlay').onclick=e=>{if(e.target===document.getElementById('modalOverlay'))closeModal()};
+
+// ── Week actions ───────────────────────────────────────────────────────────
+window.fillWeek=async type=>{
+  if(!currentUser||!currentGroup)return;
+  await clearWeekUser(false);
+  for(const d of weekDays(weekStart)){const dk=dkey(d);const data={uid:currentUser.uid,name:displayName,type,from:'07:00',to:'22:00',ts:Date.now()};const res=await dbPush(ePath()+'/'+dk,data);if(!entries[dk])entries[dk]=[];entries[dk].push(Object.assign({},data,{_id:res.key}))}
+  renderPlanning();renderOverview();renderDashboard();
+};
+window.clearWeekUser=async(render=true)=>{
+  if(!currentUser||!currentGroup)return;
+  const upd={};weekDays(weekStart).forEach(d=>{const dk=dkey(d);(entries[dk]||[]).forEach(e=>{if(e.uid===currentUser.uid)upd[dk+'/'+e._id]=null})});
+  if(Object.keys(upd).length)await dbUpd(ePath(),upd);
+  weekDays(weekStart).forEach(d=>{const dk=dkey(d);if(entries[dk]){entries[dk]=entries[dk].filter(e=>e.uid!==currentUser.uid);if(!entries[dk].length)delete entries[dk]}});
+  if(render){renderPlanning();renderOverview();renderDashboard()}
+};
+
+// ── Recurring ──────────────────────────────────────────────────────────────
+window.openRecur=()=>{
+  if(!currentGroup){openOverlay('groupOverlay');return}
+  document.querySelectorAll('.day-toggle').forEach(b=>b.classList.remove('on'));
+  const fs=document.getElementById('recurFrom'),ts=document.getElementById('recurTo');
+  fs.innerHTML='';ts.innerHTML='';HOURS.forEach(h=>{fs.appendChild(new Option(h,h));ts.appendChild(new Option(h,h))});
+  fs.value='07:00';ts.selectedIndex=1;
+  document.getElementById('recurNote').value='';document.getElementById('recurError').textContent='';
+  openOverlay('recurOverlay');
+};
+async function applyRecur(type){
+  if(!currentGroup){document.getElementById('recurError').textContent='❌ Selecteer eerst een groep';return}
+  const selDays=[...document.querySelectorAll('.day-toggle.on')].map(b=>parseInt(b.dataset.day));
+  if(!selDays.length){document.getElementById('recurError').textContent='❌ Selecteer minstens één dag';return}
+  const from=document.getElementById('recurFrom').value,to=document.getElementById('recurTo').value;
+  const note=document.getElementById('recurNote').value.trim();
+  document.getElementById('recurAvail').disabled=true;document.getElementById('recurUnavail').disabled=true;
+  document.getElementById('recurError').textContent='⏳ Opslaan…';
+  const today=new Date();today.setHours(0,0,0,0);
+  try{
+    for(let w=0;w<8;w++)for(const di of selDays){
+      const d=addDays(getMonday(addDays(today,w*7)),di);if(d<today)continue;const dk=dkey(d);
+      if((entries[dk]||[]).some(e=>e.uid===currentUser.uid&&e.from===from&&e.to===to))continue;
+      const data={uid:currentUser.uid,name:displayName,type,from,to,ts:Date.now()};if(note)data.note=note;
+      const res=await dbPush(ePath()+'/'+dk,data);if(!entries[dk])entries[dk]=[];entries[dk].push(Object.assign({},data,{_id:res.key}));
+    }
+    closeOverlay('recurOverlay');document.getElementById('recurAvail').disabled=false;document.getElementById('recurUnavail').disabled=false;
+    renderPlanning();renderOverview();
+  }catch(e){document.getElementById('recurError').textContent='❌ '+e.message;document.getElementById('recurAvail').disabled=false;document.getElementById('recurUnavail').disabled=false}
+}
+document.getElementById('recurAvail').onclick=()=>applyRecur('avail');
+document.getElementById('recurUnavail').onclick=()=>applyRecur('unavail');
+document.getElementById('recurCancel').onclick=()=>closeOverlay('recurOverlay');
+document.querySelectorAll('.day-toggle').forEach(btn=>btn.onclick=()=>btn.classList.toggle('on'));
+
+// ── Mobile day view ────────────────────────────────────────────────────────
+function renderMobile(){
+  if(window.innerWidth>=768)return;
+  const days=weekDays(mobWeekStart);const d=days[mobDayIdx];
+  document.getElementById('mobDayName').textContent=DAYS_NL[mobDayIdx];
+  document.getElementById('mobDayDate').textContent=d.toLocaleDateString('nl-NL',{day:'numeric',month:'long'});
+  const dotsEl=document.getElementById('mobDots');dotsEl.innerHTML='';
+  days.forEach((day,i)=>{
+    const dk=dkey(day);const de=(entries[dk]||[]).filter(e=>currentUser&&e.uid===currentUser.uid);
+    const dot=document.createElement('div');
+    dot.style.cssText='width:7px;height:7px;border-radius:50%;cursor:pointer;transition:background .2s;background:'+(de.length?(de.some(e=>e.type==='avail')?'#4ade80':'#a05252'):'#3d4a3e');
+    if(i===mobDayIdx)dot.style.outline='2px solid #fff';dot.onclick=()=>mobGoTo(i,true);dotsEl.appendChild(dot);
+  });
+  const inner=document.getElementById('mobSwipeInner');inner.innerHTML='';
+  days.forEach((day,i)=>{
+    const slide=document.createElement('div');slide.className='mob-slide';
+    slide.innerHTML=buildMobSlide(day);inner.appendChild(slide);
+    slide.querySelectorAll('.mob-slot').forEach(item=>item.onclick=()=>openModal(dkey(day),item.dataset.from,parseInt(item.dataset.eidx)));
+    slide.querySelector('.mob-add')?.addEventListener('click',()=>openModal(dkey(day),HOURS[0]));
+    slide.querySelector('.mob-avail')?.addEventListener('click',()=>mobFillDay(day,'avail'));
+    slide.querySelector('.mob-unavail')?.addEventListener('click',()=>mobFillDay(day,'unavail'));
+    slide.querySelector('.mob-clear')?.addEventListener('click',()=>mobClearDay(day));
+  });
+  inner.style.transition='none';inner.style.transform='translateX(-'+(mobDayIdx*100)+'%)';requestAnimationFrame(()=>inner.style.transition='');
+}
+function buildMobSlide(day){
+  const dk=dkey(day);const de=(entries[dk]||[]).filter(e=>currentUser&&e.uid===currentUser.uid).sort((a,b)=>hi(a.from)-hi(b.from));
+  let slots=de.map(e=>{const oi=(entries[dk]||[]).indexOf(e);return`<div class="mob-slot" data-eidx="${oi}" data-from="${e.from}"><div style="width:8px;height:8px;border-radius:50%;background:${e.type==='avail'?'#4ade80':'#a05252'};flex-shrink:0"></div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:#e5e2e1">${e.from} – ${e.to}</div>${e.note?`<div style="font-size:11px;color:#869486;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">💬 ${e.note}</div>`:''}</div><span style="font-size:10px;background:${e.type==='avail'?'#005e2d':'#5c1f1f'};color:${e.type==='avail'?'#4ade80':'#ffd7d5'};border-radius:20px;padding:2px 8px;font-weight:700;flex-shrink:0">${e.type==='avail'?'Beschikbaar':'Niet'}</span></div>`}).join('');
+  if(!slots)slots='<div style="text-align:center;color:#869486;font-size:13px;padding:28px 0">📅 Nog niets ingepland<br><span style="font-size:11px">Tik + om te beginnen</span></div>';
+  return`<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap"><button class="mob-avail" style="flex:1;min-width:80px;padding:8px;border-radius:8px;background:#005e2d;border:none;color:#4ade80;font-size:11px;font-weight:700;cursor:pointer">✓ Beschikbaar</button><button class="mob-unavail" style="flex:1;min-width:80px;padding:8px;border-radius:8px;background:#5c1f1f;border:none;color:#ffd7d5;font-size:11px;font-weight:700;cursor:pointer">✕ Niet</button><button class="mob-clear" style="flex:1;min-width:60px;padding:8px;border-radius:8px;background:#201f1f;border:1px solid #3d4a3e;color:#869486;font-size:11px;font-weight:700;cursor:pointer">🗑 Wissen</button></div>${slots}<button class="mob-add" style="display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:10px;padding:12px;background:rgba(74,222,128,.08);border:1px dashed #3d4a3e;border-radius:10px;color:#4ade80;font-size:13px;font-weight:700;cursor:pointer">+ Tijdslot toevoegen</button>`;
+}
+function mobGoTo(newIdx,animate){
+  if(mobAnimating)return;mobDayIdx=newIdx;const inner=document.getElementById('mobSwipeInner');
+  if(!animate){inner.style.transition='none';inner.style.transform='translateX(-'+(mobDayIdx*100)+'%)';requestAnimationFrame(()=>inner.style.transition='')}
+  else{mobAnimating=true;inner.style.transform='translateX(-'+(mobDayIdx*100)+'%)';setTimeout(()=>mobAnimating=false,300)}
+  const d=weekDays(mobWeekStart)[mobDayIdx];
+  document.getElementById('mobDayName').textContent=DAYS_NL[mobDayIdx];
+  document.getElementById('mobDayDate').textContent=d.toLocaleDateString('nl-NL',{day:'numeric',month:'long'});
+  document.querySelectorAll('#mobDots div').forEach((dot,i)=>dot.style.outline=i===mobDayIdx?'2px solid #fff':'none');
+}
+document.getElementById('mobPrevDay').onclick=()=>{if(mobDayIdx>0)mobGoTo(mobDayIdx-1,true);else{mobWeekStart=addDays(mobWeekStart,-7);mobDayIdx=6;renderMobile()}};
+document.getElementById('mobNextDay').onclick=()=>{if(mobDayIdx<6)mobGoTo(mobDayIdx+1,true);else{mobWeekStart=addDays(mobWeekStart,7);mobDayIdx=0;renderMobile()}};
+(()=>{const wrap=document.getElementById('mobSwipeWrap');let sx=0,sy=0,dx=0,drag=false,vert=false;
+  wrap.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;dx=0;drag=true;vert=false},{passive:true});
+  wrap.addEventListener('touchmove',e=>{if(!drag)return;const ddx=e.touches[0].clientX-sx,ddy=e.touches[0].clientY-sy;if(!vert&&Math.abs(ddy)>Math.abs(ddx)+5){vert=true;drag=false;return}if(vert)return;if(Math.abs(ddx)>8)e.preventDefault();dx=ddx;const inner=document.getElementById('mobSwipeInner');inner.style.transition='none';inner.style.transform='translateX(calc(-'+(mobDayIdx*100)+'% + '+dx+'px))'},{passive:false});
+  wrap.addEventListener('touchend',()=>{if(!drag||vert)return;drag=false;if(dx<-50){if(mobDayIdx<6)mobGoTo(mobDayIdx+1,true);else{mobWeekStart=addDays(mobWeekStart,7);mobDayIdx=0;renderMobile()}}else if(dx>50){if(mobDayIdx>0)mobGoTo(mobDayIdx-1,true);else{mobWeekStart=addDays(mobWeekStart,-7);mobDayIdx=6;renderMobile()}}else{const inner=document.getElementById('mobSwipeInner');inner.style.transform='translateX(-'+(mobDayIdx*100)+'%)'}dx=0})
+})();
+async function mobFillDay(day,type){if(!currentUser||!currentGroup)return;await mobClearDayData(day);const dk=dkey(day);const data={uid:currentUser.uid,name:displayName,type,from:'07:00',to:'22:00',ts:Date.now()};const res=await dbPush(ePath()+'/'+dk,data);if(!entries[dk])entries[dk]=[];entries[dk].push(Object.assign({},data,{_id:res.key}));renderMobile();renderOverview()}
+async function mobClearDay(day){await mobClearDayData(day);renderMobile();renderOverview()}
+async function mobClearDayData(day){if(!currentUser||!currentGroup)return;const dk=dkey(day);const upd={};(entries[dk]||[]).forEach(e=>{if(e.uid===currentUser.uid)upd[dk+'/'+e._id]=null});if(Object.keys(upd).length)await dbUpd(ePath(),upd);if(entries[dk]){entries[dk]=entries[dk].filter(e=>e.uid!==currentUser.uid);if(!entries[dk].length)delete entries[dk]}}
+
+// ── Confirm ────────────────────────────────────────────────────────────────
+function confirm2(title,text,btnLabel,cb){confirmCb=cb;document.getElementById('confirmTitle').textContent=title;document.getElementById('confirmText').textContent=text;document.getElementById('confirmDel').textContent=btnLabel;openOverlay('confirmOverlay')}
+document.getElementById('confirmCancel').onclick=()=>{confirmCb=null;closeOverlay('confirmOverlay')};
+document.getElementById('confirmDel').onclick=()=>{closeOverlay('confirmOverlay');if(confirmCb)confirmCb()};
+
+window.addEventListener('resize',()=>{if(window.innerWidth<768)renderMobile()});
+</script>
+</body>
+</html>
