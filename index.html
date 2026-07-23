@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planning App - OpsPlan</title>
+    <title>Planning App - FeinyAhPlanner</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     
@@ -76,7 +76,7 @@
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="h-screen overflow-hidden flex relative">
+<body class="md:h-screen md:overflow-hidden flex relative w-full">
 
     <!-- ==================== AUTH SCHERM ==================== -->
     <div id="auth-screen" class="fixed inset-0 bg-background z-50 flex flex-col items-center justify-center p-4">
@@ -85,7 +85,7 @@
                 <div class="w-16 h-16 bg-primary-container text-primary rounded-full flex items-center justify-center mx-auto mb-4">
                     <span class="material-symbols-outlined text-3xl">deployed_code</span>
                 </div>
-                <h1 class="text-2xl font-bold">Welkom bij OpsPlan</h1>
+                <h1 class="text-2xl font-bold">Welkom bij FeinyAhPlanner</h1>
                 <p id="auth-subtitle" class="text-on-surface-variant mt-2">Log in op je account</p>
             </div>
             <form id="auth-form" class="space-y-4">
@@ -118,14 +118,19 @@
         </div>
     </div>
 
+    <!-- GLOBAL WARNING BANNER -->
+    <div id="sub-warning-banner" style="display: none;" class="bg-error text-white text-xs font-bold text-center py-2 px-4 w-full z-[60] absolute top-0 left-0 shadow-md">
+        ⚠️ Je abonnement is verlopen. Je actieve teams worden binnen 24 uur na het verlopen automatisch verwijderd als je niet vernieuwt.
+    </div>
+
     <!-- ==================== HOOFD APPLICATIE ==================== -->
-    <div id="app-container" class="hidden w-full h-full relative">
+    <div id="app-container" class="hidden w-full h-full relative pt-0 transition-all duration-300" style="padding-top: 0px;">
         
         <!-- SIDEBAR OVERLAY (Voor mobiel) -->
         <div id="sidebar-overlay" onclick="toggleSidebar()" class="hidden fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm"></div>
 
         <!-- SIDEBAR -->
-        <aside id="sidebar" class="w-64 bg-surface border-r border-outline-variant flex flex-col h-full flex-shrink-0 absolute md:relative z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+        <aside id="sidebar" class="w-64 bg-surface border-r border-outline-variant flex flex-col h-full flex-shrink-0 absolute md:relative z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 fixed md:static">
             <div class="p-6 flex flex-col gap-4">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
@@ -133,7 +138,7 @@
                             <span class="material-symbols-outlined text-[20px]">deployed_code</span>
                         </div>
                         <div>
-                            <h1 class="text-xl font-bold leading-tight text-primary">OpsPlan</h1>
+                            <h1 class="text-xl font-bold leading-tight text-primary">FeinyAhPlanner</h1>
                             <p class="text-[10px] text-on-surface-variant tracking-widest uppercase">Project Alpha</p>
                         </div>
                     </div>
@@ -179,7 +184,7 @@
         <!-- MAIN CONTENT AREA -->
         <main class="flex-1 flex flex-col h-full bg-background relative z-10 min-w-0">
             <!-- HEADER -->
-            <header class="h-16 bg-background border-b border-outline-variant flex items-center justify-between px-4 md:px-8 flex-shrink-0 relative z-30">
+            <header class="h-16 bg-background border-b border-outline-variant flex items-center justify-between px-4 md:px-8 flex-shrink-0 relative z-30 w-full">
                 <div class="flex items-center gap-3">
                     <button onclick="toggleSidebar()" class="md:hidden p-2 -ml-2 text-on-surface hover:bg-surface-container rounded-lg"><span class="material-symbols-outlined">menu</span></button>
                     <h2 id="topbar-title" class="text-xl md:text-2xl font-bold text-primary">Dashboard</h2>
@@ -198,10 +203,11 @@
                 </div>
             </header>
 
-            <div class="flex-1 overflow-auto relative p-4 md:p-8 z-10">
+            <!-- Grote scroll-container voor alles! -->
+            <div class="flex-1 overflow-y-auto relative z-10 w-full p-4 md:p-8" id="main-scroll-area">
                 
                 <!-- VIEW: DASHBOARD -->
-                <div id="view-dashboard" class="hidden max-w-6xl mx-auto space-y-6 md:space-y-10 relative z-10">
+                <div id="view-dashboard" class="hidden max-w-6xl mx-auto space-y-6 md:space-y-10 relative">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="col-span-1 lg:col-span-2 bg-surface border border-outline-variant rounded-2xl p-6 relative overflow-hidden flex flex-col justify-center shadow-sm">
                             <div class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Mijn Planning Coverage</div>
@@ -254,7 +260,7 @@
                 </div>
 
                 <!-- VIEW: MANAGE GROUPS -->
-                <div id="view-manage_groups" class="hidden max-w-6xl mx-auto h-full">
+                <div id="view-manage_groups" class="hidden max-w-6xl mx-auto md:h-full">
                     <div class="mb-6 md:mb-8 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
                         <div>
                             <h2 class="text-2xl font-bold">Teams Beheren</h2>
@@ -276,7 +282,7 @@
                             <div id="current-sub-badge" class="mt-3 inline-block px-3 py-1 bg-primary-container text-primary rounded-full text-xs font-bold">Huidig pakket: Laden...</div>
                         </div>
                         
-                        <button onclick="window.manageSubscription()" id="btn-manage-sub" class="hidden w-full md:w-auto px-5 py-2.5 justify-center bg-surface-container-highest text-primary font-bold rounded-lg border border-outline-variant hover:bg-outline transition-all items-center gap-2">
+                        <button onclick="window.manageSubscription()" id="btn-manage-sub" style="display: none;" class="w-full md:w-auto px-5 py-2.5 justify-center bg-surface-container-highest text-primary font-bold rounded-lg border border-outline-variant hover:bg-outline transition-all items-center gap-2">
                             <span class="material-symbols-outlined text-[20px]">manage_accounts</span> Abonnement Beheren (Stripe)
                         </button>
                     </div>
@@ -284,8 +290,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
                         <!-- Begin Pakket -->
                         <div class="bg-surface border border-primary/40 rounded-2xl p-6 flex flex-col justify-between shadow-sm relative overflow-hidden">
-                            <!-- Gratis Lintje -->
-                            <div class="absolute top-0 right-0 bg-primary text-background text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">1 Maand Gratis</div>
+                            <div id="badge-free-month" class="absolute top-0 right-0 bg-primary text-background text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">1 Maand Gratis</div>
                             
                             <div>
                                 <h3 class="text-xl font-bold text-white">Begin</h3>
@@ -345,7 +350,7 @@
                 <div id="view-settings" class="hidden max-w-4xl mx-auto space-y-6 pb-20">
                     <div>
                         <h2 class="text-2xl font-bold">Account Instellingen</h2>
-                        <p class="text-on-surface-variant text-sm mt-1">Beheer uw persoonlijke voorkeuren en beveiliging voor het OpsPlan ecosysteem.</p>
+                        <p class="text-on-surface-variant text-sm mt-1">Beheer uw persoonlijke voorkeuren en beveiliging voor het FeinyAhPlanner ecosysteem.</p>
                     </div>
                     
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -355,14 +360,8 @@
                                 <h3 class="text-lg font-bold flex items-center gap-2"><span class="material-symbols-outlined text-primary">person</span> Profiel</h3>
                             </div>
                             <div class="flex flex-col md:flex-row gap-5 items-center md:items-start">
-                                <!-- Avatar Upload -->
-                                <div class="relative group cursor-pointer" title="Klik om profielfoto te wijzigen" onclick="document.getElementById('profile-pic-upload').click()">
-                                    <div id="settings-avatar" class="flex-shrink-0 relative overflow-hidden rounded-xl shadow-sm transition-opacity group-hover:opacity-75"></div>
-                                    <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl">
-                                        <span class="material-symbols-outlined text-white">photo_camera</span>
-                                    </div>
-                                    <input type="file" id="profile-pic-upload" accept="image/*" class="hidden">
-                                </div>
+                                <!-- Avatar is static nu -->
+                                <div id="settings-avatar" class="flex-shrink-0 relative overflow-hidden rounded-xl shadow-sm border border-outline-variant"></div>
 
                                 <div class="flex-1 space-y-4 w-full">
                                     <div>
@@ -450,8 +449,9 @@
                 </div>
 
                 <!-- VIEW: SCHEDULER -->
-                <div id="view-scheduler" class="hidden max-w-6xl mx-auto h-full flex flex-col">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 flex-shrink-0 gap-4">
+                <div id="view-scheduler" class="hidden max-w-6xl mx-auto flex flex-col w-full pb-20">
+                    
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 flex-shrink-0 gap-4 w-full">
                         <div>
                             <h2 id="page-title" class="text-2xl font-bold">Mijn Planning</h2>
                             <p id="page-subtitle" class="text-on-surface-variant text-sm mt-1">Jouw persoonlijke agenda</p>
@@ -465,55 +465,66 @@
                                 </div>
                                 <button onclick="navigateWeek(1)" class="p-2 hover:bg-surface-container rounded-r-lg transition-colors border-l border-outline-variant"><span class="material-symbols-outlined text-[20px]">chevron_right</span></button>
                             </div>
-                            <button id="btn-schedule-activity" onclick="openCreateActivityModal()" class="hidden md:flex px-5 py-2 bg-primary text-background font-bold rounded-lg shadow-md hover:bg-primary/90 flex items-center gap-2 transition-colors">
+                            
+                            <!-- Actie knop "Plannen" in de menubalk verwerkt -->
+                            <button id="btn-schedule-activity" onclick="window.handleFabClick()" style="display: none;" class="px-4 md:px-5 py-2 bg-primary text-background font-bold rounded-lg shadow-md hover:bg-primary/90 flex items-center gap-2 transition-colors">
                                 <span class="material-symbols-outlined text-[18px]">event_available</span> Plannen
                             </button>
                         </div>
                     </div>
                     
-                    <div id="no-group-warning" class="hidden bg-amber-950/40 border border-amber-800/50 text-amber-300 p-4 rounded-xl mb-6 text-sm flex items-center gap-3">
+                    <div id="no-group-warning" style="display: none;" class="bg-amber-950/40 border border-amber-800/50 text-amber-300 p-4 rounded-xl mb-6 text-sm flex items-center gap-3 w-full">
                         <span class="material-symbols-outlined">warning</span> Je zit momenteel niet in een groep.
                     </div>
                     
-                    <div id="optimal-slot-banner" class="hidden bg-primary-container border border-primary/30 text-primary p-4 rounded-xl mb-6 text-sm flex flex-col gap-1 hover:bg-primary-container/80 transition-colors shadow-sm cursor-pointer" onclick="openAlternativeSlotsModal()"></div>
+                    <div id="optimal-slot-banner" style="display: none;" class="bg-primary-container border border-primary/30 text-primary p-4 rounded-xl mb-6 text-sm flex-col gap-1 hover:bg-primary-container/80 transition-colors shadow-sm cursor-pointer w-full" onclick="openAlternativeSlotsModal()"></div>
 
-                    <!-- Scrollable Container voor Kalender - Nu écht overal scrollbaar -->
-                    <div class="flex-1 bg-surface border border-outline-variant rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-0 relative">
-                        <div class="flex-1 overflow-auto scrollbar-hide relative">
-                            <!-- Zorgt dat mobiel horizontaal moet scrollen ipv indrukken -->
-                            <div class="min-w-[700px] flex flex-col">
-                                <div class="flex border-b border-outline-variant bg-surface sticky top-0 z-40">
-                                    <div class="w-16 flex-shrink-0 border-r border-outline-variant bg-surface sticky left-0 z-50"></div>
-                                    <div class="flex-1 grid grid-cols-7" id="calendar-header-days"></div>
-                                </div>
-                                <div class="flex flex-1 relative bg-background">
-                                    <div id="time-axis" class="w-16 flex-shrink-0 border-r border-outline-variant flex flex-col sticky left-0 bg-surface z-30"></div>
-                                    <div class="flex-1 grid grid-cols-7 relative">
-                                        <div id="day-column-1" class="relative border-r border-outline-variant hover:bg-surface-container/20"></div>
-                                        <div id="day-column-2" class="relative border-r border-outline-variant hover:bg-surface-container/20"></div>
-                                        <div id="day-column-3" class="relative border-r border-outline-variant hover:bg-surface-container/20"></div>
-                                        <div id="day-column-4" class="relative border-r border-outline-variant hover:bg-surface-container/20"></div>
-                                        <div id="day-column-5" class="relative border-r border-outline-variant hover:bg-surface-container/20"></div>
-                                        <div id="day-column-6" class="relative border-r border-outline-variant bg-primary-container/10 hover:bg-primary-container/20"></div>
-                                        <div id="day-column-7" class="relative bg-primary-container/10 hover:bg-primary-container/20"></div>
-                                    </div>
-                                </div>
+                    <!-- MOBIELE DAG SELECTOR (Vastgeplakt bovenin scherm tijdens scrollen) -->
+                    <div id="mobile-day-selector" class="md:hidden sticky top-0 z-40 bg-background flex overflow-x-auto gap-3 pb-3 pt-2 scrollbar-hide flex-shrink-0 w-full">
+                        <!-- Via JS Gevuld -->
+                    </div>
+
+                    <!-- KALENDER BORDER CONTAINER -->
+                    <div class="bg-surface md:border border-outline-variant md:rounded-2xl shadow-sm flex flex-col w-full relative overflow-hidden">
+                        
+                        <!-- DESKTOP EN MOBIELE HEADER -->
+                        <div class="flex border-b border-outline-variant bg-surface w-full sticky top-0 z-40">
+                            <div class="w-14 md:w-16 flex-shrink-0 border-r border-outline-variant"></div>
+                            <div class="flex-1 grid grid-cols-1 md:grid-cols-7" id="calendar-header-days"></div>
+                        </div>
+
+                        <!-- KALENDER BODY (Forceer hoogte zodat de rest van de pagina lekker mee kan scrollen) -->
+                        <div class="flex w-full bg-background relative h-[1224px]">
+                            <div id="time-axis" class="w-14 md:w-16 flex-shrink-0 border-r border-outline-variant flex flex-col bg-surface z-20"></div>
+                            
+                            <!-- DESKTOP GRID & MOBIELE ENKELE KOLOM -->
+                            <div class="flex-1 grid grid-cols-1 md:grid-cols-7 relative w-full h-full" id="calendar-columns-container">
+                                <div id="day-column-1" class="relative border-r border-outline-variant hover:bg-surface-container/20 w-full h-full"></div>
+                                <div id="day-column-2" class="relative border-r border-outline-variant hover:bg-surface-container/20 w-full h-full"></div>
+                                <div id="day-column-3" class="relative border-r border-outline-variant hover:bg-surface-container/20 w-full h-full"></div>
+                                <div id="day-column-4" class="relative border-r border-outline-variant hover:bg-surface-container/20 w-full h-full"></div>
+                                <div id="day-column-5" class="relative border-r border-outline-variant hover:bg-surface-container/20 w-full h-full"></div>
+                                <div id="day-column-6" class="relative border-r border-outline-variant bg-primary-container/10 hover:bg-primary-container/20 w-full h-full"></div>
+                                <div id="day-column-7" class="relative bg-primary-container/10 hover:bg-primary-container/20 w-full h-full"></div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Leden Sectie Onder Planning -->
-                    <div id="group-members-section" class="hidden mt-8 pt-6 border-t border-outline-variant flex-shrink-0">
+                    <div id="group-members-section" style="display: none;" class="mt-8 pt-6 border-t border-outline-variant w-full flex-shrink-0">
                         <h3 class="text-lg font-bold text-on-surface mb-4">Leden (<span id="group-members-count">0</span>)</h3>
                         <div id="group-members-list" class="flex flex-wrap items-center gap-3"></div>
                     </div>
 
                 </div>
 
-                <button id="fab-add-planning" class="hidden absolute bottom-8 right-4 md:right-8 w-14 h-14 md:w-16 md:h-16 bg-primary text-background rounded-full md:rounded-2xl shadow-[0_0_20px_rgba(93,245,153,0.3)] hover:-translate-y-1 transition-all items-center justify-center z-30">
-                    <span class="material-symbols-outlined text-3xl font-bold">add</span>
-                </button>
             </div>
+            
+            <!-- Zwevende Plus knop -->
+            <button id="fab-add-planning" onclick="window.handleFabClick()" style="display: none;" class="fixed bottom-8 right-4 md:right-8 w-14 h-14 md:w-16 md:h-16 bg-primary text-background rounded-full md:rounded-2xl shadow-[0_0_20px_rgba(93,245,153,0.3)] hover:-translate-y-1 transition-all items-center justify-center z-50 cursor-pointer">
+                <span class="material-symbols-outlined text-3xl font-bold">add</span>
+            </button>
+            
         </main>
     </div>
 
@@ -531,12 +542,12 @@
                 
                 <div>
                     <h4 class="text-base font-bold text-on-surface mb-1">1. Gegevensverzameling</h4>
-                    <p>Wij verzamelen uitsluitend de gegevens die nodig zijn voor het goed functioneren van de OpsPlan applicatie. Dit omvat je opgegeven naam, e-mailadres, profielfoto, en de door jou ingevoerde beschikbaarheidstijden.</p>
+                    <p>Wij verzamelen uitsluitend de gegevens die nodig zijn voor het goed functioneren van de FeinyAhPlanner applicatie. Dit omvat je opgegeven naam, e-mailadres, profielfoto, en de door jou ingevoerde beschikbaarheidstijden.</p>
                 </div>
                 
                 <div>
                     <h4 class="text-base font-bold text-on-surface mb-1">2. Gebruik van gegevens</h4>
-                    <p>Jouw persoonlijke gegevens worden enkel gebruikt om de kerndiensten van OpsPlan te leveren. Dit betekent dat groepsleden in dezelfde teams jouw naam en beschikbaarheid kunnen inzien om gezamenlijke activiteiten te kunnen plannen.</p>
+                    <p>Jouw persoonlijke gegevens worden enkel gebruikt om de kerndiensten van FeinyAhPlanner te leveren. Dit betekent dat groepsleden in dezelfde teams jouw naam en beschikbaarheid kunnen inzien om gezamenlijke activiteiten te kunnen plannen.</p>
                 </div>
                 
                 <div>
@@ -630,7 +641,7 @@
                 <button type="button" onclick="closeCreateActivityModal()" class="text-on-surface-variant hover:text-error p-1"><span class="material-symbols-outlined">close</span></button>
             </div>
             <form id="activity-form" class="p-6 space-y-5">
-                <div id="activity-recommendation" class="hidden bg-primary-container border border-primary/40 text-primary text-sm p-3 rounded-lg mb-2">
+                <div id="activity-recommendation" style="display: none;" class="bg-primary-container border border-primary/40 text-primary text-sm p-3 rounded-lg mb-2">
                     <!-- Gevuld via JS -->
                 </div>
                 <div>
@@ -696,7 +707,7 @@
                     <button type="button" id="btn-rsvp-yes" class="flex-1 py-3 text-sm font-bold bg-primary text-background rounded-xl hover:bg-primary/90 transition-colors shadow-md">Ik ben erbij!</button>
                 </div>
                 
-                <div id="view-act-delete-container" class="mt-6 pt-4 border-t border-outline-variant hidden">
+                <div id="view-act-delete-container" style="display: none;" class="mt-6 pt-4 border-t border-outline-variant">
                     <button type="button" id="btn-delete-activity" class="w-full py-3 text-sm font-bold border border-error/30 text-error rounded-xl hover:bg-error/10 transition-colors">Activiteit Verwijderen</button>
                 </div>
             </div>
@@ -739,7 +750,7 @@
             <div class="px-6 py-5 border-b border-outline-variant flex justify-between items-center bg-background">
                 <div>
                     <h3 id="manage-modal-title" class="text-xl font-bold text-primary">Team Naam</h3>
-                    <p class="text-xs text-on-surface-variant mt-1">Invite Code: <span id="manage-modal-code" class="font-mono font-bold text-primary bg-primary-container px-2 py-1 rounded-md ml-1"></span></p>
+                    <p class="text-xs text-on-surface-variant mt-1">Invite Code: <span id="manage-modal-code" class="font-mono font-bold text-primary bg-primary-container px-2 py-1 rounded-md ml-1 cursor-pointer hover:bg-primary/30 transition-colors" title="Klik om te kopiëren"></span></p>
                 </div>
                 <button type="button" onclick="closeManageModal()" class="text-on-surface-variant hover:text-error p-1"><span class="material-symbols-outlined">close</span></button>
             </div>
@@ -800,11 +811,30 @@
         let editPlanningId = null; 
         
         let userSubscription = 'none';
+        let hasHadSubscription = false;
 
         // --- MOBIEL MENU LOGICA ---
+        window.activeMobileDay = new Date().getDay() || 7;
+
         window.toggleSidebar = () => {
             document.getElementById('sidebar').classList.toggle('-translate-x-full');
             document.getElementById('sidebar-overlay').classList.toggle('hidden');
+        };
+
+        window.setMobileDay = (d) => {
+            window.activeMobileDay = d;
+            updateScheduler();
+        };
+
+        // --- FAB & PLAN CLICK LOGICA ---
+        window.handleFabClick = () => {
+            if (currentView === 'personal') {
+                const currentH = new Date().getHours();
+                const startH = Math.max(minHour, Math.min(currentH, maxHour - 2));
+                window.openModalWithDefaults(window.activeMobileDay || 1, startH);
+            } else if (currentView === 'group') {
+                window.openCreateActivityModal();
+            }
         };
 
         // --- PRIVACY MODAL LOGICA ---
@@ -960,7 +990,7 @@
                 await Promise.all(batchPromises);
                 
                 await deleteUser(user);
-                alert("Je account en al je data zijn definitief verwijderd. Bedankt voor het gebruiken van OpsPlan.");
+                alert("Je account en al je data zijn definitief verwijderd. Bedankt voor het gebruiken van FeinyAhPlanner.");
             } catch (error) {
                 if (error.code === 'auth/requires-recent-login') {
                     alert("Om veiligheidsredenen moet je opnieuw inloggen voordat je je account kunt verwijderen. Log even uit, log opnieuw in en probeer het nogmaals.");
@@ -976,6 +1006,10 @@
             if (!currentUserData) return;
             try {
                 const subsRef = collection(db, "customers", currentUserData.uid, "subscriptions");
+                
+                const allSubsSnap = await getDocs(subsRef);
+                hasHadSubscription = !allSubsSnap.empty;
+
                 const q = query(subsRef, where("status", "in", ["trialing", "active"]));
                 const snapshot = await getDocs(q);
                 
@@ -996,17 +1030,18 @@
         function updateSubscriptionUI() {
             const badge = document.getElementById('current-sub-badge');
             const manageBtn = document.getElementById('btn-manage-sub');
+            const freeBadge = document.getElementById('badge-free-month');
+            
+            if(freeBadge) freeBadge.style.display = hasHadSubscription ? 'none' : 'block';
             
             const labels = { 'none': 'Geen (Gratis)', 'begin': 'Begin Pakket', 'medium': 'Medium Pakket', 'pro': 'Pro Pakket' };
             if(badge) badge.innerText = `Huidig pakket: ${labels[userSubscription] || userSubscription}`;
 
             if(manageBtn) {
                 if(userSubscription !== 'none') {
-                    manageBtn.classList.remove('hidden');
-                    manageBtn.classList.add('flex');
+                    manageBtn.style.display = 'flex';
                 } else {
-                    manageBtn.classList.add('hidden');
-                    manageBtn.classList.remove('flex');
+                    manageBtn.style.display = 'none';
                 }
             }
 
@@ -1017,7 +1052,7 @@
                         btn.innerText = 'Actief';
                         btn.className = "w-full mt-8 bg-primary/20 text-primary font-bold py-3 rounded-xl border-2 border-primary cursor-default";
                     } else {
-                        btn.innerText = plan === 'begin' ? 'Start Gratis Proefperiode' : `Kies ${plan.charAt(0).toUpperCase() + plan.slice(1)}`;
+                        btn.innerText = plan === 'begin' ? (hasHadSubscription ? 'Kies Begin (€0,99/m)' : 'Start Gratis Proefperiode') : `Kies ${plan.charAt(0).toUpperCase() + plan.slice(1)}`;
                         btn.className = plan === 'medium' 
                             ? "w-full mt-8 bg-primary text-background font-bold py-3 rounded-xl hover:bg-primary/90 transition-all shadow-md" 
                             : "w-full mt-8 bg-surface-container-highest text-primary font-bold py-3 rounded-xl border border-primary/20 hover:bg-outline transition-all";
@@ -1048,15 +1083,8 @@
                     cancel_url: window.location.href,
                 };
 
-                if (planName === 'begin') {
-                    const subsRef = collection(db, "customers", currentUserData.uid, "subscriptions");
-                    const pastSubsSnapshot = await getDocs(subsRef);
-
-                    if (pastSubsSnapshot.empty) {
-                        sessionData.trial_period_days = 30;
-                    } else {
-                        alert("Let op: Je hebt in het verleden al een proefperiode of abonnement gehad. De gratis maand geldt maar één keer per account. Je betaalt nu direct het maandbedrag.");
-                    }
+                if (planName === 'begin' && !hasHadSubscription) {
+                    sessionData.trial_period_days = 30;
                 }
 
                 const docRef = await addDoc(collection(db, "customers", currentUserData.uid, "checkout_sessions"), sessionData);
@@ -1104,7 +1132,54 @@
             const q = query(collection(db, "groups"), where("memberIds", "array-contains", currentUserData.uid));
             const snapshot = await getDocs(q);
             groupsData = [];
-            snapshot.forEach(doc => { groupsData.push({ id: doc.id, ...doc.data() }); });
+
+            const now = Date.now();
+            const batchPromises = [];
+            let deletedSome = false;
+            let warnedSome = false;
+
+            snapshot.forEach(docSnap => {
+                const data = docSnap.data();
+                const group = { id: docSnap.id, ...data };
+
+                if (group.ownerId === currentUserData.uid && userSubscription === 'none') {
+                    if (!group.expiredAt) {
+                        batchPromises.push(updateDoc(doc(db, "groups", group.id), { expiredAt: now }));
+                        warnedSome = true;
+                        groupsData.push(group);
+                    } else if (now - group.expiredAt > 24 * 60 * 60 * 1000) {
+                        batchPromises.push(deleteDoc(doc(db, "groups", group.id)));
+                        deletedSome = true;
+                    } else {
+                        warnedSome = true;
+                        groupsData.push(group);
+                    }
+                } else if (group.expiredAt && userSubscription !== 'none') {
+                    batchPromises.push(updateDoc(doc(db, "groups", group.id), { expiredAt: null }));
+                    groupsData.push(group);
+                } else {
+                    groupsData.push(group);
+                }
+            });
+
+            if (batchPromises.length > 0) {
+                await Promise.all(batchPromises);
+                if (deletedSome) {
+                    createSystemLog("Teams Verwijderd", "Een of meer teams zijn verwijderd omdat je abonnement meer dan 24 uur verlopen is.", "warning");
+                }
+            }
+
+            const subBanner = document.getElementById('sub-warning-banner');
+            if (subBanner) {
+                if(warnedSome) {
+                    subBanner.style.display = 'block';
+                    document.getElementById('app-container').style.paddingTop = '32px'; 
+                } else {
+                    subBanner.style.display = 'none';
+                    document.getElementById('app-container').style.paddingTop = '0px';
+                }
+            }
+
             if (!currentGroupId && groupsData.length > 0) currentGroupId = groupsData[0].id;
             renderGroupSelector();
             if(currentView === 'manage_groups') renderManageGroups();
@@ -1123,7 +1198,7 @@
             const snapshot = await getDocs(collection(db, "activities"));
             activitiesData = [];
             snapshot.forEach(doc => { activitiesData.push({ id: doc.id, ...doc.data() }); });
-            if(currentView === 'group') updateScheduler();
+            if(currentView === 'group' || currentView === 'personal') updateScheduler();
             renderDashboard(); 
         }
 
@@ -1155,49 +1230,6 @@
             } catch(e) { alert("Fout bij opslaan: " + e.message); }
         }
 
-        document.getElementById('profile-pic-upload').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if(!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                const img = new Image();
-                img.onload = async () => {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 150;
-                    const scaleSize = MAX_WIDTH / img.width;
-                    canvas.width = MAX_WIDTH;
-                    canvas.height = img.height * scaleSize;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    
-                    canvas.toBlob(async (blob) => {
-                        try {
-                            const storageRef = ref(storage, `avatars/${currentUserData.uid}_${Date.now()}.jpg`);
-                            await uploadBytes(storageRef, blob);
-                            
-                            const photoURL = await getDownloadURL(storageRef);
-                            
-                            await updateProfile(auth.currentUser, { photoURL });
-                            updateUserAvatarsUI();
-                            
-                            const batchPromises = [];
-                            groupsData.forEach(g => {
-                                batchPromises.push(updateDoc(doc(db, "groups", g.id), {
-                                    [`memberProfiles.${currentUserData.uid}.photoURL`]: photoURL
-                                }));
-                            });
-                            await Promise.all(batchPromises);
-                            alert("Profielfoto geüpdatet!");
-                            await loadGroupsFromDatabase();
-                        } catch (err) { alert("Upload mislukt: " + err.message); }
-                    }, 'image/jpeg', 0.8);
-                }
-                img.src = ev.target.result;
-            }
-            reader.readAsDataURL(file);
-        });
-
         window.openPasswordModal = () => {
             document.getElementById('password-form').reset();
             document.getElementById('password-modal').classList.remove('hidden');
@@ -1222,33 +1254,52 @@
 
         document.getElementById('availability-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const day = Number(document.getElementById('form-day').value);
-            const start = Number(document.getElementById('form-start').value);
-            const end = Number(document.getElementById('form-end').value);
-            const status = document.getElementById('form-status').value;
             
-            if (end <= start) return alert("Eindtijd moet na de starttijd liggen.");
-            
-            const hasConflict = planningData.some(p => 
-                p.userId === currentUserData.uid && Number(p.week) === Number(currentWeek) && Number(p.day) === day && p.id !== editPlanningId &&
-                ((start >= Number(p.startHour) && start < Number(p.endHour)) || (end > Number(p.startHour) && end <= Number(p.endHour)) || (start <= Number(p.startHour) && end >= Number(p.endHour)))
-            );
-            if (hasConflict) return alert("Conflict in tijden! Je hebt al een blok overlappend met deze tijd.");
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Opslaan...";
 
-            const payload = { 
-                userId: currentUserData.uid, 
-                userName: currentUserData.displayName || currentUserData.email.split('@')[0], 
-                week: Number(currentWeek), day, startHour: start, endHour: end, status 
-            };
+            try {
+                const day = Number(document.getElementById('form-day').value);
+                const start = Number(document.getElementById('form-start').value);
+                const end = Number(document.getElementById('form-end').value);
+                const status = document.getElementById('form-status').value;
+                
+                if (end <= start) {
+                    alert("Eindtijd moet na de starttijd liggen.");
+                    return;
+                }
+                
+                const hasConflict = planningData.some(p => 
+                    p.userId === currentUserData.uid && Number(p.week) === Number(currentWeek) && Number(p.day) === day && p.id !== editPlanningId &&
+                    ((start >= Number(p.startHour) && start < Number(p.endHour)) || (end > Number(p.startHour) && end <= Number(p.endHour)) || (start <= Number(p.startHour) && end >= Number(p.endHour)))
+                );
+                
+                if (hasConflict) {
+                    alert("Conflict in tijden! Je hebt al een blok overlappend met deze tijd.");
+                    return;
+                }
 
-            if(editPlanningId) {
-                await updateDoc(doc(db, "planningen", editPlanningId), payload);
-            } else {
-                await addDoc(collection(db, "planningen"), payload);
+                const payload = { 
+                    userId: currentUserData.uid, 
+                    userName: currentUserData.displayName || currentUserData.email.split('@')[0], 
+                    week: Number(currentWeek), day, startHour: start, endHour: end, status 
+                };
+
+                if(editPlanningId) {
+                    await updateDoc(doc(db, "planningen", editPlanningId), payload);
+                } else {
+                    await addDoc(collection(db, "planningen"), payload);
+                }
+                createSystemLog("Planning Aangepast", "Je hebt je persoonlijke agenda gewijzigd.", "edit_calendar");
+                window.closeModal();
+                await loadPlanningFromDatabase();
+            } catch (error) {
+                console.error(error);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Opslaan";
             }
-            createSystemLog("Planning Aangepast", "Je hebt je persoonlijke agenda gewijzigd.", "edit_calendar");
-            window.closeModal();
-            await loadPlanningFromDatabase();
         });
 
         window.deletePlanning = async () => {
@@ -1261,81 +1312,99 @@
 
         document.getElementById('activity-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const title = document.getElementById('activity-title').value;
-            const day = Number(document.getElementById('activity-day').value);
-            const start = Number(document.getElementById('activity-start').value);
-            const end = Number(document.getElementById('activity-end').value);
             
-            if (end <= start) return alert("Eindtijd fout.");
-            const activeGroup = groupsData.find(g => g.id === currentGroupId);
-            
-            let initialAttending = [];
-            const groupPlannings = planningData.filter(item => 
-                Number(item.week) === Number(currentWeek) && Number(item.day) === day &&
-                Number(item.startHour) < end && Number(item.endHour) > start && 
-                activeGroup.memberIds.includes(item.userId) && item.status === 'available'
-            );
-            
-            initialAttending = groupPlannings.map(p => {
-                const pURL = activeGroup.memberProfiles?.[p.userId]?.photoURL;
-                return { uid: p.userId, name: p.userName, photoURL: pURL };
-            });
-            initialAttending = Array.from(new Map(initialAttending.map(item => [item.uid, item])).values());
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Bezig...";
 
-            const batchPromises = [];
-            for(let p of groupPlannings) {
-                const pStart = Number(p.startHour);
-                const pEnd = Number(p.endHour);
+            try {
+                const title = document.getElementById('activity-title').value;
+                const day = Number(document.getElementById('activity-day').value);
+                const start = Number(document.getElementById('activity-start').value);
+                const end = Number(document.getElementById('activity-end').value);
                 
-                batchPromises.push(deleteDoc(doc(db, "planningen", p.id)));
+                if (end <= start) {
+                    alert("Eindtijd fout.");
+                    return;
+                }
                 
-                if (pStart < start) {
+                const activeGroup = groupsData.find(g => g.id === currentGroupId);
+                
+                let initialAttending = [];
+                const groupPlannings = planningData.filter(item => 
+                    Number(item.week) === Number(currentWeek) && Number(item.day) === day &&
+                    Number(item.startHour) < end && Number(item.endHour) > start && 
+                    activeGroup.memberIds.includes(item.userId) && item.status === 'available'
+                );
+                
+                initialAttending = groupPlannings.map(p => {
+                    const pURL = activeGroup.memberProfiles?.[p.userId]?.photoURL;
+                    return { uid: p.userId, name: p.userName, photoURL: pURL };
+                });
+                initialAttending = Array.from(new Map(initialAttending.map(item => [item.uid, item])).values());
+
+                const batchPromises = [];
+                for(let p of groupPlannings) {
+                    const pStart = Number(p.startHour);
+                    const pEnd = Number(p.endHour);
+                    
+                    batchPromises.push(deleteDoc(doc(db, "planningen", p.id)));
+                    
+                    if (pStart < start) {
+                        batchPromises.push(addDoc(collection(db, "planningen"), {
+                            userId: p.userId, userName: p.userName, week: Number(currentWeek), day,
+                            startHour: pStart, endHour: start, status: 'available'
+                        }));
+                    }
                     batchPromises.push(addDoc(collection(db, "planningen"), {
                         userId: p.userId, userName: p.userName, week: Number(currentWeek), day,
-                        startHour: pStart, endHour: start, status: 'available'
+                        startHour: Math.max(pStart, start), endHour: Math.min(pEnd, end), status: 'busy' 
                     }));
+                    
+                    if (pEnd > end) {
+                        batchPromises.push(addDoc(collection(db, "planningen"), {
+                            userId: p.userId, userName: p.userName, week: Number(currentWeek), day,
+                            startHour: end, endHour: pEnd, status: 'available'
+                        }));
+                    }
                 }
-                batchPromises.push(addDoc(collection(db, "planningen"), {
-                    userId: p.userId, userName: p.userName, week: Number(currentWeek), day,
-                    startHour: Math.max(pStart, start), endHour: Math.min(pEnd, end), status: 'busy' 
+
+                batchPromises.push(addDoc(collection(db, "activities"), {
+                    groupId: currentGroupId, groupName: activeGroup.name,
+                    title, week: Number(currentWeek), day, startHour: start, endHour: end,
+                    attending: initialAttending, declined: [], createdBy: currentUserData.uid
                 }));
                 
-                if (pEnd > end) {
-                    batchPromises.push(addDoc(collection(db, "planningen"), {
-                        userId: p.userId, userName: p.userName, week: Number(currentWeek), day,
-                        startHour: end, endHour: pEnd, status: 'available'
-                    }));
-                }
+                await Promise.all(batchPromises);
+                
+                createSystemLog("Nieuwe Activiteit Gepland", `'${title}' is ingepland in week ${currentWeek} voor team ${activeGroup.name}.`, 'event');
+                
+                window.closeCreateActivityModal();
+                await loadActivitiesFromDatabase();
+                await loadPlanningFromDatabase();
+            } catch (error) {
+                console.error(error);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Inplannen";
             }
-
-            batchPromises.push(addDoc(collection(db, "activities"), {
-                groupId: currentGroupId, groupName: activeGroup.name,
-                title, week: Number(currentWeek), day, startHour: start, endHour: end,
-                attending: initialAttending, declined: [], createdBy: currentUserData.uid
-            }));
-            
-            await Promise.all(batchPromises);
-            
-            createSystemLog("Nieuwe Activiteit Gepland", `'${title}' is ingepland in week ${currentWeek} voor team ${activeGroup.name}.`, 'event');
-            window.closeCreateActivityModal();
-            await loadActivitiesFromDatabase();
-            await loadPlanningFromDatabase();
         });
 
         window.openAllActivitiesModal = () => {
             const list = document.getElementById('all-activities-list');
-            list.innerHTML = '';
+            list.innerHTML = ''; 
             
             const myGroupIds = groupsData.map(g => g.id);
             const allMyActs = activitiesData.filter(a => myGroupIds.includes(a.groupId))
                 .sort((a, b) => Number(b.week) - Number(a.week) || Number(b.day) - Number(a.day)); 
 
             const uniqueActs = [];
-            const seenIds = new Set();
+            const seenKeys = new Set();
             allMyActs.forEach(a => {
-                if(!seenIds.has(a.id)) {
+                const key = `${a.groupId}-${a.title}-${a.week}-${a.day}-${a.startHour}`;
+                if(!seenKeys.has(key)) {
                     uniqueActs.push(a);
-                    seenIds.add(a.id);
+                    seenKeys.add(key);
                 }
             });
 
@@ -1345,7 +1414,7 @@
                 uniqueActs.forEach(act => {
                     const dDate = getDateFromWeek(Number(act.week), Number(act.day));
                     list.innerHTML += `
-                        <div class="bg-[#0f0f0f] border border-[#222] p-4 rounded-xl flex flex-col gap-2 hover:border-primary/50 transition-colors cursor-pointer shadow-sm" onclick="window.closeAllActivitiesModal(); window.openViewActivityModal('${act.id}')">
+                        <div class="bg-surface-container border border-outline-variant p-4 rounded-xl flex flex-col gap-2 hover:border-primary/50 transition-colors cursor-pointer shadow-sm" onclick="window.closeAllActivitiesModal(); window.openViewActivityModal('${act.id}')">
                             <div class="flex justify-between items-start">
                                 <span class="bg-primary-container text-primary text-[10px] font-bold px-2 py-1 rounded tracking-widest uppercase">${act.groupName}</span>
                                 <span class="text-xs font-bold text-on-surface-variant">Wk ${act.week}</span>
@@ -1394,12 +1463,12 @@
 
             const btnDeleteContainer = document.getElementById('view-act-delete-container');
             if (act.createdBy === currentUserData.uid) {
-                btnDeleteContainer.classList.remove('hidden');
+                btnDeleteContainer.style.display = 'block';
                 document.getElementById('btn-delete-activity').onclick = () => {
                     deleteActivity(act.id);
                 };
             } else {
-                btnDeleteContainer.classList.add('hidden');
+                btnDeleteContainer.style.display = 'none';
             }
 
             document.getElementById('view-activity-modal').classList.remove('hidden');
@@ -1488,12 +1557,12 @@
 
                 const lidTekst = bestBlock.count === 1 ? 'kan 1 lid' : `kunnen ${bestBlock.count} leden`;
                 recDiv.innerHTML = `<strong>💡 Aanbevolen: ${bestBlock.startHour}:00 - ${bestBlock.endHour}:00</strong><br>Hier ${lidTekst}: ${bestBlock.people.join(', ')}`;
-                recDiv.classList.remove('hidden');
+                recDiv.style.display = 'block';
                 
                 document.getElementById('activity-start').value = bestBlock.startHour;
                 document.getElementById('activity-end').value = bestBlock.endHour;
             } else {
-                recDiv.classList.add('hidden');
+                recDiv.style.display = 'none';
             }
         };
 
@@ -1503,15 +1572,16 @@
             const defaultClass = "w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container transition-all";
             ['nav-dashboard', 'nav-personal', 'nav-group', 'nav-manage_groups', 'nav-settings', 'nav-subscriptions'].forEach(id => document.getElementById(id).className = defaultClass);
             
-            // Verberg knoppen standaard overal (fixt de bug in instellingen)
-            const fabBtn = document.getElementById('fab-add-planning');
-            fabBtn.classList.add('hidden');
-            
-            const activeNavId = (view === 'personal' || view === 'group') ? `nav-${view}` : `nav-${view}`;
+            const activeNavId = `nav-${view}`;
             if(document.getElementById(activeNavId)) {
                 document.getElementById(activeNavId).className = "w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-bold bg-primary text-background shadow-md transition-all";
             }
             
+            const fabBtn = document.getElementById('fab-add-planning');
+            const planBtn = document.getElementById('btn-schedule-activity');
+            if(fabBtn) fabBtn.style.display = 'none';
+            if(planBtn) planBtn.style.display = 'none';
+
             if(view === 'dashboard') { 
                 document.getElementById('view-dashboard').classList.remove('hidden'); 
                 document.getElementById('topbar-title').innerText = "Dashboard"; 
@@ -1521,12 +1591,20 @@
                 document.getElementById('topbar-title').innerText = "Mijn Planning";
                 document.getElementById('page-title').innerText = "Mijn Planning";
                 document.getElementById('page-subtitle').innerText = "Jouw persoonlijke agenda";
-                fabBtn.classList.remove('hidden'); // Toon hem weer hier
+                
+                if (window.innerWidth >= 768) {
+                    if(fabBtn) fabBtn.style.display = 'flex';
+                } else {
+                    if(fabBtn) fabBtn.style.display = 'flex'; 
+                }
+                
                 updateScheduler();
             } else if (view === 'group') {
                 document.getElementById('view-scheduler').classList.remove('hidden');
                 document.getElementById('topbar-title').innerText = "Team Overzicht";
                 document.getElementById('page-title').innerText = "Groepsplanning";
+                document.getElementById('page-subtitle').innerText = "Jullie groepsagenda"; // Update subtitle
+                
                 checkSchedulePermission();
                 updateScheduler();
             } else if (view === 'manage_groups') {
@@ -1543,7 +1621,6 @@
                 loadSettingsData();
             }
 
-            // Sluit sidebar op mobiel na het aanklikken van een menu item
             if(window.innerWidth < 768) {
                 document.getElementById('sidebar').classList.add('-translate-x-full');
                 document.getElementById('sidebar-overlay').classList.add('hidden');
@@ -1567,7 +1644,7 @@
             document.getElementById('form-start').value = hour;
             document.getElementById('form-end').value = Math.min(hour + 2, maxHour);
             document.getElementById('form-status').value = 'available';
-            document.getElementById('btn-delete-planning').classList.add('hidden');
+            document.getElementById('btn-delete-planning').style.display = 'none';
             document.getElementById('btn-save-planning').innerText = 'Opslaan';
             document.getElementById('schedule-modal').classList.remove('hidden'); document.getElementById('schedule-modal').classList.add('flex');
         };
@@ -1580,7 +1657,7 @@
             document.getElementById('form-start').value = start;
             document.getElementById('form-end').value = end;
             document.getElementById('form-status').value = status || 'available';
-            document.getElementById('btn-delete-planning').classList.remove('hidden');
+            document.getElementById('btn-delete-planning').style.display = 'block';
             document.getElementById('btn-save-planning').innerText = 'Updaten';
             document.getElementById('schedule-modal').classList.remove('hidden'); document.getElementById('schedule-modal').classList.add('flex');
         };
@@ -1589,7 +1666,7 @@
 
         window.openCreateActivityModal = () => {
             document.getElementById('activity-display-week').innerText = `Week ${currentWeek}`;
-            document.getElementById('activity-day').value = 1;
+            document.getElementById('activity-day').value = window.activeMobileDay;
             window.updateActivityRecommendation();
             document.getElementById('create-activity-modal').classList.remove('hidden'); document.getElementById('create-activity-modal').classList.add('flex');
         };
@@ -1701,11 +1778,12 @@
 
         function checkSchedulePermission() {
             const btn = document.getElementById('btn-schedule-activity');
-            btn.classList.add('hidden');
+            if(btn) btn.style.display = 'none';
+            
             if(!currentGroupId || !currentUserData) return;
             const group = groupsData.find(g => g.id === currentGroupId);
             if(group && (group.memberPermissions?.[currentUserData.uid]?.canSchedule !== false || group.ownerId === currentUserData.uid)) {
-                btn.classList.remove('hidden'); // op desktop wordt ie overschreven door md:flex
+                if(btn) btn.style.display = 'flex';
             }
         }
 
@@ -1747,7 +1825,7 @@
                 const meetupContainer = document.getElementById('dash-next-meetup-content');
                 if(upcoming.length > 0) {
                     meetupContainer.innerHTML = '';
-                    upcoming.slice(0,2).forEach(next => {
+                    upcoming.slice(0,1).forEach(next => {
                         const dDate = getDateFromWeek(Number(next.week), Number(next.day));
                         const participantsCount = next.attending?.length || 0;
                         
@@ -1843,39 +1921,82 @@
         }
 
         function updateScheduler() {
+            const mobileTabs = document.getElementById('mobile-day-selector');
+            if (mobileTabs) {
+                mobileTabs.innerHTML = '';
+                for(let d=1; d<=7; d++) {
+                    const dateObj = getDateFromWeek(currentWeek, d);
+                    const isActive = d === window.activeMobileDay;
+                    
+                    mobileTabs.innerHTML += `
+                        <button onclick="window.setMobileDay(${d})" class="flex-shrink-0 flex flex-col items-center justify-center w-[60px] h-[68px] rounded-xl border-2 transition-colors ${isActive ? 'border-[#5df599] bg-[#5df599]/10 text-[#5df599]' : 'border-[#333] bg-[#1a1a1a] text-gray-400 hover:bg-[#222]'}">
+                            <span class="text-[11px] font-bold uppercase tracking-widest mb-1">${dayNames[d].substring(0,2)}</span>
+                            <span class="text-xl font-bold">${dateObj.getDate()}</span>
+                            ${isActive ? '<div class="w-1.5 h-1.5 bg-[#5df599] rounded-full mt-1"></div>' : ''}
+                        </button>
+                    `;
+                }
+            }
+
             const headerRow = document.getElementById('calendar-header-days');
-            headerRow.innerHTML = '';
-            for(let d=1; d<=7; d++) {
-                const dateObj = getDateFromWeek(currentWeek, d);
-                headerRow.innerHTML += `
-                    <div class="text-center py-4 text-xs font-bold ${d >= 6 ? 'text-primary' : 'text-on-surface-variant'} border-r border-outline-variant/20">
-                        <div class="uppercase tracking-widest">${dayNames[d].substring(0,2)}</div>
-                        <div class="text-lg mt-1">${dateObj.getDate()}</div>
-                    </div>
-                `;
+            if (headerRow) {
+                headerRow.innerHTML = '';
+                for(let d=1; d<=7; d++) {
+                    const dateObj = getDateFromWeek(currentWeek, d);
+                    headerRow.innerHTML += `
+                        <div id="header-day-${d}" class="text-center py-4 text-xs font-bold ${d >= 6 ? 'text-primary' : 'text-on-surface-variant'} border-r border-outline-variant/20">
+                            <div class="uppercase tracking-widest">${dayNames[d].substring(0,2)}</div>
+                            <div class="text-lg mt-1">${dateObj.getDate()}</div>
+                        </div>
+                    `;
+                }
             }
             
             document.getElementById('week-indicator-bubble').innerText = `Week ${currentWeek}`;
             document.getElementById('week-indicator-date').innerText = `${getDateFromWeek(currentWeek, 1).getDate()} ${monthNames[getDateFromWeek(currentWeek, 1).getMonth()]} - ${getDateFromWeek(currentWeek, 7).getDate()} ${monthNames[getDateFromWeek(currentWeek, 7).getMonth()]}`;
 
+            const isDesktop = window.innerWidth >= 768;
             for(let d=1; d<=7; d++){
                 const col = document.getElementById(`day-column-${d}`);
-                col.innerHTML = ''; 
-                for (let h = minHour; h < maxHour; h++) {
-                    let cellBg = document.createElement('div');
-                    cellBg.className = "w-full hover:bg-surface-container/50 transition-colors cursor-pointer absolute";
-                    cellBg.style.top = `${(h - minHour) * slotHeight}px`;
-                    cellBg.style.height = `${slotHeight}px`;
-                    cellBg.onclick = () => { if(currentView === 'personal') window.openModalWithDefaults(d, h); };
-                    col.appendChild(cellBg);
+                const head = document.getElementById(`header-day-${d}`);
+                const isMobileActive = d === window.activeMobileDay;
+                
+                if (isDesktop || isMobileActive) {
+                    if(col) col.style.display = 'block';
+                    if(head) head.style.display = 'block';
+                } else {
+                    if(col) col.style.display = 'none';
+                    if(head) head.style.display = 'none';
+                }
+                
+                if (col) {
+                    col.innerHTML = ''; 
+                    for (let h = minHour; h < maxHour; h++) {
+                        let cellBg = document.createElement('div');
+                        cellBg.className = "w-full hover:bg-surface-container/50 transition-colors cursor-pointer absolute border-b border-outline-variant/10";
+                        cellBg.style.top = `${(h - minHour) * slotHeight}px`;
+                        cellBg.style.height = `${slotHeight}px`;
+                        cellBg.onclick = () => { if(currentView === 'personal') window.openModalWithDefaults(d, h); };
+                        col.appendChild(cellBg);
+                    }
                 }
             }
 
-            let weekData = planningData.filter(item => Number(item.week) === Number(currentWeek));
-            document.getElementById('optimal-slot-banner').classList.add('hidden');
+            let weekDataRaw = planningData.filter(item => Number(item.week) === Number(currentWeek));
+            const optBanner = document.getElementById('optimal-slot-banner');
+            if (optBanner) optBanner.style.display = 'none';
 
             if (currentView === 'personal') {
-                if(currentUserData) weekData = weekData.filter(item => item.userId === currentUserData.uid);
+                let weekData = [];
+                if(currentUserData) {
+                    const rawPersonal = weekDataRaw.filter(item => item.userId === currentUserData.uid);
+                    rawPersonal.forEach(item => {
+                        const key = `${item.day}-${item.startHour}-${item.endHour}-${item.status}`;
+                        if (!weekData.some(b => `${b.day}-${b.startHour}-${b.endHour}-${b.status}` === key)) {
+                            weekData.push(item);
+                        }
+                    });
+                }
                 
                 weekData.forEach(item => {
                     const col = document.getElementById(`day-column-${item.day}`);
@@ -1887,11 +2008,12 @@
                     const height = (endH - startH) * slotHeight;
                     const isBusy = item.status === 'busy';
 
-                    block.className = `absolute left-1 right-1 rounded-r-lg rounded-l-[3px] p-2.5 border-l-4 overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] z-10 ${
-                        isBusy ? 'bg-[#ff5c5c]/10 border-[#ff5c5c] text-[#ff5c5c]' : 'bg-[#5df599]/10 border-[#5df599] text-[#5df599]'
+                    block.className = `absolute left-1 right-1 rounded-r-lg rounded-l-[3px] p-2.5 border-l-4 overflow-hidden cursor-pointer transition-all duration-200 hover:brightness-125 shadow-sm ${
+                        isBusy ? 'bg-[#2d1b1b] border-[#ff5c5c] text-[#ff5c5c]' : 'bg-[#132b1f] border-[#5df599] text-[#5df599]'
                     }`;
                     block.style.top = `${(startH - minHour) * slotHeight + 3}px`;
                     block.style.height = `${height - 6}px`;
+                    block.style.zIndex = "10";
 
                     block.onclick = (e) => {
                         e.stopPropagation();
@@ -1906,10 +2028,41 @@
                     col.appendChild(block);
                 });
 
+                if(currentUserData) {
+                    const myActivities = activitiesData.filter(a => Number(a.week) === Number(currentWeek) && a.attending && a.attending.some(u => u.uid === currentUserData.uid));
+                    
+                    myActivities.forEach(act => {
+                        const col = document.getElementById(`day-column-${act.day}`);
+                        if(!col) return;
+                        
+                        const block = document.createElement('div');
+                        const height = (Number(act.endHour) - Number(act.startHour)) * slotHeight;
+                        
+                        block.className = `absolute left-1 right-1 rounded-xl p-3 shadow-lg border border-[#5df599] bg-[#1a1a1a] overflow-hidden flex flex-col justify-start cursor-pointer hover:bg-surface-container transition-colors z-20`;
+                        block.style.top = `${(Number(act.startHour) - minHour) * slotHeight + 2}px`;
+                        block.style.height = `${height - 4}px`;
+                        
+                        block.onclick = (e) => { e.stopPropagation(); window.openViewActivityModal(act.id); };
+                        
+                        const participantsCount = act.attending?.length || 0;
+                        const rsvpText = participantsCount === 1 ? '1 deelnemer' : `${participantsCount} deelnemers`;
+                        
+                        block.innerHTML = `
+                            <div class="text-[10px] font-bold text-primary flex items-center gap-1 mb-1 uppercase tracking-widest bg-primary/10 w-fit px-1.5 py-0.5 rounded">
+                                <span class="material-symbols-outlined text-[12px]">calendar_today</span> GEPLAND (${act.groupName})
+                            </div>
+                            <div class="text-sm font-bold text-white truncate">${act.title}</div>
+                            <div class="text-[10px] text-gray-400 mt-1 truncate">${rsvpText}</div>
+                        `;
+                        col.appendChild(block);
+                    });
+                }
+
             } 
             else if (currentView === 'group') {
                 const activeGroup = groupsData.find(g => g.id === currentGroupId);
-                if(activeGroup) weekData = weekData.filter(item => activeGroup.memberIds.includes(item.userId));
+                let weekData = [];
+                if(activeGroup) weekData = weekDataRaw.filter(item => activeGroup.memberIds.includes(item.userId));
 
                 const grid = {}; 
                 for(let d=1; d<=7; d++) {
@@ -1920,7 +2073,9 @@
                 weekData.forEach(item => {
                     if (item.status === 'available') {
                         for(let h = Math.max(minHour, Number(item.startHour)); h < Math.min(maxHour, Number(item.endHour)); h++) {
-                            grid[item.day][h].available.push(item.userName);
+                            if(!grid[item.day][h].available.includes(item.userName)) {
+                                grid[item.day][h].available.push(item.userName);
+                            }
                         }
                     }
                 });
@@ -1956,35 +2111,36 @@
                 });
                 
                 if (aggregatedSlots.length > 0) {
-                    const optBanner = document.getElementById('optimal-slot-banner');
-                    optBanner.classList.remove('hidden');
-                    const bestSlot = aggregatedSlots[0];
-                    
-                    window.alternativeSlotsHtml = aggregatedSlots.slice(0, 5).map(slot => `
-                        <div class="p-4 border-b border-outline-variant hover:bg-surface-container/50 transition-colors">
-                            <div class="flex justify-between items-center mb-1">
-                                <div class="font-bold text-sm text-primary">${dayNames[slot.day]} ${slot.startHour}:00 - ${slot.endHour}:00</div>
-                                <div class="text-xs font-bold bg-primary-container text-primary px-2 py-0.5 rounded">${slot.count === 1 ? '1 lid' : `${slot.count} leden`}</div>
-                            </div>
-                            <div class="text-xs text-on-surface-variant flex items-center gap-1">
-                                <span class="material-symbols-outlined text-[14px]">check_circle</span>
-                                Kunnen: ${slot.people.join(', ')}
-                            </div>
-                        </div>
-                    `).join('');
-
-                    optBanner.innerHTML = `
-                        <div class="flex justify-between items-center w-full">
-                            <div class="flex items-center gap-3">
-                                <div class="bg-primary/20 p-2 rounded-lg"><span class="material-symbols-outlined text-primary">lightbulb</span></div>
-                                <div>
-                                    <div class="font-bold">Beste moment: ${dayNames[bestSlot.day]} van ${bestSlot.startHour}:00 tot ${bestSlot.endHour}:00</div>
-                                    <div class="text-xs text-primary/80">Hier ${bestSlot.count === 1 ? 'kan 1 lid' : `kunnen ${bestSlot.count} leden`}. Klik voor alternatieven.</div>
+                    if (optBanner) {
+                        optBanner.style.display = 'flex';
+                        const bestSlot = aggregatedSlots[0];
+                        
+                        window.alternativeSlotsHtml = aggregatedSlots.slice(0, 5).map(slot => `
+                            <div class="p-4 border-b border-outline-variant hover:bg-surface-container/50 transition-colors">
+                                <div class="flex justify-between items-center mb-1">
+                                    <div class="font-bold text-sm text-primary">${dayNames[slot.day]} ${slot.startHour}:00 - ${slot.endHour}:00</div>
+                                    <div class="text-xs font-bold bg-primary-container text-primary px-2 py-0.5 rounded">${slot.count === 1 ? '1 lid' : `${slot.count} leden`}</div>
+                                </div>
+                                <div class="text-xs text-on-surface-variant flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[14px]">check_circle</span>
+                                    Kunnen: ${slot.people.join(', ')}
                                 </div>
                             </div>
-                            <span class="material-symbols-outlined">chevron_right</span>
-                        </div>
-                    `;
+                        `).join('');
+
+                        optBanner.innerHTML = `
+                            <div class="flex justify-between items-center w-full">
+                                <div class="flex items-center gap-3">
+                                    <div class="bg-primary/20 p-2 rounded-lg"><span class="material-symbols-outlined text-primary">lightbulb</span></div>
+                                    <div>
+                                        <div class="font-bold">Beste moment: ${dayNames[bestSlot.day]} van ${bestSlot.startHour}:00 tot ${bestSlot.endHour}:00</div>
+                                        <div class="text-xs text-primary/80">Hier ${bestSlot.count === 1 ? 'kan 1 lid' : `kunnen ${bestSlot.count} leden`}. Klik voor alternatieven.</div>
+                                    </div>
+                                </div>
+                                <span class="material-symbols-outlined">chevron_right</span>
+                            </div>
+                        `;
+                    }
                 }
 
                 aggregatedSlots.forEach(slot => {
@@ -1993,7 +2149,7 @@
                     const block = document.createElement('div');
                     const height = (slot.endHour - slot.startHour) * slotHeight;
                     
-                    block.className = `absolute left-1 right-1 rounded-r-lg rounded-l-[3px] p-2.5 overflow-hidden border-l-4 border-primary bg-[#5df599]/10 text-primary z-10 flex flex-col justify-start`;
+                    block.className = `absolute left-1 right-1 rounded-r-lg rounded-l-[3px] p-2.5 overflow-hidden border-l-4 border-primary bg-[#132b1f] text-primary z-10 flex flex-col justify-start hover:brightness-125 transition-all`;
                     block.style.top = `${(slot.startHour - minHour) * slotHeight + 3}px`;
                     block.style.height = `${height - 6}px`;
 
@@ -2007,7 +2163,15 @@
                 });
 
                 if(currentGroupId) {
-                    const groupActivities = activitiesData.filter(a => a.groupId === currentGroupId && Number(a.week) === Number(currentWeek));
+                    const rawGroupActivities = activitiesData.filter(a => a.groupId === currentGroupId && Number(a.week) === Number(currentWeek));
+                    const groupActivities = [];
+                    rawGroupActivities.forEach(act => {
+                        const key = `${act.title}-${act.day}-${act.startHour}-${act.endHour}`;
+                        if (!groupActivities.some(a => `${a.title}-${a.day}-${a.startHour}-${a.endHour}` === key)) {
+                            groupActivities.push(act);
+                        }
+                    });
+
                     groupActivities.forEach(act => {
                         const col = document.getElementById(`day-column-${act.day}`);
                         if(!col) return;
@@ -2037,7 +2201,7 @@
                 
                 const membersSection = document.getElementById('group-members-section');
                 if (activeGroup) {
-                    membersSection.classList.remove('hidden');
+                    membersSection.style.display = 'block';
                     document.getElementById('group-members-count').innerText = activeGroup.memberIds.length;
                     
                     const membersList = document.getElementById('group-members-list');
@@ -2063,16 +2227,30 @@
                         `;
                     }
                 } else {
-                    membersSection.classList.add('hidden');
+                    membersSection.style.display = 'none';
                 }
             }
         }
+        
+        window.addEventListener('resize', () => {
+            if(currentView === 'personal' || currentView === 'group') {
+                updateScheduler();
+            }
+        });
         
         window.openManageGroup = (groupId) => {
             const group = groupsData.find(g => g.id === groupId);
             if(!group) return;
             document.getElementById('manage-modal-title').innerText = group.name;
-            document.getElementById('manage-modal-code').innerText = group.inviteCode;
+            
+            const codeEl = document.getElementById('manage-modal-code');
+            codeEl.innerText = group.inviteCode;
+            codeEl.onclick = () => {
+                navigator.clipboard.writeText(group.inviteCode).then(() => {
+                    alert('Teamcode ' + group.inviteCode + ' is gekopieerd naar je klembord!');
+                });
+            };
+
             const isOwner = group.ownerId === currentUserData.uid;
             const list = document.getElementById('manage-members-list');
             list.innerHTML = '';
