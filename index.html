@@ -172,7 +172,9 @@
                     <span class="material-symbols-outlined text-[18px]">add</span> Groep Toevoegen
                 </button>
                 <div class="flex items-center gap-3 pt-4 border-t border-outline-variant mt-2">
-                    <div id="user-avatar" class="flex-shrink-0"></div>
+                    <div class="w-8 h-8 rounded-full bg-primary-container text-primary flex items-center justify-center flex-shrink-0">
+                        <span class="material-symbols-outlined text-[18px]">person</span>
+                    </div>
                     <div class="flex-1 min-w-0">
                         <p id="user-name-display" class="text-sm font-bold truncate">Gebruiker</p>
                         <button onclick="logoutUser()" class="text-xs text-on-surface-variant hover:text-error transition-colors">Uitloggen</button>
@@ -360,9 +362,6 @@
                                 <h3 class="text-lg font-bold flex items-center gap-2"><span class="material-symbols-outlined text-primary">person</span> Profiel</h3>
                             </div>
                             <div class="flex flex-col md:flex-row gap-5 items-center md:items-start">
-                                <!-- Avatar is static nu -->
-                                <div id="settings-avatar" class="flex-shrink-0 relative overflow-hidden rounded-xl shadow-sm border border-outline-variant"></div>
-
                                 <div class="flex-1 space-y-4 w-full">
                                     <div>
                                         <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1.5">Volledige Naam</label>
@@ -405,6 +404,25 @@
                                         <div class="w-11 h-6 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                                     </label>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Agenda Integraties Kaart -->
+                        <div class="col-span-1 lg:col-span-2 bg-surface border border-outline-variant rounded-2xl p-6 shadow-sm flex flex-col mt-6">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-lg font-bold flex items-center gap-2"><span class="material-symbols-outlined text-primary">calendar_sync</span> Externe Agenda's</h3>
+                            </div>
+                            
+                            <div id="connected-calendars-list" class="space-y-3 mb-4">
+                                <!-- Wordt dynamisch gevuld met JS -->
+                            </div>
+                            
+                            <div class="pt-4 border-t border-outline-variant">
+                                <p class="text-xs text-on-surface-variant mb-3">Gekoppelde accounts worden elke 15 minuten op de achtergrond gesynchroniseerd.</p>
+                                <button type="button" onclick="syncGoogleCalendar()" class="w-full md:w-auto flex items-center justify-center gap-3 px-5 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-sm font-bold hover:bg-surface-container hover:text-primary transition-colors text-on-surface">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo" class="w-4 h-4">
+                                    Voeg een Google Agenda toe
+                                </button>
                             </div>
                         </div>
 
@@ -456,7 +474,12 @@
                             <h2 id="page-title" class="text-2xl font-bold">Mijn Planning</h2>
                             <p id="page-subtitle" class="text-on-surface-variant text-sm mt-1">Jouw persoonlijke agenda</p>
                         </div>
-                        <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
+                        <div class="flex items-center gap-2 w-full md:w-auto justify-between md:justify-end">
+                            
+                            <button id="btn-force-sync" onclick="window.forceGoogleSync(false)" style="display: none;" class="p-2 bg-surface-container-highest border border-outline-variant rounded-lg text-on-surface hover:bg-outline hover:text-primary transition-colors shadow-sm" title="Synchroniseer Externe Agenda's">
+                                <span id="sync-icon" class="material-symbols-outlined text-[20px]">sync</span>
+                            </button>
+                            
                             <div class="flex items-center bg-surface border border-outline-variant rounded-lg shadow-sm">
                                 <button onclick="navigateWeek(-1)" class="p-2 hover:bg-surface-container rounded-l-lg transition-colors border-r border-outline-variant"><span class="material-symbols-outlined text-[20px]">chevron_left</span></button>
                                 <div class="px-4 md:px-6 py-2 flex flex-col items-center justify-center min-w-[120px] md:min-w-[140px]">
@@ -467,7 +490,7 @@
                             </div>
                             
                             <!-- Actie knop "Plannen" in de menubalk verwerkt -->
-                            <button id="btn-schedule-activity" onclick="window.handleFabClick()" style="display: none;" class="px-4 md:px-5 py-2 bg-primary text-background font-bold rounded-lg shadow-md hover:bg-primary/90 flex items-center gap-2 transition-colors">
+                            <button id="btn-schedule-activity" onclick="window.handleFabClick()" style="display: none;" class="px-4 md:px-5 py-2 bg-primary text-background font-bold rounded-lg shadow-md hover:bg-primary/90 flex items-center gap-2 transition-colors ml-2">
                                 <span class="material-symbols-outlined text-[18px]">event_available</span> Plannen
                             </button>
                         </div>
@@ -479,7 +502,7 @@
                     
                     <div id="optimal-slot-banner" style="display: none;" class="bg-primary-container border border-primary/30 text-primary p-4 rounded-xl mb-6 text-sm flex-col gap-1 hover:bg-primary-container/80 transition-colors shadow-sm cursor-pointer w-full" onclick="openAlternativeSlotsModal()"></div>
 
-                    <!-- MOBIELE DAG SELECTOR (Vastgeplakt bovenin scherm tijdens scrollen) -->
+                    <!-- MOBIELE DAG SELECTOR -->
                     <div id="mobile-day-selector" class="md:hidden sticky top-0 z-40 bg-background flex overflow-x-auto gap-3 pb-3 pt-2 scrollbar-hide flex-shrink-0 w-full">
                         <!-- Via JS Gevuld -->
                     </div>
@@ -493,8 +516,8 @@
                             <div class="flex-1 grid grid-cols-1 md:grid-cols-7" id="calendar-header-days"></div>
                         </div>
 
-                        <!-- KALENDER BODY (Forceer hoogte zodat de rest van de pagina lekker mee kan scrollen) -->
-                        <div class="flex w-full bg-background relative h-[1224px]">
+                        <!-- KALENDER BODY -->
+                        <div class="flex w-full bg-background relative h-[1728px]">
                             <div id="time-axis" class="w-14 md:w-16 flex-shrink-0 border-r border-outline-variant flex flex-col bg-surface z-20"></div>
                             
                             <!-- DESKTOP GRID & MOBIELE ENKELE KOLOM -->
@@ -542,7 +565,7 @@
                 
                 <div>
                     <h4 class="text-base font-bold text-on-surface mb-1">1. Gegevensverzameling</h4>
-                    <p>Wij verzamelen uitsluitend de gegevens die nodig zijn voor het goed functioneren van de FeinyAhPlanner applicatie. Dit omvat je opgegeven naam, e-mailadres, profielfoto, en de door jou ingevoerde beschikbaarheidstijden.</p>
+                    <p>Wij verzamelen uitsluitend de gegevens die nodig zijn voor het goed functioneren van de FeinyAhPlanner applicatie. Dit omvat je opgegeven naam, e-mailadres en de door jou ingevoerde beschikbaarheidstijden.</p>
                 </div>
                 
                 <div>
@@ -581,6 +604,7 @@
                 <div>
                     <label class="block text-xs font-bold text-on-surface-variant mb-2 uppercase tracking-wider">Dag</label>
                     <select id="form-day" class="w-full px-4 py-2.5 border border-outline-variant rounded-xl bg-surface-container focus:ring-1 focus:ring-primary text-on-surface outline-none">
+                        <option value="0">Hele week (Ma-Zo)</option>
                         <option value="1">Maandag</option><option value="2">Dinsdag</option><option value="3">Woensdag</option>
                         <option value="4">Donderdag</option><option value="5">Vrijdag</option><option value="6">Zaterdag</option><option value="7">Zondag</option>
                     </select>
@@ -603,7 +627,7 @@
                     </select>
                 </div>
                 <div class="pt-6 flex justify-between items-center">
-                    <button type="button" id="btn-delete-planning" onclick="deletePlanning()" class="px-4 py-2 text-sm font-bold text-error bg-error/10 hover:bg-error/20 rounded-lg transition-colors hidden border border-error/20">Verwijderen</button>
+                    <button type="button" id="btn-delete-planning" onclick="deletePlanning()" style="display: none;" class="px-4 py-2 text-sm font-bold text-error bg-error/10 hover:bg-error/20 rounded-lg transition-colors border border-error/20">Verwijderen</button>
                     <div class="flex gap-3 ml-auto">
                         <button type="button" onclick="closeModal()" class="px-6 py-2.5 text-sm font-bold text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors">Annuleren</button>
                         <button type="submit" id="btn-save-planning" class="px-6 py-2.5 text-sm font-bold bg-primary text-background rounded-lg shadow-md hover:bg-primary/90 transition-colors">Opslaan</button>
@@ -648,23 +672,24 @@
                     <label class="block text-xs font-bold text-on-surface-variant mb-2 uppercase tracking-wider">Titel Activiteit</label>
                     <input type="text" id="activity-title" required class="w-full px-4 py-2.5 border border-outline-variant rounded-xl bg-surface-container focus:ring-1 focus:ring-primary text-on-surface outline-none" placeholder="Bijv. Vergadering, Training, Borrel">
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-on-surface-variant mb-2 uppercase tracking-wider">Dag (<span id="activity-display-week"></span>)</label>
-                    <select id="activity-day" onchange="updateActivityRecommendation()" class="w-full px-4 py-2.5 border border-outline-variant rounded-xl bg-surface-container focus:ring-1 focus:ring-primary text-on-surface outline-none">
-                        <option value="1">Maandag</option><option value="2">Dinsdag</option><option value="3">Woensdag</option>
-                        <option value="4">Donderdag</option><option value="5">Vrijdag</option><option value="6">Zaterdag</option><option value="7">Zondag</option>
-                    </select>
-                </div>
-                <div class="grid grid-cols-2 gap-5">
+                
+                <div class="grid grid-cols-1 gap-5">
                     <div>
-                        <label class="block text-xs font-bold text-on-surface-variant mb-2 uppercase tracking-wider">Van</label>
-                        <select id="activity-start" class="w-full px-4 py-2.5 border border-outline-variant rounded-xl bg-surface-container focus:ring-1 focus:ring-primary text-on-surface outline-none"></select>
+                        <label class="block text-xs font-bold text-on-surface-variant mb-2 uppercase tracking-wider">Start Datum & Tijd</label>
+                        <div class="flex gap-2">
+                            <input type="date" id="activity-start-date" onchange="updateActivityRecommendation()" required class="w-full px-4 py-2.5 border border-outline-variant rounded-xl bg-surface-container text-on-surface outline-none">
+                            <select id="activity-start-time" class="w-24 px-4 py-2.5 border border-outline-variant rounded-xl bg-surface-container focus:ring-1 focus:ring-primary text-on-surface outline-none"></select>
+                        </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-on-surface-variant mb-2 uppercase tracking-wider">Tot</label>
-                        <select id="activity-end" class="w-full px-4 py-2.5 border border-outline-variant rounded-xl bg-surface-container focus:ring-1 focus:ring-primary text-on-surface outline-none"></select>
+                        <label class="block text-xs font-bold text-on-surface-variant mb-2 uppercase tracking-wider">Eind Datum & Tijd</label>
+                        <div class="flex gap-2">
+                            <input type="date" id="activity-end-date" required class="w-full px-4 py-2.5 border border-outline-variant rounded-xl bg-surface-container text-on-surface outline-none">
+                            <select id="activity-end-time" class="w-24 px-4 py-2.5 border border-outline-variant rounded-xl bg-surface-container focus:ring-1 focus:ring-primary text-on-surface outline-none"></select>
+                        </div>
                     </div>
                 </div>
+
                 <div class="pt-6 flex justify-end gap-3">
                     <button type="button" onclick="closeCreateActivityModal()" class="px-6 py-2.5 text-sm font-bold text-on-surface-variant hover:bg-surface-container rounded-lg">Annuleren</button>
                     <button type="submit" class="px-6 py-2.5 text-sm font-bold bg-primary text-background rounded-lg shadow-md hover:bg-primary/90">Inplannen</button>
@@ -698,7 +723,7 @@
                 <p id="view-act-time" class="text-sm text-on-surface-variant mb-6"></p>
                 
                 <div class="mb-4">
-                    <h4 class="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Deelnemers (<span id="view-act-count-yes">0</span>)</h4>
+                    <h4 class="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Aanwezig (<span id="view-act-count-yes">0</span>)</h4>
                     <div id="view-act-yes-list" class="flex flex-wrap gap-2"></div>
                 </div>
 
@@ -723,9 +748,9 @@
             </div>
             <div class="p-8 space-y-8">
                 <form id="form-join-group">
-                    <label class="block text-sm font-bold mb-3 text-on-surface">Heb je een code?</label>
+                    <label class="block text-sm font-bold mb-3 text-on-surface">Heb je een code of link?</label>
                     <div class="flex flex-col md:flex-row gap-3">
-                        <input type="text" id="join-group-code" required class="flex-1 px-4 py-3 border border-outline-variant rounded-xl uppercase bg-surface-container focus:ring-1 focus:ring-primary text-on-surface outline-none" placeholder="Bv. X7Y9Z1">
+                        <input type="text" id="join-group-code" required class="flex-1 px-4 py-3 border border-outline-variant rounded-xl uppercase bg-surface-container focus:ring-1 focus:ring-primary text-on-surface outline-none" placeholder="Bv. X7Y9Z1 of een link">
                         <button type="submit" class="w-full md:w-auto px-6 py-3 bg-surface-container-highest text-on-surface font-bold rounded-xl hover:bg-outline transition-colors">Join</button>
                     </div>
                 </form>
@@ -750,7 +775,7 @@
             <div class="px-6 py-5 border-b border-outline-variant flex justify-between items-center bg-background">
                 <div>
                     <h3 id="manage-modal-title" class="text-xl font-bold text-primary">Team Naam</h3>
-                    <p class="text-xs text-on-surface-variant mt-1">Invite Code: <span id="manage-modal-code" class="font-mono font-bold text-primary bg-primary-container px-2 py-1 rounded-md ml-1 cursor-pointer hover:bg-primary/30 transition-colors" title="Klik om te kopiëren"></span></p>
+                    <p class="text-xs text-on-surface-variant mt-1 flex items-center gap-2">Uitnodigingslink: <span id="manage-modal-code" class="font-mono font-bold text-primary bg-primary-container px-2 py-1 rounded-md cursor-pointer hover:bg-primary/30 transition-colors flex items-center gap-1" title="Klik om te kopiëren"></span></p>
                 </div>
                 <button type="button" onclick="closeManageModal()" class="text-on-surface-variant hover:text-error p-1"><span class="material-symbols-outlined">close</span></button>
             </div>
@@ -781,9 +806,13 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, updatePassword, onAuthStateChanged, signOut, sendEmailVerification, sendPasswordResetEmail, deleteUser } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { 
+            getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
+            updateProfile, updatePassword, onAuthStateChanged, signOut, 
+            sendEmailVerification, sendPasswordResetEmail, deleteUser,
+            GoogleAuthProvider, signInWithPopup 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, limit, updateDoc, doc, deleteDoc, arrayUnion, arrayRemove, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
         import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js";
 
         // FIREBASE CONFIGURATIE
@@ -799,7 +828,6 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const storage = getStorage(app);
         const functions = getFunctions(app, 'europe-west3');
 
         let currentUserData = null;
@@ -812,6 +840,14 @@
         
         let userSubscription = 'none';
         let hasHadSubscription = false;
+
+        let calendarSyncInterval = null; 
+        let connectedGoogleAccounts = []; 
+
+        // --- CALENDAR CONFIG ---
+        const minHour = 0, maxHour = 24, slotHeight = 72; 
+        const monthNames = ["Jan", "Feb", "Mrt", "Apr", "Mei", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"];
+        const dayNames = ["", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"];
 
         // --- MOBIEL MENU LOGICA ---
         window.activeMobileDay = new Date().getDay() || 7;
@@ -826,7 +862,6 @@
             updateScheduler();
         };
 
-        // --- FAB & PLAN CLICK LOGICA ---
         window.handleFabClick = () => {
             if (currentView === 'personal') {
                 const currentH = new Date().getHours();
@@ -837,7 +872,6 @@
             }
         };
 
-        // --- PRIVACY MODAL LOGICA ---
         window.openPrivacyModal = () => {
             document.getElementById('privacy-modal').classList.remove('hidden');
             document.getElementById('privacy-modal').classList.add('flex');
@@ -847,7 +881,6 @@
             document.getElementById('privacy-modal').classList.remove('flex');
         };
 
-        // --- THEMA BEHEER ---
         window.toggleTheme = () => {
             const isDark = document.getElementById('theme-toggle-check').checked;
             if(!isDark) {
@@ -866,26 +899,6 @@
         } else {
             const toggleCheck = document.getElementById('theme-toggle-check');
             if (toggleCheck) toggleCheck.checked = true;
-        }
-
-        window.getAvatarHtml = (name, photoURL, extraClasses = "w-8 h-8 text-xs") => {
-            if(photoURL) {
-                return `<img src="${photoURL}" alt="${name}" class="rounded-full object-cover shadow-sm ${extraClasses}">`;
-            }
-            const initial = name ? name.charAt(0).toUpperCase() : "U";
-            return `<div class="rounded-full bg-primary-container text-primary flex items-center justify-center font-bold shadow-sm border border-primary/20 ${extraClasses}">${initial}</div>`;
-        };
-
-        function updateUserAvatarsUI() {
-            if(!currentUserData) return;
-            const name = currentUserData.displayName || "Gebruiker";
-            const photo = currentUserData.photoURL;
-            
-            const sidebarAvatar = document.getElementById('user-avatar');
-            if(sidebarAvatar) sidebarAvatar.innerHTML = window.getAvatarHtml(name, photo, "w-8 h-8 text-xs");
-            
-            const settingsAvatar = document.getElementById('settings-avatar');
-            if(settingsAvatar) settingsAvatar.innerHTML = window.getAvatarHtml(name, photo, "w-16 h-16 md:w-20 md:h-20 text-2xl md:text-3xl");
         }
 
         function getISOWeek(date) {
@@ -907,9 +920,6 @@
         }
 
         let currentWeek = getISOWeek(new Date()); 
-        const minHour = 7, maxHour = 24, slotHeight = 72; 
-        const monthNames = ["Jan", "Feb", "Mrt", "Apr", "Mei", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"];
-        const dayNames = ["", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"];
 
         // --- AUTH ---
         let isRegisterMode = false;
@@ -954,7 +964,6 @@
                 
                 const displayName = user.displayName || user.email.split('@')[0];
                 document.getElementById('user-name-display').innerText = displayName;
-                updateUserAvatarsUI();
                 
                 setupDropdowns();
                 buildInterfaceGrid();
@@ -963,8 +972,29 @@
                 await loadPlanningFromDatabase();
                 await loadActivitiesFromDatabase();
                 switchView('dashboard');
+
+                // Check of de url een uitnodigingslink bevat
+                const urlParams = new URLSearchParams(window.location.search);
+                const inviteCode = urlParams.get('invite');
+                if (inviteCode) {
+                    document.getElementById('join-group-code').value = inviteCode;
+                    window.openCreateJoinModal();
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+
+                try {
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    if (userDoc.exists() && userDoc.data().connectedCalendars) {
+                        connectedGoogleAccounts = userDoc.data().connectedCalendars;
+                        window.renderConnectedCalendars();
+                        window.startBackgroundCalendarSync();
+                        window.forceGoogleSync(true); // Eerste onzichtbare check
+                    }
+                } catch(err) { console.error("Kon eerdere agenda-koppeling niet herstellen", err); }
+
             } else {
                 currentUserData = null;
+                if (calendarSyncInterval) clearInterval(calendarSyncInterval);
                 document.getElementById('auth-screen').classList.remove('hidden');
                 document.getElementById('app-container').classList.add('hidden');
                 document.getElementById('app-container').classList.remove('flex');
@@ -1001,8 +1031,7 @@
         };
 
         // --- ABONNEMENTEN LOGICA & SYNC (STRIPE) ---
-        
-        async function loadSubscription() {
+       async function loadSubscription() {
             if (!currentUserData) return;
             try {
                 const subsRef = collection(db, "customers", currentUserData.uid, "subscriptions");
@@ -1014,8 +1043,19 @@
                 const snapshot = await getDocs(q);
                 
                 if (!snapshot.empty) {
-                    const subData = snapshot.docs[0].data();
-                    userSubscription = subData.role || 'none';
+                    let highestRole = 'none';
+                    const roleWeights = { 'none': 0, 'begin': 1, 'medium': 2, 'pro': 3 };
+                    
+                    snapshot.forEach(doc => {
+                        const subData = doc.data();
+                        const role = subData.role ? subData.role.toLowerCase() : 'none';
+                        
+                        if (roleWeights[role] > roleWeights[highestRole]) {
+                            highestRole = role;
+                        }
+                    });
+                    
+                    userSubscription = highestRole;
                 } else {
                     userSubscription = 'none';
                 }
@@ -1207,7 +1247,6 @@
             const displayName = currentUserData.displayName || currentUserData.email.split('@')[0];
             document.getElementById('settings-name').value = displayName;
             document.getElementById('settings-email').value = currentUserData.email;
-            updateUserAvatarsUI();
         }
 
         window.saveSettings = async () => {
@@ -1215,7 +1254,6 @@
             try {
                 await updateProfile(auth.currentUser, { displayName: newName });
                 document.getElementById('user-name-display').innerText = newName;
-                updateUserAvatarsUI();
                 
                 const batchPromises = [];
                 groupsData.forEach(g => {
@@ -1252,6 +1290,196 @@
             }
         });
 
+        // --- GOOGLE AGENDA SYNC (MEERDERE ACCOUNTS) ---
+        window.renderConnectedCalendars = () => {
+            const list = document.getElementById('connected-calendars-list');
+            const syncBtn = document.getElementById('btn-force-sync');
+            
+            if(!list) return;
+            list.innerHTML = '';
+
+            if (connectedGoogleAccounts.length > 0) {
+                if (syncBtn) syncBtn.style.display = 'flex';
+                connectedGoogleAccounts.forEach(acc => {
+                    list.innerHTML += `
+                        <div class="flex items-center justify-between p-3 bg-surface-container-lowest border border-outline-variant rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" class="w-4 h-4">
+                                <span class="text-sm font-bold text-on-surface">${acc.email}</span>
+                            </div>
+                            <button type="button" onclick="disconnectGoogleAccount('${acc.email}')" class="text-xs font-bold text-error bg-error/10 px-3 py-1.5 rounded hover:bg-error/20 transition-colors">Ontkoppelen</button>
+                        </div>
+                    `;
+                });
+            } else {
+                if (syncBtn) syncBtn.style.display = 'none';
+            }
+        };
+
+        window.disconnectGoogleAccount = async (emailToDisconnect) => {
+            if(!confirm(`Weet je zeker dat je de agenda van ${emailToDisconnect} wilt ontkoppelen? Dit verwijdert ook automatisch alle eerder geïmporteerde afspraken van dit account uit je planning.`)) return;
+            
+            connectedGoogleAccounts = connectedGoogleAccounts.filter(acc => acc.email !== emailToDisconnect);
+            await setDoc(doc(db, "users", currentUserData.uid), {
+                connectedCalendars: connectedGoogleAccounts
+            }, { merge: true });
+            
+            const q = query(collection(db, "planningen"), 
+                where("userId", "==", currentUserData.uid),
+                where("importedFrom", "==", emailToDisconnect)
+            );
+            const snap = await getDocs(q);
+            const batchPromises = [];
+            snap.forEach(docSnap => batchPromises.push(deleteDoc(docSnap.ref)));
+            await Promise.all(batchPromises);
+            
+            await loadPlanningFromDatabase();
+            window.renderConnectedCalendars();
+        };
+
+        window.syncGoogleCalendar = async () => {
+            if(!currentUserData) return;
+            try {
+                const provider = new GoogleAuthProvider();
+                provider.addScope('https://www.googleapis.com/auth/calendar.readonly');
+                provider.addScope('https://www.googleapis.com/auth/userinfo.email'); 
+
+                provider.setCustomParameters({ prompt: 'consent' });
+
+                const result = await signInWithPopup(auth, provider);
+                const credential = GoogleAuthProvider.credentialFromResult(result);
+                const token = credential.accessToken;
+
+                const emailResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const emailData = await emailResponse.json();
+                const accountEmail = emailData.email || 'Onbekend Google Account';
+
+                if(connectedGoogleAccounts.some(acc => acc.email === accountEmail)) {
+                    alert("Dit Google account is al gekoppeld!");
+                    return;
+                }
+
+                const newAccount = { token, email: accountEmail, addedAt: Date.now() };
+                connectedGoogleAccounts.push(newAccount);
+
+                await setDoc(doc(db, "users", currentUserData.uid), {
+                    connectedCalendars: connectedGoogleAccounts
+                }, { merge: true });
+
+                window.renderConnectedCalendars();
+                await window.fetchAndProcessGoogleCalendar(token, accountEmail);
+                window.startBackgroundCalendarSync();
+
+                alert(`Agenda van ${accountEmail} succesvol toegevoegd!`);
+            } catch (error) {
+                console.error("Agenda Sync Error:", error);
+                alert("Fout bij koppelen van Google Agenda. Error: " + error.message);
+            }
+        };
+
+        window.forceGoogleSync = async (silent = false) => {
+            if(connectedGoogleAccounts.length === 0) return;
+            
+            const icon = document.getElementById('sync-icon');
+            if(icon) icon.classList.add('animate-spin');
+
+            let totalImported = 0;
+            for(let acc of connectedGoogleAccounts) {
+                const count = await window.fetchAndProcessGoogleCalendar(acc.token, acc.email);
+                totalImported += (count || 0);
+            }
+
+            if(icon) icon.classList.remove('animate-spin');
+            
+            if(!silent) {
+                if(totalImported > 0) {
+                    alert(`Sync voltooid! ${totalImported} nieuwe afspraken geïmporteerd.`);
+                } else {
+                    alert("Sync voltooid. Er zijn geen nieuwe afspraken gevonden.");
+                }
+            }
+        };
+
+        window.fetchAndProcessGoogleCalendar = async (token, accountEmail) => {
+            try {
+                const timeMin = new Date().toISOString();
+                const tMax = new Date();
+                tMax.setDate(tMax.getDate() + 30);
+                const timeMax = tMax.toISOString();
+
+                const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true&orderBy=startTime`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    console.error("Google API Fout:", await response.text());
+                    return 0; 
+                }
+
+                const data = await response.json();
+                const events = data.items || [];
+                
+                const batchPromises = [];
+                let importCount = 0;
+
+                events.forEach(event => {
+                    if (!event.start.dateTime) return; 
+
+                    const startD = new Date(event.start.dateTime);
+                    const endD = new Date(event.end.dateTime);
+
+                    const week = getISOWeek(startD);
+                    const day = startD.getDay() || 7; 
+                    const startHour = startD.getHours();
+                    
+                    let endHour = endD.getHours();
+                    if (endD.getMinutes() > 0) endHour += 1; 
+
+                    const exists = planningData.some(p => 
+                        p.userId === currentUserData.uid && 
+                        Number(p.week) === Number(week) && 
+                        Number(p.day) === Number(day) && 
+                        Number(p.startHour) === Number(startHour)
+                    );
+
+                    if (!exists && startHour !== endHour) {
+                        importCount++;
+                        batchPromises.push(addDoc(collection(db, "planningen"), {
+                            userId: currentUserData.uid,
+                            userName: currentUserData.displayName || currentUserData.email.split('@')[0],
+                            week: week,
+                            day: day,
+                            startHour: startHour,
+                            endHour: endHour,
+                            status: 'busy', 
+                            importedTitle: event.summary || 'Google Agenda',
+                            importedFrom: accountEmail 
+                        }));
+                    }
+                });
+
+                if (importCount > 0) {
+                    await Promise.all(batchPromises);
+                    await loadPlanningFromDatabase();
+                }
+                return importCount;
+            } catch (e) {
+                console.warn("Sync mislukt voor account:", accountEmail, e);
+                return 0;
+            }
+        };
+
+        window.startBackgroundCalendarSync = () => {
+            if (calendarSyncInterval) clearInterval(calendarSyncInterval);
+            calendarSyncInterval = setInterval(() => {
+                console.log("Achtergrond check voor Google Agenda's wordt uitgevoerd...");
+                window.forceGoogleSync(true); 
+            }, 900000); 
+        };
+
+        // --- PLAN BLOK OPSLAAN ---
         document.getElementById('availability-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -1260,42 +1488,48 @@
             submitBtn.innerText = "Opslaan...";
 
             try {
-                const day = Number(document.getElementById('form-day').value);
+                const dayVal = Number(document.getElementById('form-day').value);
                 const start = Number(document.getElementById('form-start').value);
                 const end = Number(document.getElementById('form-end').value);
                 const status = document.getElementById('form-status').value;
                 
-                if (end <= start) {
-                    alert("Eindtijd moet na de starttijd liggen.");
-                    return;
-                }
+                const daysToProcess = dayVal === 0 ? [1,2,3,4,5,6,7] : [dayVal];
+                const batchPromises = [];
                 
-                const hasConflict = planningData.some(p => 
-                    p.userId === currentUserData.uid && Number(p.week) === Number(currentWeek) && Number(p.day) === day && p.id !== editPlanningId &&
-                    ((start >= Number(p.startHour) && start < Number(p.endHour)) || (end > Number(p.startHour) && end <= Number(p.endHour)) || (start <= Number(p.startHour) && end >= Number(p.endHour)))
-                );
-                
-                if (hasConflict) {
-                    alert("Conflict in tijden! Je hebt al een blok overlappend met deze tijd.");
-                    return;
+                if (editPlanningId) {
+                    batchPromises.push(deleteDoc(doc(db, "planningen", editPlanningId)));
                 }
 
-                const payload = { 
-                    userId: currentUserData.uid, 
-                    userName: currentUserData.displayName || currentUserData.email.split('@')[0], 
-                    week: Number(currentWeek), day, startHour: start, endHour: end, status 
-                };
-
-                if(editPlanningId) {
-                    await updateDoc(doc(db, "planningen", editPlanningId), payload);
-                } else {
-                    await addDoc(collection(db, "planningen"), payload);
+                for (let d of daysToProcess) {
+                    if (end <= start) { 
+                        let nextDay = d === 7 ? 1 : d + 1;
+                        
+                        const checkAndAdd = (chkDay, chkStart, chkEnd) => {
+                            const hasConflict = planningData.some(p => p.userId === currentUserData.uid && Number(p.week) === Number(currentWeek) && Number(p.day) === chkDay && p.id !== editPlanningId && ((chkStart >= Number(p.startHour) && chkStart < Number(p.endHour)) || (chkEnd > Number(p.startHour) && chkEnd <= Number(p.endHour)) || (chkStart <= Number(p.startHour) && chkEnd >= Number(p.endHour))));
+                            if(hasConflict && daysToProcess.length === 1) throw new Error(`Conflict op dag ${chkDay} tussen ${chkStart}:00 en ${chkEnd}:00`);
+                            if(!hasConflict) batchPromises.push(addDoc(collection(db, "planningen"), { userId: currentUserData.uid, userName: currentUserData.displayName || currentUserData.email.split('@')[0], week: Number(currentWeek), day: chkDay, startHour: chkStart, endHour: chkEnd, status }));
+                        };
+                        
+                        checkAndAdd(d, start, 24); 
+                        if(end > 0) checkAndAdd(nextDay, 0, end); 
+                        
+                    } else { 
+                        const hasConflict = planningData.some(p => p.userId === currentUserData.uid && Number(p.week) === Number(currentWeek) && Number(p.day) === d && p.id !== editPlanningId && ((start >= Number(p.startHour) && start < Number(p.endHour)) || (end > Number(p.startHour) && end <= Number(p.endHour)) || (start <= Number(p.startHour) && end >= Number(p.endHour))));
+                        if(hasConflict && daysToProcess.length === 1) throw new Error("Conflict in tijden! Je hebt al een blok overlappend met deze tijd.");
+                        if(!hasConflict) batchPromises.push(addDoc(collection(db, "planningen"), { userId: currentUserData.uid, userName: currentUserData.displayName || currentUserData.email.split('@')[0], week: Number(currentWeek), day: d, startHour: start, endHour: end, status }));
+                    }
                 }
-                createSystemLog("Planning Aangepast", "Je hebt je persoonlijke agenda gewijzigd.", "edit_calendar");
+                
+                if(batchPromises.length > 0) {
+                    await Promise.all(batchPromises);
+                    createSystemLog("Planning Aangepast", "Je hebt je persoonlijke agenda gewijzigd.", "edit_calendar");
+                }
+                
                 window.closeModal();
                 await loadPlanningFromDatabase();
             } catch (error) {
                 console.error(error);
+                alert(error.message);
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerText = "Opslaan";
@@ -1310,6 +1544,7 @@
             await loadPlanningFromDatabase();
         };
 
+        // --- TIMESTAMPS ACTIVITEITEN OPSLAAN ---
         document.getElementById('activity-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -1319,65 +1554,38 @@
 
             try {
                 const title = document.getElementById('activity-title').value;
-                const day = Number(document.getElementById('activity-day').value);
-                const start = Number(document.getElementById('activity-start').value);
-                const end = Number(document.getElementById('activity-end').value);
-                
-                if (end <= start) {
-                    alert("Eindtijd fout.");
+                const startDateStr = document.getElementById('activity-start-date').value;
+                const startHour = Number(document.getElementById('activity-start-time').value);
+                const endDateStr = document.getElementById('activity-end-date').value;
+                const endHour = Number(document.getElementById('activity-end-time').value);
+
+                const startD = new Date(startDateStr);
+                startD.setHours(startHour, 0, 0, 0);
+
+                const endD = new Date(endDateStr);
+                endD.setHours(endHour, 0, 0, 0);
+
+                if (endD.getTime() <= startD.getTime()) {
+                    alert("De eindtijd moet in de toekomst liggen ten opzichte van de starttijd.");
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Inplannen";
                     return;
                 }
-                
+
                 const activeGroup = groupsData.find(g => g.id === currentGroupId);
-                
-                let initialAttending = [];
-                const groupPlannings = planningData.filter(item => 
-                    Number(item.week) === Number(currentWeek) && Number(item.day) === day &&
-                    Number(item.startHour) < end && Number(item.endHour) > start && 
-                    activeGroup.memberIds.includes(item.userId) && item.status === 'available'
-                );
-                
-                initialAttending = groupPlannings.map(p => {
-                    const pURL = activeGroup.memberProfiles?.[p.userId]?.photoURL;
-                    return { uid: p.userId, name: p.userName, photoURL: pURL };
+
+                await addDoc(collection(db, "activities"), {
+                    groupId: currentGroupId, 
+                    groupName: activeGroup.name,
+                    title, 
+                    startTimestamp: startD.getTime(), 
+                    endTimestamp: endD.getTime(),
+                    attending: [], 
+                    declined: [], 
+                    createdBy: currentUserData.uid
                 });
-                initialAttending = Array.from(new Map(initialAttending.map(item => [item.uid, item])).values());
-
-                const batchPromises = [];
-                for(let p of groupPlannings) {
-                    const pStart = Number(p.startHour);
-                    const pEnd = Number(p.endHour);
-                    
-                    batchPromises.push(deleteDoc(doc(db, "planningen", p.id)));
-                    
-                    if (pStart < start) {
-                        batchPromises.push(addDoc(collection(db, "planningen"), {
-                            userId: p.userId, userName: p.userName, week: Number(currentWeek), day,
-                            startHour: pStart, endHour: start, status: 'available'
-                        }));
-                    }
-                    batchPromises.push(addDoc(collection(db, "planningen"), {
-                        userId: p.userId, userName: p.userName, week: Number(currentWeek), day,
-                        startHour: Math.max(pStart, start), endHour: Math.min(pEnd, end), status: 'busy' 
-                    }));
-                    
-                    if (pEnd > end) {
-                        batchPromises.push(addDoc(collection(db, "planningen"), {
-                            userId: p.userId, userName: p.userName, week: Number(currentWeek), day,
-                            startHour: end, endHour: pEnd, status: 'available'
-                        }));
-                    }
-                }
-
-                batchPromises.push(addDoc(collection(db, "activities"), {
-                    groupId: currentGroupId, groupName: activeGroup.name,
-                    title, week: Number(currentWeek), day, startHour: start, endHour: end,
-                    attending: initialAttending, declined: [], createdBy: currentUserData.uid
-                }));
                 
-                await Promise.all(batchPromises);
-                
-                createSystemLog("Nieuwe Activiteit Gepland", `'${title}' is ingepland in week ${currentWeek} voor team ${activeGroup.name}.`, 'event');
+                createSystemLog("Nieuwe Activiteit Gepland", `'${title}' is ingepland voor team ${activeGroup.name}.`, 'event');
                 
                 window.closeCreateActivityModal();
                 await loadActivitiesFromDatabase();
@@ -1395,34 +1603,24 @@
             list.innerHTML = ''; 
             
             const myGroupIds = groupsData.map(g => g.id);
-            const allMyActs = activitiesData.filter(a => myGroupIds.includes(a.groupId))
-                .sort((a, b) => Number(b.week) - Number(a.week) || Number(b.day) - Number(a.day)); 
+            const allMyActs = activitiesData.filter(a => a.startTimestamp && myGroupIds.includes(a.groupId))
+                .sort((a, b) => b.startTimestamp - a.startTimestamp); 
 
-            const uniqueActs = [];
-            const seenKeys = new Set();
-            allMyActs.forEach(a => {
-                const key = `${a.groupId}-${a.title}-${a.week}-${a.day}-${a.startHour}`;
-                if(!seenKeys.has(key)) {
-                    uniqueActs.push(a);
-                    seenKeys.add(key);
-                }
-            });
-
-            if(uniqueActs.length === 0) {
+            if(allMyActs.length === 0) {
                 list.innerHTML = '<p class="text-sm text-on-surface-variant italic">Er zijn nog geen activiteiten gepland.</p>';
             } else {
-                uniqueActs.forEach(act => {
-                    const dDate = getDateFromWeek(Number(act.week), Number(act.day));
+                allMyActs.forEach(act => {
+                    const dDate = new Date(act.startTimestamp);
                     list.innerHTML += `
                         <div class="bg-surface-container border border-outline-variant p-4 rounded-xl flex flex-col gap-2 hover:border-primary/50 transition-colors cursor-pointer shadow-sm" onclick="window.closeAllActivitiesModal(); window.openViewActivityModal('${act.id}')">
                             <div class="flex justify-between items-start">
                                 <span class="bg-primary-container text-primary text-[10px] font-bold px-2 py-1 rounded tracking-widest uppercase">${act.groupName}</span>
-                                <span class="text-xs font-bold text-on-surface-variant">Wk ${act.week}</span>
+                                <span class="text-xs font-bold text-on-surface-variant">Wk ${getISOWeek(dDate)}</span>
                             </div>
                             <h4 class="text-lg font-bold text-on-surface">${act.title}</h4>
                             <div class="text-sm text-on-surface-variant flex items-center gap-1">
                                 <span class="material-symbols-outlined text-[16px]">schedule</span>
-                                ${dayNames[act.day]} ${dDate.getDate()} ${monthNames[dDate.getMonth()]} om ${act.startHour}:00
+                                ${dayNames[dDate.getDay() || 7]} ${dDate.getDate()} ${monthNames[dDate.getMonth()]} om ${dDate.getHours().toString().padStart(2, '0')}:00
                             </div>
                         </div>
                     `;
@@ -1443,15 +1641,20 @@
             if(!act) return;
             
             document.getElementById('view-act-title').innerText = act.title;
-            const d = getDateFromWeek(Number(act.week), Number(act.day));
-            document.getElementById('view-act-time').innerText = `${dayNames[act.day]} ${d.getDate()} ${monthNames[d.getMonth()]} om ${act.startHour}:00 - ${act.endHour}:00`;
+            const startD = new Date(act.startTimestamp);
+            const endD = new Date(act.endTimestamp);
+            
+            const startStr = `${dayNames[startD.getDay() || 7]} ${startD.getDate()} ${monthNames[startD.getMonth()]} om ${startD.getHours().toString().padStart(2,'0')}:00`;
+            const endStr = `${endD.getDate()} ${monthNames[endD.getMonth()]} om ${endD.getHours().toString().padStart(2,'0')}:00`;
+
+            document.getElementById('view-act-time').innerText = `${startStr} - ${endStr}`;
             
             const attendingList = document.getElementById('view-act-yes-list');
             document.getElementById('view-act-count-yes').innerText = act.attending?.length || 0;
             
             attendingList.innerHTML = (act.attending || []).map(u => `
                 <div class="flex items-center gap-3 bg-surface-container-lowest border border-outline-variant rounded-full p-1.5 pr-4 w-fit">
-                    ${window.getAvatarHtml(u.name, u.photoURL, "w-8 h-8 text-xs")}
+                    <div class="w-8 h-8 rounded-full bg-primary-container text-primary flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-[16px]">person</span></div>
                     <span class="text-sm font-bold">${u.name}</span>
                 </div>
             `).join('') || "<span class='text-on-surface-variant italic'>Nog niemand</span>";
@@ -1484,8 +1687,7 @@
             const act = activitiesData.find(a => a.id === activityId);
             const userObj = { 
                 uid: currentUserData.uid, 
-                name: currentUserData.displayName || currentUserData.email.split('@')[0],
-                photoURL: currentUserData.photoURL
+                name: currentUserData.displayName || currentUserData.email.split('@')[0]
             };
             
             let attending = (act.attending || []).filter(u => u.uid !== userObj.uid);
@@ -1509,7 +1711,12 @@
 
         window.updateActivityRecommendation = () => {
             if(!currentGroupId) return;
-            const day = Number(document.getElementById('activity-day').value);
+            const dateStr = document.getElementById('activity-start-date').value;
+            if(!dateStr) return;
+            const d = new Date(dateStr);
+            const day = d.getDay() || 7; 
+            const week = getISOWeek(d);
+            
             const activeGroup = groupsData.find(g => g.id === currentGroupId);
             const members = activeGroup.memberIds;
             
@@ -1517,14 +1724,37 @@
             let maxCount = 0;
 
             for(let h=minHour; h<maxHour; h++) {
-                let availableHere = [];
-                planningData.forEach(p => {
-                    if(Number(p.week) === Number(currentWeek) && Number(p.day) === day && p.status === 'available' && Number(p.startHour) <= h && Number(p.endHour) > h && members.includes(p.userId)) {
-                        if(!availableHere.includes(p.userName)) availableHere.push(p.userName);
+                hourlyAvailability[h] = [];
+            }
+
+            planningData.forEach(p => {
+                if(Number(p.week) === Number(week) && Number(p.day) === day && p.status === 'available' && members.includes(p.userId)) {
+                    for(let h=Math.max(minHour, Number(p.startHour)); h < Math.min(maxHour, Number(p.endHour)); h++) {
+                        if(!hourlyAvailability[h].some(u => u.uid === p.userId)) {
+                            hourlyAvailability[h].push({ uid: p.userId, name: p.userName });
+                        }
                     }
-                });
-                hourlyAvailability[h] = availableHere.sort();
-                if(availableHere.length > maxCount) maxCount = availableHere.length;
+                }
+            });
+
+            const dayStartTs = new Date(d).setHours(0,0,0,0);
+            const dayEndTs = new Date(d).setHours(23,59,59,999);
+
+            const allActsThisWeek = activitiesData.filter(a => a.startTimestamp && a.startTimestamp <= dayEndTs && a.endTimestamp >= dayStartTs);
+            allActsThisWeek.forEach(act => {
+                const attendingUids = (act.attending || []).map(u => u.uid);
+                let actStartH = act.startTimestamp < dayStartTs ? 0 : new Date(act.startTimestamp).getHours();
+                let actEndH = act.endTimestamp > dayEndTs ? 24 : new Date(act.endTimestamp).getHours();
+                
+                for(let h = actStartH; h < actEndH; h++) {
+                    if (hourlyAvailability[h]) {
+                        hourlyAvailability[h] = hourlyAvailability[h].filter(u => !attendingUids.includes(u.uid));
+                    }
+                }
+            });
+
+            for(let h=minHour; h<maxHour; h++) {
+                if(hourlyAvailability[h].length > maxCount) maxCount = hourlyAvailability[h].length;
             }
 
             const recDiv = document.getElementById('activity-recommendation');
@@ -1534,14 +1764,14 @@
                 let currentBlock = null;
 
                 for(let h=minHour; h<maxHour; h++) {
-                    let people = hourlyAvailability[h];
-                    if (people.length === maxCount) {
-                        let peopleStr = JSON.stringify(people);
+                    let peopleObj = hourlyAvailability[h];
+                    if (peopleObj.length === maxCount) {
+                        let peopleStr = JSON.stringify(peopleObj.map(u => u.uid).sort());
                         if (currentBlock && currentBlock.peopleStr === peopleStr) {
                             currentBlock.endHour = h + 1;
                         } else {
                             if (currentBlock) blocks.push(currentBlock);
-                            currentBlock = { startHour: h, endHour: h + 1, count: maxCount, people: people, peopleStr: peopleStr };
+                            currentBlock = { startHour: h, endHour: h + 1, count: maxCount, people: peopleObj.map(u => u.name).sort(), peopleStr: peopleStr };
                         }
                     } else {
                         if (currentBlock) {
@@ -1559,8 +1789,8 @@
                 recDiv.innerHTML = `<strong>💡 Aanbevolen: ${bestBlock.startHour}:00 - ${bestBlock.endHour}:00</strong><br>Hier ${lidTekst}: ${bestBlock.people.join(', ')}`;
                 recDiv.style.display = 'block';
                 
-                document.getElementById('activity-start').value = bestBlock.startHour;
-                document.getElementById('activity-end').value = bestBlock.endHour;
+                document.getElementById('activity-start-time').value = bestBlock.startHour;
+                document.getElementById('activity-end-time').value = bestBlock.endHour;
             } else {
                 recDiv.style.display = 'none';
             }
@@ -1603,7 +1833,7 @@
                 document.getElementById('view-scheduler').classList.remove('hidden');
                 document.getElementById('topbar-title').innerText = "Team Overzicht";
                 document.getElementById('page-title').innerText = "Groepsplanning";
-                document.getElementById('page-subtitle').innerText = "Jullie groepsagenda"; // Update subtitle
+                document.getElementById('page-subtitle').innerText = "Jullie groepsagenda";
                 
                 checkSchedulePermission();
                 updateScheduler();
@@ -1665,8 +1895,9 @@
         window.closeModal = () => { document.getElementById('schedule-modal').classList.add('hidden'); document.getElementById('schedule-modal').classList.remove('flex'); };
 
         window.openCreateActivityModal = () => {
-            document.getElementById('activity-display-week').innerText = `Week ${currentWeek}`;
-            document.getElementById('activity-day').value = window.activeMobileDay;
+            const todayStr = new Date().toISOString().split('T')[0];
+            document.getElementById('activity-start-date').value = todayStr;
+            document.getElementById('activity-end-date').value = todayStr;
             window.updateActivityRecommendation();
             document.getElementById('create-activity-modal').classList.remove('hidden'); document.getElementById('create-activity-modal').classList.add('flex');
         };
@@ -1695,7 +1926,7 @@
             await addDoc(collection(db, "groups"), { 
                 name, inviteCode, ownerId: currentUserData.uid, 
                 memberIds: [currentUserData.uid],
-                memberProfiles: { [currentUserData.uid]: { name: currentUserData.displayName || "Ik", photoURL: currentUserData.photoURL || null } }
+                memberProfiles: { [currentUserData.uid]: { name: currentUserData.displayName || "Ik" } }
             });
             
             createSystemLog("Nieuw Team Aangemaakt", `Team '${name}' is succesvol opgericht.`, "group_add");
@@ -1706,7 +1937,15 @@
         
         document.getElementById('form-join-group').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const code = document.getElementById('join-group-code').value.toUpperCase();
+            let rawInput = document.getElementById('join-group-code').value;
+            let code = rawInput;
+            try {
+                if (rawInput.includes('invite=')) {
+                    code = new URLSearchParams(new URL(rawInput).search).get('invite');
+                }
+            } catch(e) {}
+            code = code.trim().toUpperCase();
+
             const userName = currentUserData.displayName || currentUserData.email.split('@')[0];
             try {
                 const q = query(collection(db, "groups"), where("inviteCode", "==", code));
@@ -1716,7 +1955,7 @@
                 
                 await updateDoc(doc(db, "groups", groupDoc.id), { 
                     memberIds: arrayUnion(currentUserData.uid),
-                    [`memberProfiles.${currentUserData.uid}`]: { name: userName, photoURL: currentUserData.photoURL || null }
+                    [`memberProfiles.${currentUserData.uid}`]: { name: userName }
                 });
                 
                 createSystemLog("Aangesloten bij Team", `Je bent lid geworden van '${groupDoc.data().name}'.`, "group_add");
@@ -1732,13 +1971,23 @@
         function setupDropdowns() {
             const startSelect = document.getElementById('form-start');
             const endSelect = document.getElementById('form-end');
-            const actStart = document.getElementById('activity-start');
-            const actEnd = document.getElementById('activity-end');
-            startSelect.innerHTML = endSelect.innerHTML = actStart.innerHTML = actEnd.innerHTML = '';
+            const actStart = document.getElementById('activity-start-time');
+            const actEnd = document.getElementById('activity-end-time');
+            
+            startSelect.innerHTML = endSelect.innerHTML = '';
+            if(actStart) actStart.innerHTML = '';
+            if(actEnd) actEnd.innerHTML = '';
+            
             for(let i = minHour; i <= maxHour; i++) {
                 let label = `${i.toString().padStart(2, '0')}:00`;
-                if(i < maxHour) { startSelect.add(new Option(label, i)); actStart.add(new Option(label, i)); }
-                if(i > minHour) { endSelect.add(new Option(label, i)); actEnd.add(new Option(label, i)); }
+                if(i < maxHour) { 
+                    startSelect.add(new Option(label, i)); 
+                    if(actStart) actStart.add(new Option(label, i)); 
+                }
+                if(i > minHour) { 
+                    endSelect.add(new Option(label, i)); 
+                    if(actEnd) actEnd.add(new Option(label, i)); 
+                }
             }
         }
 
@@ -1819,14 +2068,14 @@
 
             try {
                 const myGroupIds = groupsData.map(g => g.id);
-                const upcoming = activitiesData.filter(a => myGroupIds.includes(a.groupId) && (Number(a.week) > Number(currentWeek) || (Number(a.week) === Number(currentWeek) && Number(a.day) >= new Date().getDay())))
-                    .sort((a, b) => Number(a.week) - Number(b.week) || Number(a.day) - Number(b.day) || Number(a.startHour) - Number(b.startHour));
+                const upcoming = activitiesData.filter(a => a.startTimestamp && myGroupIds.includes(a.groupId) && a.startTimestamp > Date.now())
+                    .sort((a, b) => a.startTimestamp - b.startTimestamp);
 
                 const meetupContainer = document.getElementById('dash-next-meetup-content');
                 if(upcoming.length > 0) {
                     meetupContainer.innerHTML = '';
                     upcoming.slice(0,1).forEach(next => {
-                        const dDate = getDateFromWeek(Number(next.week), Number(next.day));
+                        const nextD = new Date(next.startTimestamp);
                         const participantsCount = next.attending?.length || 0;
                         
                         meetupContainer.innerHTML += `
@@ -1834,7 +2083,7 @@
                             <h4 class="text-2xl font-bold text-on-surface leading-tight mb-2">${next.title}</h4>
                             <p class="text-sm text-on-surface-variant flex items-center gap-1">
                                 <span class="material-symbols-outlined text-[16px]">schedule</span> 
-                                Week ${next.week}, ${dayNames[next.day]} ${dDate.getDate()} ${monthNames[dDate.getMonth()]} om ${next.startHour}:00
+                                ${dayNames[nextD.getDay() || 7]} ${nextD.getDate()} ${monthNames[nextD.getMonth()]} om ${nextD.getHours().toString().padStart(2, '0')}:00
                             </p>
                             <div class="mt-4 flex items-center gap-2">
                                 <div class="flex -space-x-2">
@@ -2020,43 +2269,15 @@
                         window.openModalForEdit(item.id, item.day, startH, endH, item.status);
                     };
 
+                    let blockTitle = isBusy ? (item.importedTitle || 'Niet Beschikbaar') : (item.userName || 'Jij');
+
                     block.innerHTML = `
                         <div class="text-[10px] font-bold opacity-75 mb-0.5">${item.startHour}:00 - ${item.endHour}:00</div>
-                        <div class="text-[12px] font-bold leading-tight truncate">${item.userName || 'Jij'}</div>
-                        <div class="text-[10px] truncate mt-0.5 opacity-80">${isBusy ? 'Niet Beschikbaar' : 'Beschikbaar'}</div>
+                        <div class="text-[12px] font-bold leading-tight truncate">${blockTitle}</div>
+                        <div class="text-[10px] truncate mt-0.5 opacity-80">${isBusy && item.importedTitle ? 'Google Agenda' : (isBusy ? 'Niet Beschikbaar' : 'Beschikbaar')}</div>
                     `;
                     col.appendChild(block);
                 });
-
-                if(currentUserData) {
-                    const myActivities = activitiesData.filter(a => Number(a.week) === Number(currentWeek) && a.attending && a.attending.some(u => u.uid === currentUserData.uid));
-                    
-                    myActivities.forEach(act => {
-                        const col = document.getElementById(`day-column-${act.day}`);
-                        if(!col) return;
-                        
-                        const block = document.createElement('div');
-                        const height = (Number(act.endHour) - Number(act.startHour)) * slotHeight;
-                        
-                        block.className = `absolute left-1 right-1 rounded-xl p-3 shadow-lg border border-[#5df599] bg-[#1a1a1a] overflow-hidden flex flex-col justify-start cursor-pointer hover:bg-surface-container transition-colors z-20`;
-                        block.style.top = `${(Number(act.startHour) - minHour) * slotHeight + 2}px`;
-                        block.style.height = `${height - 4}px`;
-                        
-                        block.onclick = (e) => { e.stopPropagation(); window.openViewActivityModal(act.id); };
-                        
-                        const participantsCount = act.attending?.length || 0;
-                        const rsvpText = participantsCount === 1 ? '1 deelnemer' : `${participantsCount} deelnemers`;
-                        
-                        block.innerHTML = `
-                            <div class="text-[10px] font-bold text-primary flex items-center gap-1 mb-1 uppercase tracking-widest bg-primary/10 w-fit px-1.5 py-0.5 rounded">
-                                <span class="material-symbols-outlined text-[12px]">calendar_today</span> GEPLAND (${act.groupName})
-                            </div>
-                            <div class="text-sm font-bold text-white truncate">${act.title}</div>
-                            <div class="text-[10px] text-gray-400 mt-1 truncate">${rsvpText}</div>
-                        `;
-                        col.appendChild(block);
-                    });
-                }
 
             } 
             else if (currentView === 'group') {
@@ -2070,11 +2291,34 @@
                     for(let h=minHour; h<maxHour; h++) grid[d][h] = { available: [] };
                 }
 
+                // 1. Iedereen die zich beschikbaar heeft gemeld
                 weekData.forEach(item => {
                     if (item.status === 'available') {
                         for(let h = Math.max(minHour, Number(item.startHour)); h < Math.min(maxHour, Number(item.endHour)); h++) {
-                            if(!grid[item.day][h].available.includes(item.userName)) {
-                                grid[item.day][h].available.push(item.userName);
+                            if(!grid[item.day][h].available.some(u => u.uid === item.userId)) {
+                                grid[item.day][h].available.push({ uid: item.userId, name: item.userName });
+                            }
+                        }
+                    }
+                });
+                
+                // 2. Filter iedereen eruit die al in een ANDERE activiteit zit op dat moment (Slimme Substractie met timestamps)
+                const allActsThisWeek = activitiesData.filter(a => a.startTimestamp);
+                allActsThisWeek.forEach(act => {
+                    const attendingUids = (act.attending || []).map(u => u.uid);
+                    for(let d=1; d<=7; d++) {
+                        const colDate = getDateFromWeek(currentWeek, d);
+                        const dayStartTs = new Date(colDate).setHours(0, 0, 0, 0);
+                        const dayEndTs = new Date(colDate).setHours(23, 59, 59, 999);
+                        
+                        if (act.startTimestamp <= dayEndTs && act.endTimestamp >= dayStartTs) {
+                            let actStartH = act.startTimestamp < dayStartTs ? 0 : new Date(act.startTimestamp).getHours();
+                            let actEndH = act.endTimestamp > dayEndTs ? 24 : new Date(act.endTimestamp).getHours();
+                            
+                            for(let h = actStartH; h < actEndH; h++) {
+                                if (grid[d] && grid[d][h]) {
+                                    grid[d][h].available = grid[d][h].available.filter(u => !attendingUids.includes(u.uid));
+                                }
                             }
                         }
                     }
@@ -2084,7 +2328,7 @@
                 for(let d=1; d<=7; d++) {
                     let currentSlot = null;
                     for(let h=minHour; h<maxHour; h++) {
-                        let people = grid[d][h].available.sort();
+                        let people = grid[d][h].available.map(u => u.name).sort();
                         let count = people.length;
 
                         if (count > 0) {
@@ -2162,43 +2406,6 @@
                     col.appendChild(block);
                 });
 
-                if(currentGroupId) {
-                    const rawGroupActivities = activitiesData.filter(a => a.groupId === currentGroupId && Number(a.week) === Number(currentWeek));
-                    const groupActivities = [];
-                    rawGroupActivities.forEach(act => {
-                        const key = `${act.title}-${act.day}-${act.startHour}-${act.endHour}`;
-                        if (!groupActivities.some(a => `${a.title}-${a.day}-${a.startHour}-${a.endHour}` === key)) {
-                            groupActivities.push(act);
-                        }
-                    });
-
-                    groupActivities.forEach(act => {
-                        const col = document.getElementById(`day-column-${act.day}`);
-                        if(!col) return;
-                        
-                        const block = document.createElement('div');
-                        const height = (Number(act.endHour) - Number(act.startHour)) * slotHeight;
-                        
-                        block.className = `absolute left-1 right-1 rounded-xl p-3 shadow-lg border border-[#5df599] bg-[#1a1a1a] overflow-hidden flex flex-col justify-start cursor-pointer hover:bg-surface-container transition-colors z-20`;
-                        block.style.top = `${(Number(act.startHour) - minHour) * slotHeight + 2}px`;
-                        block.style.height = `${height - 4}px`;
-                        
-                        block.onclick = () => window.openViewActivityModal(act.id);
-                        
-                        const participantsCount = act.attending?.length || 0;
-                        const rsvpText = participantsCount === 1 ? '1 deelnemer' : `${participantsCount} deelnemers`;
-                        
-                        block.innerHTML = `
-                            <div class="text-[10px] font-bold text-primary flex items-center gap-1 mb-1 uppercase tracking-widest bg-primary/10 w-fit px-1.5 py-0.5 rounded">
-                                <span class="material-symbols-outlined text-[12px]">calendar_today</span> GEPLAND
-                            </div>
-                            <div class="text-sm font-bold text-white truncate">${act.title}</div>
-                            <div class="text-[10px] text-gray-400 mt-1 truncate">${rsvpText}</div>
-                        `;
-                        col.appendChild(block);
-                    });
-                }
-                
                 const membersSection = document.getElementById('group-members-section');
                 if (activeGroup) {
                     membersSection.style.display = 'block';
@@ -2212,7 +2419,7 @@
                         
                         membersList.innerHTML += `
                             <div class="flex items-center gap-2 bg-[#1a1a1a] border border-[#333333] rounded-full p-1.5 pr-4 shadow-sm">
-                                ${window.getAvatarHtml(profile.name, profile.photoURL, "w-8 h-8 text-xs border border-surface")}
+                                <div class="w-8 h-8 rounded-full bg-primary-container text-primary flex items-center justify-center flex-shrink-0 border border-surface"><span class="material-symbols-outlined text-[16px]">person</span></div>
                                 <span class="text-sm font-bold text-white ml-1">${profile.name}</span>
                                 <div class="w-2 h-2 rounded-full bg-[#5df599] ml-2 shadow-[0_0_5px_#5df599]"></div>
                             </div>
@@ -2230,6 +2437,53 @@
                     membersSection.style.display = 'none';
                 }
             }
+
+            // --- RENDER ACTIVITEITEN (TIMESTAMPS OVER MEERDERE DAGEN) ---
+            const myActivities = activitiesData.filter(a => {
+                if (!a.startTimestamp) return false;
+                if (currentView === 'personal') return a.attending && a.attending.some(u => u.uid === currentUserData.uid);
+                if (currentView === 'group') return a.groupId === currentGroupId;
+                return false;
+            });
+
+            myActivities.forEach(act => {
+                for (let d = 1; d <= 7; d++) {
+                    const colDate = getDateFromWeek(currentWeek, d);
+                    const dayStartTs = new Date(colDate).setHours(0, 0, 0, 0);
+                    const dayEndTs = new Date(colDate).setHours(23, 59, 59, 999);
+
+                    if (act.startTimestamp <= dayEndTs && act.endTimestamp >= dayStartTs) {
+                        const col = document.getElementById(`day-column-${d}`);
+                        if (!col) continue;
+
+                        let startH = (act.startTimestamp < dayStartTs) ? 0 : new Date(act.startTimestamp).getHours();
+                        let endH = (act.endTimestamp > dayEndTs) ? 24 : new Date(act.endTimestamp).getHours();
+
+                        if (endH === 0 && act.endTimestamp === dayStartTs) continue;
+
+                        const block = document.createElement('div');
+                        const height = (endH - startH) * slotHeight;
+
+                        block.className = `absolute left-1 right-1 rounded-xl p-3 shadow-lg border border-[#5df599] bg-[#1a1a1a] overflow-hidden flex flex-col justify-start cursor-pointer hover:bg-surface-container transition-colors z-20`;
+                        block.style.top = `${(startH - minHour) * slotHeight + 2}px`;
+                        block.style.height = `${height - 4}px`;
+
+                        block.onclick = (e) => { e.stopPropagation(); window.openViewActivityModal(act.id); };
+
+                        const participantsCount = act.attending?.length || 0;
+                        const rsvpText = participantsCount === 1 ? '1 deelnemer' : `${participantsCount} deelnemers`;
+
+                        block.innerHTML = `
+                            <div class="text-[10px] font-bold text-primary flex items-center gap-1 mb-1 uppercase tracking-widest bg-primary/10 w-fit px-1.5 py-0.5 rounded">
+                                <span class="material-symbols-outlined text-[12px]">calendar_today</span> GEPLAND (${act.groupName || ''})
+                            </div>
+                            <div class="text-sm font-bold text-white truncate">${act.title}</div>
+                            <div class="text-[10px] text-gray-400 mt-1 truncate">${rsvpText}</div>
+                        `;
+                        col.appendChild(block);
+                    }
+                }
+            });
         }
         
         window.addEventListener('resize', () => {
@@ -2244,10 +2498,11 @@
             document.getElementById('manage-modal-title').innerText = group.name;
             
             const codeEl = document.getElementById('manage-modal-code');
-            codeEl.innerText = group.inviteCode;
+            const inviteLink = `${window.location.origin}${window.location.pathname}?invite=${group.inviteCode}`;
+            codeEl.innerHTML = `<span class="flex items-center gap-1">${group.inviteCode} <span class="material-symbols-outlined text-[14px]">link</span></span>`;
             codeEl.onclick = () => {
-                navigator.clipboard.writeText(group.inviteCode).then(() => {
-                    alert('Teamcode ' + group.inviteCode + ' is gekopieerd naar je klembord!');
+                navigator.clipboard.writeText(inviteLink).then(() => {
+                    alert('Uitnodigingslink is gekopieerd naar je klembord!\n\n' + inviteLink);
                 });
             };
 
@@ -2283,7 +2538,7 @@
                 div.className = `flex items-center justify-between p-3 rounded-xl border ${isSelf ? 'border-primary/50 bg-primary-container/30' : 'border-outline-variant bg-surface-container'}`;
                 div.innerHTML = `
                     <div class="flex items-center gap-3">
-                        ${window.getAvatarHtml(memberName, profile.photoURL, "w-10 h-10 text-sm")}
+                        <div class="w-10 h-10 rounded-full bg-primary-container text-primary flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-[20px]">person</span></div>
                         <div class="flex flex-col">
                             <span class="text-sm font-bold text-on-surface">${memberName} ${isSelf ? '(Jij)' : ''}</span>
                             <span class="text-[10px] ${isGroupOwner ? 'text-primary' : 'text-on-surface-variant'} uppercase font-medium">
