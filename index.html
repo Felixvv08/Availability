@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planning App - FeinyAhPlanner</title>
+    <title>Letsmeet - Plan slimmer, zie je vrienden vaker.</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     
@@ -76,16 +76,328 @@
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="md:h-screen md:overflow-hidden flex relative w-full">
+<body class="md:h-screen md:overflow-hidden flex relative w-full bg-background">
+
+    <!-- ==================== LANDING PAGE ==================== -->
+    <div id="landing-screen" class="hidden w-full h-full overflow-y-auto relative z-40 bg-background text-on-surface">
+        <header class="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-2xl border-b border-outline-variant">
+            <div class="h-20 w-full max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
+                <div class="flex items-center gap-12">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded bg-primary text-background flex items-center justify-center font-bold">
+                            <span class="material-symbols-outlined text-[20px]">deployed_code</span>
+                        </div>
+                        <a class="text-2xl font-bold text-primary tracking-tighter" href="#">Letsmeet</a>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 md:gap-6">
+                    <button onclick="window.showAuthScreen(false)" class="text-sm font-bold text-on-surface-variant hover:text-primary transition-all">Log in</button>
+                    <button onclick="window.showAuthScreen(true)" class="bg-primary text-background px-4 md:px-6 py-2.5 rounded-xl text-sm font-bold shadow-[0_0_20px_rgba(93,245,153,0.3)] hover:bg-primary/90 transition-all">Start Gratis</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="relative pt-20">
+            <!-- Hero Section -->
+            <section class="relative min-h-[90vh] flex items-center pt-20 pb-20 overflow-hidden">
+                <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                    <div class="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-primary-container/20 blur-[120px]"></div>
+                    <div class="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-primary/10 blur-[100px]"></div>
+                    <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(circle at center, #ffffff 1px, transparent 1px); background-size: 40px 40px;"></div>
+                </div>
+                
+                <div class="w-full max-w-7xl mx-auto px-6 md:px-12 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12">
+                    <div class="col-span-1 lg:col-span-6 flex flex-col justify-center gap-8 relative">
+                        <div class="flex items-center gap-3">
+                            <span class="w-8 h-px bg-primary/40"></span>
+                            <span class="text-xs font-bold text-primary uppercase tracking-widest">Magic Match Systeem</span>
+                        </div>
+                        <h1 class="text-5xl md:text-7xl font-bold text-on-surface leading-tight tracking-tight">
+                            Plan <span class="text-primary italic font-normal">slimmer</span>,<br/>zie je vrienden <br/>vaker.
+                        </h1>
+                        <p class="text-lg text-on-surface-variant max-w-lg mt-2 leading-relaxed">
+                            Geen eindeloze app-groep discussies meer. Ontdek direct de perfecte datum waarop iedereen kan, met de precisie van een grid-operatie en de eenvoud van een tik.
+                        </p>
+                        <div class="flex flex-wrap items-center gap-6 mt-6">
+                            <button onclick="window.showAuthScreen(true)" class="bg-primary text-background px-8 py-4 rounded-xl text-base font-bold shadow-[0_0_40px_-10px_rgba(93,245,153,0.5)] hover:shadow-[0_0_60px_-10px_rgba(93,245,153,0.7)] hover:-translate-y-1 transition-all duration-300">
+                                Start een Team
+                            </button>
+                        </div>
+                        <div class="mt-8 flex items-center gap-4">
+                            <div class="flex -space-x-2">
+                                <div class="w-10 h-10 rounded-full border-2 border-background bg-surface-container flex items-center justify-center text-on-surface-variant"><span class="material-symbols-outlined">person</span></div>
+                                <div class="w-10 h-10 rounded-full border-2 border-background bg-surface-container flex items-center justify-center text-on-surface-variant"><span class="material-symbols-outlined">person</span></div>
+                                <div id="landing-group-count-badge" class="w-10 h-10 rounded-full border-2 border-background bg-primary-container flex items-center justify-center font-bold text-xs text-primary backdrop-blur-sm">...</div>
+                            </div>
+                            <span id="landing-group-count-text" class="text-sm text-on-surface-variant font-medium">Laden van actieve groepen...</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Hero Visual -->
+                    <div class="col-span-1 lg:col-span-6 relative mt-16 lg:mt-0 flex items-center justify-center min-h-[500px]">
+                        <div class="relative w-full max-w-md aspect-[4/5] md:aspect-square">
+                            <div class="absolute inset-4 bg-primary/20 rounded-full blur-[80px] animate-pulse"></div>
+                            
+                            <div class="absolute inset-0 bg-surface-container-lowest/90 backdrop-blur-2xl rounded-3xl border border-outline-variant overflow-hidden flex flex-col shadow-2xl z-10 transform -rotate-1 hover:rotate-0 transition-transform duration-700 ease-out">
+                                <div class="p-4 md:p-6 border-b border-outline-variant flex items-center justify-between bg-surface-container/40">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-xl bg-surface-container-highest border border-outline-variant flex items-center justify-center"><span class="material-symbols-outlined text-primary">groups</span></div>
+                                        <div><h3 class="font-bold text-base md:text-lg text-on-surface">Vriendenweekend</h3><span class="text-xs text-on-surface-variant">6 deelnemers</span></div>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="px-3 py-1 bg-primary-container rounded-full text-xs text-primary font-bold">Live</span>
+                                        <div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                                    </div>
+                                </div>
+                                <div class="flex-1 p-4 md:p-6 bg-background relative overflow-hidden flex flex-col">
+                                    <div class="flex-1 flex border border-outline-variant rounded-lg bg-surface relative">
+                                         <div class="w-10 md:w-12 border-r border-outline-variant flex flex-col text-[8px] md:text-[10px] text-on-surface-variant items-center pt-2 gap-6 md:gap-8">
+                                             <span>18:00</span><span>19:00</span><span>20:00</span>
+                                         </div>
+                                         <div class="flex-1 grid grid-cols-3 relative">
+                                             <div class="col-span-3 grid grid-cols-3 border-b border-outline-variant text-center text-[10px] text-on-surface-variant py-1">
+                                                 <div>VR</div><div>ZA</div><div>ZO</div>
+                                             </div>
+                                             <div class="col-span-3 relative h-full w-full mt-2">
+                                                 <div class="absolute top-2 left-[2%] w-[30%] h-[50%] bg-[#132b1f] border-l-2 border-primary rounded p-1.5 flex flex-col">
+                                                     <span class="text-[7px] text-white font-bold opacity-80">18:00 - 21:00</span>
+                                                     <span class="text-[9px] text-white font-bold truncate">Groep Beschikbaar</span>
+                                                 </div>
+                                                 <div class="absolute top-10 left-[35%] w-[30%] h-[35%] bg-[#2d1b1b] border-l-2 border-error rounded p-1.5 flex flex-col">
+                                                     <span class="text-[7px] text-white font-bold opacity-80">19:00 - 20:30</span>
+                                                     <span class="text-[9px] text-white font-bold truncate">Niet Beschikbaar</span>
+                                                 </div>
+                                                 <div class="absolute top-0 left-[68%] w-[30%] h-[75%] bg-[#132b1f] border-l-2 border-primary rounded p-1.5 flex flex-col shadow-[0_0_10px_rgba(93,245,153,0.2)]">
+                                                     <span class="text-[7px] text-white font-bold opacity-80">18:00 - 22:00</span>
+                                                     <span class="text-[9px] text-white font-bold truncate">Iedereen kan!</span>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                    </div>
+                                    
+                                    <!-- Overlay magic match -->
+                                    <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 w-[90%] bg-primary-container border border-primary/30 p-3 rounded-xl shadow-2xl flex items-center gap-3">
+                                        <div class="bg-primary/20 p-1.5 rounded-lg"><span class="material-symbols-outlined text-primary text-[18px]">lightbulb</span></div>
+                                        <div>
+                                            <div class="font-bold text-primary text-xs">Beste moment gevonden</div>
+                                            <div class="text-[10px] text-primary/80">Zondag 18:00 - 22:00</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Steps Section -->
+            <section class="py-20 relative bg-surface-container-lowest border-t border-outline-variant/30">
+                <div class="w-full max-w-7xl mx-auto px-6 md:px-12">
+                    <div class="mb-24 md:w-2/3 lg:w-1/2">
+                        <h2 class="text-4xl md:text-5xl font-bold text-on-surface mb-6">
+                            Hoe het werkt. <br/><span class="text-primary italic font-normal">Simpel en snel.</span>
+                        </h2>
+                        <p class="text-lg text-on-surface-variant">
+                            Het planningsproces opnieuw uitgevonden voor snelheid en overzicht. In vier simpele stappen van chaos naar consensus.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-col gap-32">
+                        <!-- Step 1: Maak een team -->
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                            <div class="col-span-1 lg:col-span-5 lg:col-start-2 order-2 lg:order-1 relative">
+                                <div class="text-[120px] font-bold text-surface-container absolute -top-16 -left-8 -z-10 opacity-50 select-none">1</div>
+                                <h3 class="text-3xl font-bold text-on-surface mb-4">Maak een team.</h3>
+                                <p class="text-base text-on-surface-variant mb-6">
+                                    Maak een team aan en nodig je vrienden uit via een simpele code of link. Direct toegang tot jullie gezamenlijke kalender zonder gedoe.
+                                </p>
+                                <ul class="flex flex-col gap-3 text-sm font-bold text-on-surface-variant">
+                                    <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span> 1-klik link delen</li>
+                                    <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Visueel groepsbeheer</li>
+                                    <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Gekoppeld aan je Letsmeet account</li>
+                                </ul>
+                            </div>
+                            <div class="col-span-1 lg:col-span-6 lg:col-start-7 order-1 lg:order-2">
+                                <div class="aspect-[4/3] rounded-3xl bg-surface border border-outline-variant relative overflow-hidden flex items-center justify-center shadow-xl">
+                                    <div class="w-3/4 bg-surface-container rounded-xl border border-outline-variant p-6 shadow-2xl relative">
+                                        <div class="flex items-center justify-between mb-6">
+                                            <span class="text-sm font-bold text-on-surface">Team Toevoegen</span>
+                                            <span class="material-symbols-outlined text-on-surface-variant">link</span>
+                                        </div>
+                                        <div class="space-y-4">
+                                            <div class="h-12 w-full bg-background rounded-lg border border-outline-variant flex items-center px-4">
+                                                <span class="text-sm font-bold text-primary truncate">Letsmeet.com/?invite=X7Y9Z1</span>
+                                            </div>
+                                            <button class="w-full py-3 bg-primary text-background font-bold rounded-lg opacity-80 cursor-default">Aanmaken</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Maak je persoonlijke planning -->
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                            <div class="col-span-1 lg:col-span-6 lg:col-start-1 relative">
+                                <div class="aspect-square md:aspect-[4/3] rounded-3xl bg-surface border border-outline-variant relative overflow-hidden flex flex-col shadow-xl p-4 md:p-6">
+                                    <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px); background-size: 20px 20px;"></div>
+                                    <div class="relative z-10 flex items-center justify-between mb-4">
+                                        <div class="flex flex-col"><span class="text-lg font-bold text-on-surface">Mijn Planning</span></div>
+                                        <div class="p-2 rounded-lg bg-surface-container text-on-surface-variant"><span class="material-symbols-outlined text-[16px]">chevron_right</span></div>
+                                    </div>
+                                    <div class="relative z-10 flex-1 border border-outline-variant rounded-xl bg-background flex overflow-hidden shadow-2xl">
+                                        <div class="w-12 border-r border-outline-variant flex flex-col text-[10px] text-on-surface-variant items-center pt-6 gap-8">
+                                            <span>08:00</span><span>09:00</span><span>10:00</span>
+                                        </div>
+                                        <div class="flex-1 relative mt-6">
+                                            <div class="w-full h-px bg-outline-variant/30 mb-10"></div>
+                                            <div class="w-full h-px bg-outline-variant/30 mb-10"></div>
+                                            <div class="w-full h-px bg-outline-variant/30"></div>
+                                            
+                                            <div class="absolute top-2 left-2 right-12 h-16 bg-[#132b1f] border-l-2 border-primary rounded p-1.5 flex flex-col shadow-sm">
+                                                <span class="text-[8px] text-white font-bold opacity-80">08:00 - 09:30</span>
+                                                <span class="text-[10px] text-white font-bold mt-0.5">Beschikbaar</span>
+                                            </div>
+                                            <div class="absolute top-24 left-2 right-12 h-12 bg-[#2d1b1b] border-l-2 border-error rounded p-1.5 flex flex-col shadow-sm">
+                                                <span class="text-[8px] text-white font-bold opacity-80">10:00 - 11:00</span>
+                                                <span class="text-[10px] text-white font-bold truncate mt-0.5">Google Agenda</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-span-1 lg:col-span-4 lg:col-start-8 relative mt-12 lg:mt-0">
+                                <div class="text-[120px] font-bold text-surface-container absolute -top-16 -left-8 -z-10 opacity-50 select-none">2</div>
+                                <h3 class="text-3xl font-bold text-on-surface mb-4">Maak je persoonlijke planning.</h3>
+                                <p class="text-base text-on-surface-variant mb-6">
+                                    Vergeet onhandige formulieren. Tik in het raster om aan te geven wanneer je kunt, of koppel je Google Calendar en laat de app automatisch je bezette uren blokkeren.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 3: Zie het beste moment -->
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                            <div class="col-span-1 lg:col-span-5 lg:col-start-2 order-2 lg:order-1 relative">
+                                <div class="text-[120px] font-bold text-surface-container absolute -top-16 -left-8 -z-10 opacity-50 select-none">3</div>
+                                <h3 class="text-3xl font-bold text-on-surface mb-4">Kies het moment en plan.</h3>
+                                <p class="text-base text-on-surface-variant mb-6">
+                                    Zodra iedereen zijn beschikbaarheid heeft ingevuld, berekent de Magic Match direct de perfecte overlap. Plan met één klik de activiteit in, die automatisch naar ieders gekoppelde Google Calendar wordt gestuurd!
+                                </p>
+                                <ul class="flex flex-col gap-3 text-sm font-bold text-on-surface-variant">
+                                    <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Magic Match algoritme</li>
+                                    <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Direct inplannen</li>
+                                    <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Auto-export naar Google Calendar</li>
+                                </ul>
+                            </div>
+                            <div class="col-span-1 lg:col-span-6 lg:col-start-7 order-1 lg:order-2">
+                                <div class="aspect-[4/3] rounded-3xl bg-surface border border-outline-variant relative overflow-hidden flex flex-col items-center justify-center shadow-xl p-4 md:p-8 gap-3 md:gap-4">
+                                     
+                                     <div class="w-full bg-primary-container border border-primary/30 p-4 rounded-xl shadow-lg flex items-start gap-3 transform scale-105 relative z-10">
+                                         <div class="absolute inset-0 bg-primary/5 rounded-xl animate-pulse"></div>
+                                         <div class="bg-primary/20 p-2 rounded-lg mt-0.5 relative z-10"><span class="material-symbols-outlined text-primary text-[18px]">lightbulb</span></div>
+                                         <div class="flex-1 relative z-10">
+                                             <div class="font-bold text-primary text-sm mb-0.5">Beste moment: VR 14 AUG 19:00 - 22:00</div>
+                                             <div class="text-[11px] text-primary/80 mb-3">Hier kunnen 6 leden.</div>
+                                             <button class="bg-primary text-background px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-1 w-fit shadow-md"><span class="material-symbols-outlined text-[14px]">event_available</span> Plannen</button>
+                                         </div>
+                                     </div>
+                                     
+                                     <div class="w-full bg-surface-container-lowest border border-outline-variant p-4 rounded-xl flex justify-between items-center opacity-70">
+                                         <div>
+                                             <div class="font-bold text-sm text-primary">ZA 15 AUG 14:00 - 18:00</div>
+                                             <div class="text-[10px] text-on-surface-variant flex items-center gap-1 mt-1"><span class="material-symbols-outlined text-[12px]">check_circle</span> Kunnen: Anouk, Felix, Koen...</div>
+                                         </div>
+                                         <span class="text-[10px] bg-primary-container text-primary px-2 py-1 rounded font-bold">5 leden</span>
+                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Step 4: Pricing / Abonnementen -->
+            <section class="py-24 bg-background border-t border-outline-variant/30">
+                <div class="max-w-7xl mx-auto px-6 md:px-12 text-center md:text-left relative">
+                    <div class="mb-16">
+                        <div class="text-[120px] font-bold text-surface-container absolute -top-16 left-1/2 md:left-0 transform -translate-x-1/2 md:translate-x-0 -z-10 opacity-50 select-none">4</div>
+                        <h2 class="text-3xl md:text-5xl font-bold text-on-surface mb-4">Prijzen + <span class="text-primary italic">30 dagen gratis!</span></h2>
+                        <p class="text-on-surface-variant max-w-2xl mx-auto md:mx-0 text-lg">Geen verborgen kosten. Iedereen kan onbeperkt gratis meedoen aan groepen. Wil je zélf groepen kunnen aanmaken? Kies dan je pakket.</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+                        <!-- Begin -->
+                        <div class="bg-surface border border-outline-variant rounded-3xl p-8 relative shadow-sm">
+                            <h3 class="text-2xl font-bold text-on-surface">Begin</h3>
+                            <div class="text-3xl font-bold text-primary my-4">€0,99 <span class="text-sm text-on-surface-variant font-normal">/ maand</span></div>
+                            <ul class="space-y-4 text-sm text-on-surface-variant mb-8 font-medium">
+                                <li class="flex gap-3"><span class="material-symbols-outlined text-primary text-[20px]">check</span> 30 dagen gratis proberen</li>
+                                <li class="flex gap-3"><span class="material-symbols-outlined text-primary text-[20px]">check</span> 1 eigen groep aanmaken</li>
+                                <li class="flex gap-3"><span class="material-symbols-outlined text-primary text-[20px]">check</span> Onbeperkt groepen joinen</li>
+                            </ul>
+                            <button onclick="window.showAuthScreen(true)" class="w-full py-3 rounded-xl border border-primary/30 text-primary font-bold hover:bg-surface-container transition-colors">Start Gratis</button>
+                        </div>
+                        <!-- Medium -->
+                        <div class="bg-surface-container-lowest border-2 border-primary rounded-3xl p-8 transform md:-translate-y-4 shadow-xl relative">
+                            <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-primary text-background text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-wider">Populair</div>
+                            <h3 class="text-2xl font-bold text-on-surface">Medium</h3>
+                            <div class="text-3xl font-bold text-primary my-4">€2,99 <span class="text-sm text-on-surface-variant font-normal">/ maand</span></div>
+                            <ul class="space-y-4 text-sm text-on-surface-variant mb-8 font-medium">
+                                <li class="flex gap-3"><span class="material-symbols-outlined text-primary text-[20px]">check</span> Tot 5 eigen groepen maken</li>
+                                <li class="flex gap-3"><span class="material-symbols-outlined text-primary text-[20px]">check</span> Onbeperkt groepen joinen</li>
+                                <li class="flex gap-3"><span class="material-symbols-outlined text-primary text-[20px]">check</span> Google Agenda sync inbegrepen</li>
+                            </ul>
+                            <button onclick="window.showAuthScreen(true)" class="w-full py-3 rounded-xl bg-primary text-background font-bold hover:bg-primary/90 transition-colors shadow-lg">Kies Medium</button>
+                        </div>
+                        <!-- Pro -->
+                        <div class="bg-surface border border-outline-variant rounded-3xl p-8 relative shadow-sm">
+                            <h3 class="text-2xl font-bold text-on-surface">Pro</h3>
+                            <div class="text-3xl font-bold text-primary my-4">€7,79 <span class="text-sm text-on-surface-variant font-normal">/ maand</span></div>
+                            <ul class="space-y-4 text-sm text-on-surface-variant mb-8 font-medium">
+                                <li class="flex gap-3"><span class="material-symbols-outlined text-primary text-[20px]">check</span> Oneindig groepen maken</li>
+                                <li class="flex gap-3"><span class="material-symbols-outlined text-primary text-[20px]">check</span> Onbeperkt groepen joinen</li>
+                                <li class="flex gap-3"><span class="material-symbols-outlined text-primary text-[20px]">check</span> Google Agenda sync inbegrepen</li>
+                            </ul>
+                            <button onclick="window.showAuthScreen(true)" class="w-full py-3 rounded-xl border border-outline-variant text-on-surface font-bold hover:bg-surface-container transition-colors">Kies Pro</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer class="w-full bg-surface-container-lowest py-16 border-t border-outline-variant">
+            <div class="w-full max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="col-span-1 md:col-span-2">
+                    <span class="text-xl font-bold text-primary block mb-4">Letsmeet</span>
+                    <p class="text-sm text-on-surface-variant max-w-sm">Jouw betrouwbare grid planner voor elk team.</p>
+                </div>
+                <div class="flex flex-col gap-4">
+                    <span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Product</span>
+                    <a class="text-sm text-on-surface hover:text-primary transition-colors" href="#" onclick="window.showAuthScreen(false)">Inloggen</a>
+                    <a class="text-sm text-on-surface hover:text-primary transition-colors" href="#" onclick="window.showAuthScreen(true)">Registreren</a>
+                </div>
+                <div class="flex flex-col gap-4">
+                    <span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Legal</span>
+                    <button class="text-sm text-left text-on-surface hover:text-primary transition-colors" onclick="openPrivacyModal()">Privacyverklaring</button>
+                </div>
+            </div>
+            <div class="w-full max-w-7xl mx-auto px-6 md:px-12 mt-12 pt-8 border-t border-outline-variant/50 text-on-surface-variant text-xs font-bold text-center">
+                © 2026 Letsmeet. Ontworpen voor de toekomst.
+            </div>
+        </footer>
+    </div>
 
     <!-- ==================== AUTH SCHERM ==================== -->
-    <div id="auth-screen" class="fixed inset-0 bg-background z-50 flex flex-col items-center justify-center p-4">
-        <div class="bg-surface p-8 rounded-2xl shadow-xl w-full max-w-md border border-outline-variant">
+    <div id="auth-screen" class="hidden fixed inset-0 bg-background z-[100] flex-col items-center justify-center p-4">
+        <button onclick="window.hideAuthScreen()" class="absolute top-6 left-6 text-on-surface-variant hover:text-primary p-2 transition-colors flex items-center gap-2 text-sm font-bold">
+            <span class="material-symbols-outlined">arrow_back</span> Terug
+        </button>
+        <div class="bg-surface p-8 rounded-2xl shadow-xl w-full max-w-md border border-outline-variant relative">
             <div class="text-center mb-8">
                 <div class="w-16 h-16 bg-primary-container text-primary rounded-full flex items-center justify-center mx-auto mb-4">
                     <span class="material-symbols-outlined text-3xl">deployed_code</span>
                 </div>
-                <h1 class="text-2xl font-bold">Welkom bij FeinyAhPlanner</h1>
+                <h1 class="text-2xl font-bold">Letsmeet</h1>
                 <p id="auth-subtitle" class="text-on-surface-variant mt-2">Log in op je account</p>
             </div>
             <form id="auth-form" class="space-y-4">
@@ -138,7 +450,7 @@
                             <span class="material-symbols-outlined text-[20px]">deployed_code</span>
                         </div>
                         <div>
-                            <h1 class="text-xl font-bold leading-tight text-primary">FeinyAhPlanner</h1>
+                            <h1 class="text-xl font-bold leading-tight text-primary">Letsmeet</h1>
                             <p class="text-[10px] text-on-surface-variant tracking-widest uppercase">Project Alpha</p>
                         </div>
                     </div>
@@ -216,7 +528,7 @@
                             <div class="flex flex-col md:flex-row md:justify-between md:items-end mb-4 gap-2">
                                 <h2 class="text-4xl md:text-5xl font-bold text-primary" id="dash-coverage">0% <span class="text-base md:text-xl text-on-surface-variant font-medium block md:inline">Ingevuld (<span id="dash-cov-week"></span>)</span></h2>
                                 <div class="text-left md:text-right mt-2 md:mt-0">
-                                    <span class="text-xs text-on-surface-variant">Doel: 40 uur</span>
+                                    <span class="text-xs text-on-surface-variant">Totaal: 168 uur</span>
                                     <div class="w-full md:w-32 h-2 bg-surface-container rounded-full mt-1 overflow-hidden">
                                         <div id="dash-coverage-bar" class="h-full bg-primary" style="width: 0%"></div>
                                     </div>
@@ -253,6 +565,7 @@
                             <h3 class="text-xl font-bold">Recent Activity</h3>
                         </div>
                         <div id="dash-recent-activity" class="grid grid-cols-1 lg:grid-cols-2 gap-4"></div>
+                        <button onclick="window.openAllLogsModal()" class="text-xs font-bold text-primary hover:underline mt-6 block">BEKIJK ALLE LOGBOEKEN &rarr;</button>
                     </div>
 
                     <div>
@@ -324,6 +637,7 @@
                                 <ul class="space-y-3 text-sm text-on-surface">
                                     <li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-sm">check</span> Maximaal 5 eigen groepen maken</li>
                                     <li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-sm">check</span> Onbeperkt groepen joinen</li>
+                                    <li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-sm">check</span> Google Agenda sync inbegrepen</li>
                                 </ul>
                             </div>
                             <button onclick="window.selectSubscription('medium', 'price_1Tw2InC58ow7AHrTcFb4cm2s')" id="btn-sub-medium" class="w-full mt-8 bg-primary text-background font-bold py-3 rounded-xl hover:bg-primary/90 transition-all">Kies Medium</button>
@@ -341,6 +655,7 @@
                                 <ul class="space-y-3 text-sm text-on-surface">
                                     <li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-sm">check</span> Oneindig veel groepen maken</li>
                                     <li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-sm">check</span> Onbeperkt groepen joinen</li>
+                                    <li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-sm">check</span> Google Agenda sync inbegrepen</li>
                                 </ul>
                             </div>
                             <button onclick="window.selectSubscription('pro', 'price_1Tw2J7C58ow7AHrTGOWUmNEf')" id="btn-sub-pro" class="w-full mt-8 bg-surface-container-highest text-primary font-bold py-3 rounded-xl border border-primary/20 hover:bg-outline transition-all">Kies Pro</button>
@@ -352,7 +667,7 @@
                 <div id="view-settings" class="hidden max-w-4xl mx-auto space-y-6 pb-20">
                     <div>
                         <h2 class="text-2xl font-bold">Account Instellingen</h2>
-                        <p class="text-on-surface-variant text-sm mt-1">Beheer uw persoonlijke voorkeuren en beveiliging voor het FeinyAhPlanner ecosysteem.</p>
+                        <p class="text-on-surface-variant text-sm mt-1">Beheer uw persoonlijke voorkeuren en beveiliging voor het Letsmeet ecosysteem.</p>
                     </div>
                     
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -500,6 +815,14 @@
                         <span class="material-symbols-outlined">warning</span> Je zit momenteel niet in een groep.
                     </div>
                     
+                    <!-- VERPLICHTE LEDEN FILTER BALK (Groepsplanning) -->
+                    <div id="required-members-bar" style="display: none;" class="bg-surface border border-outline-variant p-3.5 rounded-xl mb-4 flex flex-wrap items-center gap-3 shadow-sm">
+                        <span class="text-xs font-bold text-primary flex items-center gap-1 uppercase tracking-wider">
+                            <span class="material-symbols-outlined text-[18px]">filter_alt</span> Verplichte Aanwezigheid:
+                        </span>
+                        <div id="required-members-checkboxes" class="flex flex-wrap items-center gap-3"></div>
+                    </div>
+
                     <div id="optimal-slot-banner" style="display: none;" class="bg-primary-container border border-primary/30 text-primary p-4 rounded-xl mb-6 text-sm flex-col gap-1 hover:bg-primary-container/80 transition-colors shadow-sm cursor-pointer w-full" onclick="openAlternativeSlotsModal()"></div>
 
                     <!-- MOBIELE DAG SELECTOR -->
@@ -516,8 +839,8 @@
                             <div class="flex-1 grid grid-cols-1 md:grid-cols-7" id="calendar-header-days"></div>
                         </div>
 
-                        <!-- KALENDER BODY -->
-                        <div class="flex w-full bg-background relative h-[1728px]">
+                        <!-- KALENDER BODY (7:00 tot 24:00 is 17 uur * 72px = 1224px) -->
+                        <div class="flex w-full bg-background relative h-[1224px]">
                             <div id="time-axis" class="w-14 md:w-16 flex-shrink-0 border-r border-outline-variant flex flex-col bg-surface z-20"></div>
                             
                             <!-- DESKTOP GRID & MOBIELE ENKELE KOLOM -->
@@ -565,12 +888,12 @@
                 
                 <div>
                     <h4 class="text-base font-bold text-on-surface mb-1">1. Gegevensverzameling</h4>
-                    <p>Wij verzamelen uitsluitend de gegevens die nodig zijn voor het goed functioneren van de FeinyAhPlanner applicatie. Dit omvat je opgegeven naam, e-mailadres en de door jou ingevoerde beschikbaarheidstijden.</p>
+                    <p>Wij verzamelen uitsluitend de gegevens die nodig zijn voor het goed functioneren van de Letsmeet applicatie. Dit omvat je opgegeven naam, e-mailadres en de door jou ingevoerde beschikbaarheidstijden.</p>
                 </div>
                 
                 <div>
                     <h4 class="text-base font-bold text-on-surface mb-1">2. Gebruik van gegevens</h4>
-                    <p>Jouw persoonlijke gegevens worden enkel gebruikt om de kerndiensten van FeinyAhPlanner te leveren. Dit betekent dat groepsleden in dezelfde teams jouw naam en beschikbaarheid kunnen inzien om gezamenlijke activiteiten te kunnen plannen.</p>
+                    <p>Jouw persoonlijke gegevens worden enkel gebruikt om de kerndiensten van Letsmeet te leveren. Dit betekent dat groepsleden in dezelfde teams jouw naam en beschikbaarheid kunnen inzien om gezamenlijke activiteiten te kunnen plannen.</p>
                 </div>
                 
                 <div>
@@ -597,7 +920,7 @@
                 <button type="button" onclick="closeModal()" class="text-on-surface-variant hover:text-error p-1"><span class="material-symbols-outlined">close</span></button>
             </div>
             <form id="availability-form" class="p-6 space-y-5">
-                <div class="bg-primary-container/30 border border-primary/20 text-primary text-xs p-3 rounded-lg mb-2 flex items-center gap-2">
+                <div class="bg-primary-container/30 border border-primary/20 text-primary text-xs p-3 rounded-lg flex items-center gap-2">
                     <span class="material-symbols-outlined text-[16px]">info</span>
                     Je vult in voor <strong id="form-display-week">Week X</strong>.
                 </div>
@@ -626,7 +949,13 @@
                         <option value="busy">Niet Beschikbaar (Rood)</option>
                     </select>
                 </div>
-                <div class="pt-6 flex justify-between items-center">
+                <!-- WEKELIJKS HERHALEN CHECKBOX -->
+                <div class="flex items-center gap-3 bg-surface-container-lowest p-3 rounded-xl border border-outline-variant">
+                    <input type="checkbox" id="form-repeat" class="w-4 h-4 accent-primary rounded bg-surface border-outline-variant cursor-pointer">
+                    <label for="form-repeat" class="text-xs font-bold text-on-surface cursor-pointer select-none">Wekelijks herhalen (vanaf deze week)</label>
+                </div>
+                
+                <div class="pt-2 flex justify-between items-center">
                     <button type="button" id="btn-delete-planning" onclick="deletePlanning()" style="display: none;" class="px-4 py-2 text-sm font-bold text-error bg-error/10 hover:bg-error/20 rounded-lg transition-colors border border-error/20">Verwijderen</button>
                     <div class="flex gap-3 ml-auto">
                         <button type="button" onclick="closeModal()" class="px-6 py-2.5 text-sm font-bold text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors">Annuleren</button>
@@ -677,20 +1006,26 @@
                     <div>
                         <label class="block text-xs font-bold text-on-surface-variant mb-2 uppercase tracking-wider">Start Datum & Tijd</label>
                         <div class="flex gap-2">
-                            <input type="date" id="activity-start-date" onchange="updateActivityRecommendation()" required class="w-full px-4 py-2.5 border border-outline-variant rounded-xl bg-surface-container text-on-surface outline-none">
-                            <select id="activity-start-time" class="w-24 px-4 py-2.5 border border-outline-variant rounded-xl bg-surface-container focus:ring-1 focus:ring-primary text-on-surface outline-none"></select>
+                            <input type="date" id="activity-start-date" onchange="window.updateAttendingPreview()" required class="w-full px-4 py-2.5 border border-outline-variant rounded-xl bg-surface-container text-on-surface outline-none">
+                            <select id="activity-start-time" onchange="window.updateAttendingPreview()" class="w-24 px-4 py-2.5 border border-outline-variant rounded-xl bg-surface-container focus:ring-1 focus:ring-primary text-on-surface outline-none"></select>
                         </div>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-on-surface-variant mb-2 uppercase tracking-wider">Eind Datum & Tijd</label>
                         <div class="flex gap-2">
-                            <input type="date" id="activity-end-date" required class="w-full px-4 py-2.5 border border-outline-variant rounded-xl bg-surface-container text-on-surface outline-none">
-                            <select id="activity-end-time" class="w-24 px-4 py-2.5 border border-outline-variant rounded-xl bg-surface-container focus:ring-1 focus:ring-primary text-on-surface outline-none"></select>
+                            <input type="date" id="activity-end-date" onchange="window.updateAttendingPreview()" required class="w-full px-4 py-2.5 border border-outline-variant rounded-xl bg-surface-container text-on-surface outline-none">
+                            <select id="activity-end-time" onchange="window.updateAttendingPreview()" class="w-24 px-4 py-2.5 border border-outline-variant rounded-xl bg-surface-container focus:ring-1 focus:ring-primary text-on-surface outline-none"></select>
                         </div>
                     </div>
                 </div>
 
-                <div class="pt-6 flex justify-end gap-3">
+                <!-- PREVIEW DEELNEMERS -->
+                <div id="activity-attending-preview" style="display: none;" class="bg-surface-container-lowest border border-outline-variant p-3 rounded-lg mb-2">
+                    <h4 class="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Beschikbare Deelnemers</h4>
+                    <div id="activity-attending-list" class="flex flex-wrap gap-2"></div>
+                </div>
+
+                <div class="pt-4 flex justify-end gap-3">
                     <button type="button" onclick="closeCreateActivityModal()" class="px-6 py-2.5 text-sm font-bold text-on-surface-variant hover:bg-surface-container rounded-lg">Annuleren</button>
                     <button type="submit" class="px-6 py-2.5 text-sm font-bold bg-primary text-background rounded-lg shadow-md hover:bg-primary/90">Inplannen</button>
                 </div>
@@ -706,6 +1041,19 @@
                 <button type="button" onclick="closeAllActivitiesModal()" class="text-on-surface-variant hover:text-error p-1"><span class="material-symbols-outlined">close</span></button>
             </div>
             <div id="all-activities-list" class="p-6 overflow-y-auto space-y-4 flex-1 bg-surface">
+                <!-- Wordt gevuld via JS -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Alle Logs Modal -->
+    <div id="all-logs-modal" class="hidden fixed inset-0 bg-black/80 z-50 items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-surface rounded-2xl w-full max-w-lg shadow-2xl border border-outline-variant overflow-hidden flex flex-col max-h-[80vh]">
+            <div class="px-6 py-5 border-b border-outline-variant flex justify-between items-center bg-background">
+                <h3 class="text-lg font-bold text-primary flex items-center gap-2"><span class="material-symbols-outlined">history</span> Recente Activiteiten</h3>
+                <button type="button" onclick="closeAllLogsModal()" class="text-on-surface-variant hover:text-error p-1"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <div id="all-logs-list" class="p-6 overflow-y-auto space-y-4 flex-1 bg-surface">
                 <!-- Wordt gevuld via JS -->
             </div>
         </div>
@@ -812,7 +1160,7 @@
             sendEmailVerification, sendPasswordResetEmail, deleteUser,
             GoogleAuthProvider, signInWithPopup 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, limit, updateDoc, doc, deleteDoc, arrayUnion, arrayRemove, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, limit, updateDoc, doc, deleteDoc, arrayUnion, arrayRemove, setDoc, getDoc, onSnapshot, getCountFromServer } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js";
 
         // FIREBASE CONFIGURATIE
@@ -830,6 +1178,21 @@
         const db = getFirestore(app);
         const functions = getFunctions(app, 'europe-west3');
 
+        // Initial unauth fetch for landing page group count
+        async function fetchTotalGroupsCount() {
+            try {
+                const coll = collection(db, "groups");
+                const snapshot = await getCountFromServer(coll);
+                const count = snapshot.data().count;
+                document.getElementById('landing-group-count-badge').innerText = count;
+                document.getElementById('landing-group-count-text').innerText = `Al ${count} groepen vonden hun datum`;
+            } catch(e) {
+                document.getElementById('landing-group-count-badge').innerText = "150+";
+                document.getElementById('landing-group-count-text').innerText = `Al 150+ groepen vonden hun datum`;
+            }
+        }
+        fetchTotalGroupsCount();
+
         let currentUserData = null;
         let planningData = [];
         let groupsData = [];
@@ -844,8 +1207,15 @@
         let calendarSyncInterval = null; 
         let connectedGoogleAccounts = []; 
 
+        let planningUnsubscribe = null;
+        let activitiesUnsubscribe = null;
+
+        // Globale staat voor Magic Match criteria
+        window.selectedRequiredMemberUids = [];
+        window.isManualSlotSelection = false;
+
         // --- CALENDAR CONFIG ---
-        const minHour = 0, maxHour = 24, slotHeight = 72; 
+        const minHour = 7, maxHour = 24, slotHeight = 72; 
         const monthNames = ["Jan", "Feb", "Mrt", "Apr", "Mei", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"];
         const dayNames = ["", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"];
 
@@ -921,15 +1291,30 @@
 
         let currentWeek = getISOWeek(new Date()); 
 
-        // --- AUTH ---
+        // --- AUTH & LANDING PAGE LOGICA ---
         let isRegisterMode = false;
-        document.getElementById('btn-toggle-auth').addEventListener('click', () => {
-            isRegisterMode = !isRegisterMode;
+        
+        window.showAuthScreen = (isRegister = false) => {
+            document.getElementById('landing-screen').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('hidden');
+            document.getElementById('auth-screen').classList.add('flex');
+            
+            isRegisterMode = isRegister;
             document.getElementById('field-username').classList.toggle('hidden', !isRegisterMode);
             document.getElementById('privacy-consent-text').classList.toggle('hidden', !isRegisterMode);
             document.getElementById('auth-subtitle').innerText = isRegisterMode ? "Maak een nieuw account aan" : "Log in op je account";
             document.getElementById('btn-submit-auth').innerText = isRegisterMode ? "Account Aanmaken" : "Inloggen";
             document.getElementById('btn-toggle-auth').innerText = isRegisterMode ? "Ik heb al een account" : "Ik heb nog geen account";
+        };
+
+        window.hideAuthScreen = () => {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('flex');
+            document.getElementById('landing-screen').classList.remove('hidden');
+        };
+
+        document.getElementById('btn-toggle-auth').addEventListener('click', () => {
+            window.showAuthScreen(!isRegisterMode);
         });
 
         window.handleForgotPassword = async () => {
@@ -958,7 +1343,11 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUserData = user;
+                
+                // Hide landing and auth, show app
+                document.getElementById('landing-screen').classList.add('hidden');
                 document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('auth-screen').classList.remove('flex');
                 document.getElementById('app-container').classList.remove('hidden');
                 document.getElementById('app-container').classList.add('flex');
                 
@@ -967,10 +1356,26 @@
                 
                 setupDropdowns();
                 buildInterfaceGrid();
+
+                // Start Live Sync (Real-time database listeners)
+                if(planningUnsubscribe) planningUnsubscribe();
+                planningUnsubscribe = onSnapshot(collection(db, "planningen"), (snapshot) => {
+                    planningData = [];
+                    snapshot.forEach(doc => { planningData.push({ id: doc.id, ...doc.data() }); });
+                    if(currentView === 'personal' || currentView === 'group') updateScheduler();
+                    renderDashboard();
+                });
+
+                if(activitiesUnsubscribe) activitiesUnsubscribe();
+                activitiesUnsubscribe = onSnapshot(collection(db, "activities"), (snapshot) => {
+                    activitiesData = [];
+                    snapshot.forEach(doc => { activitiesData.push({ id: doc.id, ...doc.data() }); });
+                    if(currentView === 'personal' || currentView === 'group') updateScheduler();
+                    renderDashboard();
+                });
+
                 await loadSubscription();
                 await loadGroupsFromDatabase();
-                await loadPlanningFromDatabase();
-                await loadActivitiesFromDatabase();
                 switchView('dashboard');
 
                 // Check of de url een uitnodigingslink bevat
@@ -982,6 +1387,7 @@
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }
 
+                // Herstel MEERDERE Google Calendar verbindingen
                 try {
                     const userDoc = await getDoc(doc(db, "users", user.uid));
                     if (userDoc.exists() && userDoc.data().connectedCalendars) {
@@ -994,10 +1400,17 @@
 
             } else {
                 currentUserData = null;
+                if(planningUnsubscribe) planningUnsubscribe();
+                if(activitiesUnsubscribe) activitiesUnsubscribe();
                 if (calendarSyncInterval) clearInterval(calendarSyncInterval);
-                document.getElementById('auth-screen').classList.remove('hidden');
+                
                 document.getElementById('app-container').classList.add('hidden');
                 document.getElementById('app-container').classList.remove('flex');
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('auth-screen').classList.remove('flex');
+                
+                // Show landing screen default
+                document.getElementById('landing-screen').classList.remove('hidden');
             }
         });
 
@@ -1020,7 +1433,7 @@
                 await Promise.all(batchPromises);
                 
                 await deleteUser(user);
-                alert("Je account en al je data zijn definitief verwijderd. Bedankt voor het gebruiken van FeinyAhPlanner.");
+                alert("Je account en al je data zijn definitief verwijderd. Bedankt voor het gebruiken van Letsmeet.");
             } catch (error) {
                 if (error.code === 'auth/requires-recent-login') {
                     alert("Om veiligheidsredenen moet je opnieuw inloggen voordat je je account kunt verwijderen. Log even uit, log opnieuw in en probeer het nogmaals.");
@@ -1226,22 +1639,6 @@
             renderDashboard(); 
         }
 
-        async function loadPlanningFromDatabase() {
-            const snapshot = await getDocs(collection(db, "planningen"));
-            planningData = [];
-            snapshot.forEach(doc => { planningData.push({ id: doc.id, ...doc.data() }); });
-            if(currentView === 'personal' || currentView === 'group') updateScheduler();
-            renderDashboard(); 
-        }
-
-        async function loadActivitiesFromDatabase() {
-            const snapshot = await getDocs(collection(db, "activities"));
-            activitiesData = [];
-            snapshot.forEach(doc => { activitiesData.push({ id: doc.id, ...doc.data() }); });
-            if(currentView === 'group' || currentView === 'personal') updateScheduler();
-            renderDashboard(); 
-        }
-
         window.loadSettingsData = () => {
             if(!currentUserData) return;
             const displayName = currentUserData.displayName || currentUserData.email.split('@')[0];
@@ -1333,7 +1730,6 @@
             snap.forEach(docSnap => batchPromises.push(deleteDoc(docSnap.ref)));
             await Promise.all(batchPromises);
             
-            await loadPlanningFromDatabase();
             window.renderConnectedCalendars();
         };
 
@@ -1342,6 +1738,7 @@
             try {
                 const provider = new GoogleAuthProvider();
                 provider.addScope('https://www.googleapis.com/auth/calendar.readonly');
+                provider.addScope('https://www.googleapis.com/auth/calendar.events'); 
                 provider.addScope('https://www.googleapis.com/auth/userinfo.email'); 
 
                 provider.setCustomParameters({ prompt: 'consent' });
@@ -1404,17 +1801,24 @@
 
         window.fetchAndProcessGoogleCalendar = async (token, accountEmail) => {
             try {
-                const timeMin = new Date().toISOString();
+                const tMin = new Date();
+                tMin.setDate(tMin.getDate() - 30);
+                const timeMin = encodeURIComponent(tMin.toISOString());
+                
                 const tMax = new Date();
-                tMax.setDate(tMax.getDate() + 30);
-                const timeMax = tMax.toISOString();
+                tMax.setDate(tMax.getDate() + 90);
+                const timeMax = encodeURIComponent(tMax.toISOString());
 
                 const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true&orderBy=startTime`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
                 if (!response.ok) {
-                    console.error("Google API Fout:", await response.text());
+                    const errText = await response.text();
+                    console.error("Google API Fout:", errText);
+                    if(errText.includes("Calendar API has not been used") || errText.includes("API key not valid") || errText.includes("insufficient permissions")) {
+                         alert("LET OP: Google weigert de synchronisatie.\n\nControleer in je Google Cloud Console of de 'Google Calendar API' daadwerkelijk is INGESCHAKELD (Enabled) voor dit project.");
+                    }
                     return 0; 
                 }
 
@@ -1425,17 +1829,29 @@
                 let importCount = 0;
 
                 events.forEach(event => {
-                    if (!event.start.dateTime) return; 
+                    let startD;
+                    let startHour, endHour;
 
-                    const startD = new Date(event.start.dateTime);
-                    const endD = new Date(event.end.dateTime);
+                    if (event.start.dateTime) {
+                        startD = new Date(event.start.dateTime);
+                        const endD = new Date(event.end.dateTime);
+                        startHour = startD.getHours();
+                        endHour = endD.getHours();
+                        if (endD.getMinutes() > 0) endHour += 1; 
+                    } else if (event.start.date) {
+                        startD = new Date(event.start.date);
+                        startHour = minHour; 
+                        endHour = maxHour;   
+                    } else {
+                        return; 
+                    }
 
                     const week = getISOWeek(startD);
                     const day = startD.getDay() || 7; 
-                    const startHour = startD.getHours();
                     
-                    let endHour = endD.getHours();
-                    if (endD.getMinutes() > 0) endHour += 1; 
+                    if (startHour < minHour) startHour = minHour;
+                    if (endHour > maxHour) endHour = maxHour;
+                    if (startHour >= endHour) return; 
 
                     const exists = planningData.some(p => 
                         p.userId === currentUserData.uid && 
@@ -1444,8 +1860,9 @@
                         Number(p.startHour) === Number(startHour)
                     );
 
-                    if (!exists && startHour !== endHour) {
+                    if (!exists) {
                         importCount++;
+                        // Slaat nu de echte Google Agenda titel op
                         batchPromises.push(addDoc(collection(db, "planningen"), {
                             userId: currentUserData.uid,
                             userName: currentUserData.displayName || currentUserData.email.split('@')[0],
@@ -1454,7 +1871,7 @@
                             startHour: startHour,
                             endHour: endHour,
                             status: 'busy', 
-                            importedTitle: event.summary || 'Google Agenda',
+                            importedTitle: event.summary || 'Google Agenda', 
                             importedFrom: accountEmail 
                         }));
                     }
@@ -1462,7 +1879,6 @@
 
                 if (importCount > 0) {
                     await Promise.all(batchPromises);
-                    await loadPlanningFromDatabase();
                 }
                 return importCount;
             } catch (e) {
@@ -1492,6 +1908,7 @@
                 const start = Number(document.getElementById('form-start').value);
                 const end = Number(document.getElementById('form-end').value);
                 const status = document.getElementById('form-status').value;
+                const isRepeating = document.getElementById('form-repeat').checked;
                 
                 const daysToProcess = dayVal === 0 ? [1,2,3,4,5,6,7] : [dayVal];
                 const batchPromises = [];
@@ -1507,16 +1924,16 @@
                         const checkAndAdd = (chkDay, chkStart, chkEnd) => {
                             const hasConflict = planningData.some(p => p.userId === currentUserData.uid && Number(p.week) === Number(currentWeek) && Number(p.day) === chkDay && p.id !== editPlanningId && ((chkStart >= Number(p.startHour) && chkStart < Number(p.endHour)) || (chkEnd > Number(p.startHour) && chkEnd <= Number(p.endHour)) || (chkStart <= Number(p.startHour) && chkEnd >= Number(p.endHour))));
                             if(hasConflict && daysToProcess.length === 1) throw new Error(`Conflict op dag ${chkDay} tussen ${chkStart}:00 en ${chkEnd}:00`);
-                            if(!hasConflict) batchPromises.push(addDoc(collection(db, "planningen"), { userId: currentUserData.uid, userName: currentUserData.displayName || currentUserData.email.split('@')[0], week: Number(currentWeek), day: chkDay, startHour: chkStart, endHour: chkEnd, status }));
+                            if(!hasConflict) batchPromises.push(addDoc(collection(db, "planningen"), { userId: currentUserData.uid, userName: currentUserData.displayName || currentUserData.email.split('@')[0], week: Number(currentWeek), day: chkDay, startHour: chkStart, endHour: chkEnd, status, isRepeating: isRepeating, startWeek: Number(currentWeek) }));
                         };
                         
-                        checkAndAdd(d, start, 24); 
-                        if(end > 0) checkAndAdd(nextDay, 0, end); 
+                        checkAndAdd(d, start, maxHour); 
+                        if(end > minHour) checkAndAdd(nextDay, minHour, end); 
                         
                     } else { 
                         const hasConflict = planningData.some(p => p.userId === currentUserData.uid && Number(p.week) === Number(currentWeek) && Number(p.day) === d && p.id !== editPlanningId && ((start >= Number(p.startHour) && start < Number(p.endHour)) || (end > Number(p.startHour) && end <= Number(p.endHour)) || (start <= Number(p.startHour) && end >= Number(p.endHour))));
                         if(hasConflict && daysToProcess.length === 1) throw new Error("Conflict in tijden! Je hebt al een blok overlappend met deze tijd.");
-                        if(!hasConflict) batchPromises.push(addDoc(collection(db, "planningen"), { userId: currentUserData.uid, userName: currentUserData.displayName || currentUserData.email.split('@')[0], week: Number(currentWeek), day: d, startHour: start, endHour: end, status }));
+                        if(!hasConflict) batchPromises.push(addDoc(collection(db, "planningen"), { userId: currentUserData.uid, userName: currentUserData.displayName || currentUserData.email.split('@')[0], week: Number(currentWeek), day: d, startHour: start, endHour: end, status, isRepeating: isRepeating, startWeek: Number(currentWeek) }));
                     }
                 }
                 
@@ -1526,7 +1943,6 @@
                 }
                 
                 window.closeModal();
-                await loadPlanningFromDatabase();
             } catch (error) {
                 console.error(error);
                 alert(error.message);
@@ -1541,7 +1957,79 @@
             if(!confirm("Weet je zeker dat je dit blok wilt verwijderen?")) return;
             await deleteDoc(doc(db, "planningen", editPlanningId));
             window.closeModal();
-            await loadPlanningFromDatabase();
+        };
+
+        // --- PREVIEW AVAILABLE PEOPLE IN MODAL ---
+        window.updateAttendingPreview = () => {
+            if(!currentGroupId || !currentUserData) return;
+            const dateStr = document.getElementById('activity-start-date').value;
+            const startH = Number(document.getElementById('activity-start-time').value);
+            const endH = Number(document.getElementById('activity-end-time').value);
+            
+            const previewContainer = document.getElementById('activity-attending-preview');
+            const listDiv = document.getElementById('activity-attending-list');
+            
+            if(!dateStr || startH >= endH || isNaN(startH) || isNaN(endH)) {
+                previewContainer.style.display = 'none';
+                return;
+            }
+            
+            const d = new Date(dateStr);
+            const day = d.getDay() || 7; 
+            const week = getISOWeek(d);
+            
+            const activeGroup = groupsData.find(g => g.id === currentGroupId);
+            if(!activeGroup) return;
+            
+            const members = activeGroup.memberIds;
+            let userAvailability = {};
+            members.forEach(uid => userAvailability[uid] = 0);
+            
+            planningData.forEach(p => {
+                const isMatchingWeek = Number(p.week) === Number(week) || (p.isRepeating && Number(p.startWeek) <= Number(week));
+                if(isMatchingWeek && Number(p.day) === day && p.status === 'available' && members.includes(p.userId)) {
+                    const overlapStart = Math.max(startH, Number(p.startHour));
+                    const overlapEnd = Math.min(endH, Number(p.endHour));
+                    if(overlapStart < overlapEnd) {
+                        userAvailability[p.userId] += (overlapEnd - overlapStart);
+                    }
+                }
+            });
+            
+            let availablePeople = members.filter(uid => userAvailability[uid] >= (endH - startH));
+            
+            const dayStartTs = new Date(d).setHours(0,0,0,0);
+            const dayEndTs = new Date(d).setHours(23,59,59,999);
+            const reqStartTs = new Date(d).setHours(startH, 0, 0, 0);
+            const reqEndTs = new Date(d).setHours(endH, 0, 0, 0);
+            
+            const allActsThisWeek = activitiesData.filter(a => a.startTimestamp && a.startTimestamp <= dayEndTs && a.endTimestamp >= dayStartTs);
+            allActsThisWeek.forEach(act => {
+                if (act.startTimestamp < reqEndTs && act.endTimestamp > reqStartTs) {
+                    const attendingUids = (act.attending || []).map(u => u.uid);
+                    availablePeople = availablePeople.filter(uid => !attendingUids.includes(uid));
+                }
+            });
+            
+            listDiv.innerHTML = '';
+            window.precalculatedAttending = [];
+            
+            availablePeople.forEach(uid => {
+                const profile = activeGroup.memberProfiles?.[uid] || { name: "Lid" };
+                window.precalculatedAttending.push({ uid, name: profile.name });
+                listDiv.innerHTML += `
+                    <div class="flex items-center gap-2 bg-surface-container-highest border border-outline-variant rounded-full p-1 pr-3">
+                        <div class="w-6 h-6 rounded-full bg-primary-container text-primary flex items-center justify-center flex-shrink-0 border border-surface"><span class="material-symbols-outlined text-[12px]">person</span></div>
+                        <span class="text-xs font-bold text-white">${profile.name}</span>
+                    </div>
+                `;
+            });
+            
+            if(availablePeople.length === 0) {
+                listDiv.innerHTML = '<span class="text-xs text-on-surface-variant italic">Niemand uit je team is volledig beschikbaar.</span>';
+            }
+            
+            previewContainer.style.display = 'block';
         };
 
         // --- TIMESTAMPS ACTIVITEITEN OPSLAAN ---
@@ -1574,22 +2062,65 @@
 
                 const activeGroup = groupsData.find(g => g.id === currentGroupId);
 
-                await addDoc(collection(db, "activities"), {
+                let attendingList = [];
+                if (window.precalculatedAttending && window.precalculatedAttending.length > 0) {
+                    attendingList = window.precalculatedAttending;
+                } else {
+                    attendingList = [{ uid: currentUserData.uid, name: currentUserData.displayName || currentUserData.email.split('@')[0] }];
+                }
+
+                const docRef = await addDoc(collection(db, "activities"), {
                     groupId: currentGroupId, 
                     groupName: activeGroup.name,
                     title, 
                     startTimestamp: startD.getTime(), 
                     endTimestamp: endD.getTime(),
-                    attending: [], 
+                    attending: attendingList, 
                     declined: [], 
                     createdBy: currentUserData.uid
                 });
+
+                let savedGcalIds = [];
+                if (connectedGoogleAccounts && connectedGoogleAccounts.length > 0) {
+                    for (let acc of connectedGoogleAccounts) {
+                        try {
+                            const gcalRes = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+                                method: 'POST',
+                                headers: {
+                                    'Authorization': `Bearer ${acc.token}`,
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    summary: `${title} (${activeGroup.name})`,
+                                    description: `Gepland via FeinyAhPlanner voor team ${activeGroup.name}`,
+                                    start: { dateTime: startD.toISOString() },
+                                    end: { dateTime: endD.toISOString() }
+                                })
+                            });
+
+                            if (gcalRes.ok) {
+                                const evtData = await gcalRes.json();
+                                savedGcalIds.push({ account: acc.email, eventId: evtData.id });
+                            } else {
+                                const errorData = await gcalRes.text();
+                                console.error("GCal Sync Fout bij aanmaken:", errorData);
+                                if (errorData.includes("insufficientPermissions") || errorData.includes("Invalid Credentials")) {
+                                    alert("De afspraak is succesvol opgeslagen in de app, MAAR kon niet naar je Google Agenda gestuurd worden omdat de rechten ontbreken. Ontkoppel je Google Account bij de Instellingen en log opnieuw in met de vinkjes aan.");
+                                }
+                            }
+                        } catch(err) {
+                            console.warn("Kon niet automatisch naar Google Calendar pushen:", err);
+                        }
+                    }
+                }
                 
-                createSystemLog("Nieuwe Activiteit Gepland", `'${title}' is ingepland voor team ${activeGroup.name}.`, 'event');
+                if(savedGcalIds.length > 0) {
+                    await updateDoc(doc(db, "activities", docRef.id), { googleEventIds: savedGcalIds });
+                }
+                
+                createSystemLog("Nieuwe Activiteit Gepland", `'${title}' is ingepland voor team ${activeGroup.name}.`, 'event_available');
                 
                 window.closeCreateActivityModal();
-                await loadActivitiesFromDatabase();
-                await loadPlanningFromDatabase();
             } catch (error) {
                 console.error(error);
             } finally {
@@ -1597,6 +2128,46 @@
                 submitBtn.innerText = "Inplannen";
             }
         });
+
+        // --- ALLE LOGBOEKEN MODAL ---
+        window.openAllLogsModal = async () => {
+            try {
+                // Toont tot maximaal 50 recente logs
+                const qLogs = query(collection(db, "activity_logs"), orderBy("timestamp", "desc"), limit(50));
+                const snapLogs = await getDocs(qLogs);
+                const list = document.getElementById('all-logs-list');
+                list.innerHTML = '';
+                
+                if(snapLogs.empty) { list.innerHTML = '<p class="text-sm text-on-surface-variant">Geen activiteit gevonden.</p>'; }
+                
+                snapLogs.forEach(doc => {
+                    const log = doc.data();
+                    const d = new Date(log.timestamp);
+                    const timeStr = `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+                    
+                    list.innerHTML += `
+                        <div class="bg-surface-container-lowest border border-outline-variant p-4 rounded-xl flex gap-4 items-start">
+                            <div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary flex-shrink-0 border border-outline-variant">
+                                <span class="material-symbols-outlined text-[20px]">${log.typeIcon || 'info'}</span>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-on-surface mb-1">${log.title}</h4>
+                                <p class="text-xs text-on-surface-variant mb-1">${log.text}</p>
+                                <span class="text-[10px] text-on-surface-variant opacity-70">${timeStr}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('all-logs-modal').classList.remove('hidden');
+                document.getElementById('all-logs-modal').classList.add('flex');
+            } catch(e) { console.error(e); }
+        };
+        
+        window.closeAllLogsModal = () => {
+            document.getElementById('all-logs-modal').classList.add('hidden');
+            document.getElementById('all-logs-modal').classList.remove('flex');
+        };
 
         window.openAllActivitiesModal = () => {
             const list = document.getElementById('all-activities-list');
@@ -1654,7 +2225,7 @@
             
             attendingList.innerHTML = (act.attending || []).map(u => `
                 <div class="flex items-center gap-3 bg-surface-container-lowest border border-outline-variant rounded-full p-1.5 pr-4 w-fit">
-                    <div class="w-8 h-8 rounded-full bg-primary-container text-primary flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-[16px]">person</span></div>
+                    <div class="w-8 h-8 rounded-full bg-primary-container text-primary flex items-center justify-center flex-shrink-0 border border-surface"><span class="material-symbols-outlined text-[16px]">person</span></div>
                     <span class="text-sm font-bold">${u.name}</span>
                 </div>
             `).join('') || "<span class='text-on-surface-variant italic'>Nog niemand</span>";
@@ -1698,15 +2269,32 @@
 
             await updateDoc(doc(db, "activities", activityId), { attending, declined });
             window.closeViewActivityModal();
-            await loadActivitiesFromDatabase();
         }
 
         window.deleteActivity = async (id) => {
             if(!confirm("Weet je zeker dat je deze activiteit definitief wilt annuleren en verwijderen?")) return;
+            
+            const act = activitiesData.find(a => a.id === id);
+            
+            if (act && act.googleEventIds && connectedGoogleAccounts && connectedGoogleAccounts.length > 0) {
+                for (let ge of act.googleEventIds) {
+                    const acc = connectedGoogleAccounts.find(a => a.email === ge.account);
+                    if (acc) {
+                        try {
+                            await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${ge.eventId}`, {
+                                method: 'DELETE',
+                                headers: { 'Authorization': `Bearer ${acc.token}` }
+                            });
+                        } catch(e) {
+                            console.warn("Kon geannuleerd event niet uit GCal verwijderen", e);
+                        }
+                    }
+                }
+            }
+            
             await deleteDoc(doc(db, "activities", id));
             createSystemLog("Activiteit Geannuleerd", `Een geplande activiteit is verwijderd.`, "event_busy");
             window.closeViewActivityModal();
-            await loadActivitiesFromDatabase();
         };
 
         window.updateActivityRecommendation = () => {
@@ -1728,7 +2316,8 @@
             }
 
             planningData.forEach(p => {
-                if(Number(p.week) === Number(week) && Number(p.day) === day && p.status === 'available' && members.includes(p.userId)) {
+                const isMatchingWeek = Number(p.week) === Number(week) || (p.isRepeating && Number(p.startWeek) <= Number(week));
+                if(isMatchingWeek && Number(p.day) === day && p.status === 'available' && members.includes(p.userId)) {
                     for(let h=Math.max(minHour, Number(p.startHour)); h < Math.min(maxHour, Number(p.endHour)); h++) {
                         if(!hourlyAvailability[h].some(u => u.uid === p.userId)) {
                             hourlyAvailability[h].push({ uid: p.userId, name: p.userName });
@@ -1743,8 +2332,8 @@
             const allActsThisWeek = activitiesData.filter(a => a.startTimestamp && a.startTimestamp <= dayEndTs && a.endTimestamp >= dayStartTs);
             allActsThisWeek.forEach(act => {
                 const attendingUids = (act.attending || []).map(u => u.uid);
-                let actStartH = act.startTimestamp < dayStartTs ? 0 : new Date(act.startTimestamp).getHours();
-                let actEndH = act.endTimestamp > dayEndTs ? 24 : new Date(act.endTimestamp).getHours();
+                let actStartH = act.startTimestamp < dayStartTs ? minHour : new Date(act.startTimestamp).getHours();
+                let actEndH = act.endTimestamp > dayEndTs ? maxHour : new Date(act.endTimestamp).getHours();
                 
                 for(let h = actStartH; h < actEndH; h++) {
                     if (hourlyAvailability[h]) {
@@ -1789,8 +2378,11 @@
                 recDiv.innerHTML = `<strong>💡 Aanbevolen: ${bestBlock.startHour}:00 - ${bestBlock.endHour}:00</strong><br>Hier ${lidTekst}: ${bestBlock.people.join(', ')}`;
                 recDiv.style.display = 'block';
                 
-                document.getElementById('activity-start-time').value = bestBlock.startHour;
-                document.getElementById('activity-end-time').value = bestBlock.endHour;
+                if(!window.isManualSlotSelection) {
+                    document.getElementById('activity-start-time').value = bestBlock.startHour;
+                    document.getElementById('activity-end-time').value = bestBlock.endHour;
+                    window.updateAttendingPreview();
+                }
             } else {
                 recDiv.style.display = 'none';
             }
@@ -1874,19 +2466,27 @@
             document.getElementById('form-start').value = hour;
             document.getElementById('form-end').value = Math.min(hour + 2, maxHour);
             document.getElementById('form-status').value = 'available';
+            document.getElementById('form-repeat').checked = false;
             document.getElementById('btn-delete-planning').style.display = 'none';
             document.getElementById('btn-save-planning').innerText = 'Opslaan';
             document.getElementById('schedule-modal').classList.remove('hidden'); document.getElementById('schedule-modal').classList.add('flex');
         };
 
-        window.openModalForEdit = (id, day, start, end, status) => {
+        window.openModalForEdit = (id, day, start, end, status, isRepeating) => {
+            let parsedStart = parseInt(start, 10);
+            let parsedEnd = parseInt(end, 10);
+            
+            if (isNaN(parsedStart) || parsedStart < minHour) parsedStart = minHour;
+            if (isNaN(parsedEnd) || parsedEnd > maxHour) parsedEnd = maxHour;
+
             editPlanningId = id; 
             document.getElementById('modal-schedule-title').innerText = "Blok Bewerken";
             document.getElementById('form-day').value = day;
             document.getElementById('form-display-week').innerText = `Week ${currentWeek}`;
-            document.getElementById('form-start').value = start;
-            document.getElementById('form-end').value = end;
+            document.getElementById('form-start').value = parsedStart;
+            document.getElementById('form-end').value = parsedEnd;
             document.getElementById('form-status').value = status || 'available';
+            document.getElementById('form-repeat').checked = !!isRepeating;
             document.getElementById('btn-delete-planning').style.display = 'block';
             document.getElementById('btn-save-planning').innerText = 'Updaten';
             document.getElementById('schedule-modal').classList.remove('hidden'); document.getElementById('schedule-modal').classList.add('flex');
@@ -1894,14 +2494,55 @@
 
         window.closeModal = () => { document.getElementById('schedule-modal').classList.add('hidden'); document.getElementById('schedule-modal').classList.remove('flex'); };
 
-        window.openCreateActivityModal = () => {
-            const todayStr = new Date().toISOString().split('T')[0];
-            document.getElementById('activity-start-date').value = todayStr;
-            document.getElementById('activity-end-date').value = todayStr;
-            window.updateActivityRecommendation();
-            document.getElementById('create-activity-modal').classList.remove('hidden'); document.getElementById('create-activity-modal').classList.add('flex');
+        window.openCreateActivityModal = (isManual = false) => {
+            if (!isManual) {
+                const now = new Date();
+                const tzOffset = now.getTimezoneOffset() * 60000;
+                const todayStr = new Date(now.getTime() - tzOffset).toISOString().split('T')[0];
+                
+                document.getElementById('activity-start-date').value = todayStr;
+                document.getElementById('activity-end-date').value = todayStr;
+                document.getElementById('activity-title').value = '';
+                
+                window.isManualSlotSelection = false;
+                window.updateActivityRecommendation();
+            }
+            window.updateAttendingPreview();
+            document.getElementById('create-activity-modal').classList.remove('hidden'); 
+            document.getElementById('create-activity-modal').classList.add('flex');
         };
-        window.closeCreateActivityModal = () => { document.getElementById('create-activity-modal').classList.add('hidden'); document.getElementById('create-activity-modal').classList.remove('flex'); };
+        
+        window.closeCreateActivityModal = () => { 
+            document.getElementById('create-activity-modal').classList.add('hidden'); 
+            document.getElementById('create-activity-modal').classList.remove('flex'); 
+        };
+
+        window.planActivityFromSlot = (day, startHour, endHour, peopleObjJson) => {
+            window.closeAlternativeSlotsModal();
+            const colDate = getDateFromWeek(currentWeek, day);
+            const tzOffset = colDate.getTimezoneOffset() * 60000;
+            const dateStr = new Date(colDate.getTime() - tzOffset).toISOString().split('T')[0];
+
+            document.getElementById('activity-start-date').value = dateStr;
+            document.getElementById('activity-end-date').value = dateStr;
+            document.getElementById('activity-title').value = '';
+
+            window.isManualSlotSelection = true; 
+            
+            document.getElementById('activity-start-time').value = startHour;
+            document.getElementById('activity-end-time').value = endHour;
+
+            try {
+                window.prefilledAttendingUsers = JSON.parse(decodeURIComponent(peopleObjJson));
+            } catch(e) { window.prefilledAttendingUsers = null; }
+
+            const recDiv = document.getElementById('activity-recommendation');
+            recDiv.innerHTML = `<strong>💡 Gekozen moment: ${startHour}:00 - ${endHour}:00</strong><br>Dit werd geselecteerd vanuit de alternatieven. Jouw teamgenoten worden automatisch toegevoegd aan de afspraak.`;
+            recDiv.style.display = 'block';
+
+            window.openCreateActivityModal(true);
+            setTimeout(() => { window.isManualSlotSelection = false; }, 500); 
+        };
 
         document.getElementById('form-create-group').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1932,7 +2573,6 @@
             createSystemLog("Nieuw Team Aangemaakt", `Team '${name}' is succesvol opgericht.`, "group_add");
             document.getElementById('form-create-group').reset();
             window.closeCreateJoinModal();
-            loadGroupsFromDatabase();
         });
         
         document.getElementById('form-join-group').addEventListener('submit', async (e) => {
@@ -1961,7 +2601,6 @@
                 createSystemLog("Aangesloten bij Team", `Je bent lid geworden van '${groupDoc.data().name}'.`, "group_add");
                 document.getElementById('form-join-group').reset();
                 window.closeCreateJoinModal();
-                loadGroupsFromDatabase();
             } catch(err) { console.error("Kon niet aansluiten", err); }
         });
 
@@ -2041,13 +2680,17 @@
             
             try {
                 let dashCov = document.getElementById('dash-coverage');
-                const maxPossibleHours = 40; 
-                let userPlannings = planningData.filter(p => p.userId === currentUserData.uid && Number(p.week) === Number(currentWeek));
+                const maxPossibleHours = 168; // Voorheen 40
+                let userPlannings = planningData.filter(p => p.userId === currentUserData.uid && (Number(p.week) === Number(currentWeek) || (p.isRepeating && Number(p.startWeek) <= Number(currentWeek))));
                 
                 let uniqueHours = new Set();
                 userPlannings.forEach(p => {
                     if(p.status === 'available'){
-                        for(let h = Number(p.startHour); h < Number(p.endHour); h++) uniqueHours.add(`${p.day}-${h}`);
+                        let sh = Number(p.startHour);
+                        let eh = Number(p.endHour);
+                        if(sh < minHour) sh = minHour;
+                        if(eh > maxHour) eh = maxHour;
+                        for(let h = sh; h < eh; h++) uniqueHours.add(`${p.day}-${h}`);
                     }
                 });
                 
@@ -2109,7 +2752,7 @@
                     const log = doc.data();
                     recentContainer.innerHTML += `
                         <div class="bg-surface border border-outline-variant p-4 rounded-xl flex gap-4 items-start hover:border-outline transition-colors">
-                            <div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant flex-shrink-0">
+                            <div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary flex-shrink-0">
                                 <span class="material-symbols-outlined text-[20px]">${log.typeIcon || 'info'}</span>
                             </div>
                             <div>
@@ -2170,18 +2813,24 @@
         }
 
         function updateScheduler() {
+            const now = new Date();
+            const todayWeek = getISOWeek(now);
+            const todayDay = now.getDay() || 7;
+            const isCurrentWeek = (Number(currentWeek) === Number(todayWeek));
+
             const mobileTabs = document.getElementById('mobile-day-selector');
             if (mobileTabs) {
                 mobileTabs.innerHTML = '';
                 for(let d=1; d<=7; d++) {
                     const dateObj = getDateFromWeek(currentWeek, d);
                     const isActive = d === window.activeMobileDay;
+                    const isToday = isCurrentWeek && (d === todayDay);
                     
                     mobileTabs.innerHTML += `
-                        <button onclick="window.setMobileDay(${d})" class="flex-shrink-0 flex flex-col items-center justify-center w-[60px] h-[68px] rounded-xl border-2 transition-colors ${isActive ? 'border-[#5df599] bg-[#5df599]/10 text-[#5df599]' : 'border-[#333] bg-[#1a1a1a] text-gray-400 hover:bg-[#222]'}">
-                            <span class="text-[11px] font-bold uppercase tracking-widest mb-1">${dayNames[d].substring(0,2)}</span>
+                        <button onclick="window.setMobileDay(${d})" class="flex-shrink-0 flex flex-col items-center justify-center w-[60px] h-[68px] rounded-xl border-2 transition-colors ${isActive ? 'border-primary bg-primary/10 text-primary' : 'border-outline-variant bg-surface-container text-on-surface-variant hover:bg-surface-container-highest'} ${isToday && !isActive ? 'ring-2 ring-primary/50' : ''}">
+                            <span class="text-[11px] font-bold uppercase tracking-widest mb-1 ${isToday ? 'text-primary' : ''}">${dayNames[d].substring(0,2)}</span>
                             <span class="text-xl font-bold">${dateObj.getDate()}</span>
-                            ${isActive ? '<div class="w-1.5 h-1.5 bg-[#5df599] rounded-full mt-1"></div>' : ''}
+                            ${isActive ? '<div class="w-1.5 h-1.5 bg-primary rounded-full mt-1"></div>' : (isToday ? '<div class="w-1.5 h-1.5 bg-primary/50 rounded-full mt-1"></div>' : '')}
                         </button>
                     `;
                 }
@@ -2192,10 +2841,12 @@
                 headerRow.innerHTML = '';
                 for(let d=1; d<=7; d++) {
                     const dateObj = getDateFromWeek(currentWeek, d);
+                    const isToday = isCurrentWeek && (d === todayDay);
+                    
                     headerRow.innerHTML += `
-                        <div id="header-day-${d}" class="text-center py-4 text-xs font-bold ${d >= 6 ? 'text-primary' : 'text-on-surface-variant'} border-r border-outline-variant/20">
-                            <div class="uppercase tracking-widest">${dayNames[d].substring(0,2)}</div>
-                            <div class="text-lg mt-1">${dateObj.getDate()}</div>
+                        <div id="header-day-${d}" class="text-center py-4 text-xs font-bold ${d >= 6 && !isToday ? 'text-primary' : (isToday ? 'text-on-surface' : 'text-on-surface-variant')} border-r border-outline-variant/50">
+                            <div class="uppercase tracking-widest ${isToday ? 'text-primary' : ''}">${dayNames[d].substring(0,2)}</div>
+                            <div class="text-lg mt-1 ${isToday ? 'bg-primary text-background rounded-full w-8 h-8 flex items-center justify-center mx-auto shadow-[0_0_10px_rgba(93,245,153,0.5)]' : ''}">${dateObj.getDate()}</div>
                         </div>
                     `;
                 }
@@ -2231,11 +2882,15 @@
                 }
             }
 
-            let weekDataRaw = planningData.filter(item => Number(item.week) === Number(currentWeek));
+            // OPHALEN VAN REGULIERE EN HERHALENDE BLOKKEN
+            let weekDataRaw = planningData.filter(item => Number(item.week) === Number(currentWeek) || (item.isRepeating && Number(item.startWeek) <= Number(currentWeek)));
             const optBanner = document.getElementById('optimal-slot-banner');
+            const reqMembersBar = document.getElementById('required-members-bar');
+
             if (optBanner) optBanner.style.display = 'none';
 
             if (currentView === 'personal') {
+                if (reqMembersBar) reqMembersBar.style.display = 'none';
                 let weekData = [];
                 if(currentUserData) {
                     const rawPersonal = weekDataRaw.filter(item => item.userId === currentUserData.uid);
@@ -2252,29 +2907,46 @@
                     if(!col) return;
                     
                     const block = document.createElement('div');
-                    const startH = Number(item.startHour);
-                    const endH = Number(item.endHour);
-                    const height = (endH - startH) * slotHeight;
+                    
+                    let rawStart = Number(item.startHour);
+                    let rawEnd = Number(item.endHour);
+                    if (isNaN(rawStart)) rawStart = minHour;
+                    if (isNaN(rawEnd)) rawEnd = maxHour;
+                    
+                    const startH = Math.max(minHour, Math.min(rawStart, maxHour));
+                    const endH = Math.max(minHour, Math.min(rawEnd, maxHour));
+                    if (endH <= startH) return; 
+
+                    const height = Math.max(0, (endH - startH) * slotHeight);
                     const isBusy = item.status === 'busy';
 
-                    block.className = `absolute left-1 right-1 rounded-r-lg rounded-l-[3px] p-2.5 border-l-4 overflow-hidden cursor-pointer transition-all duration-200 hover:brightness-125 shadow-sm ${
-                        isBusy ? 'bg-[#2d1b1b] border-[#ff5c5c] text-[#ff5c5c]' : 'bg-[#132b1f] border-[#5df599] text-[#5df599]'
+                    block.className = `absolute left-1 right-1 rounded-r-lg rounded-l-[3px] p-2 border-l-4 overflow-hidden cursor-pointer transition-all duration-200 hover:brightness-125 shadow-sm flex flex-col justify-start z-30 ${
+                        isBusy ? 'bg-[#2d1b1b] border-[#ff5c5c]' : 'bg-[#132b1f] border-[#5df599]'
                     }`;
                     block.style.top = `${(startH - minHour) * slotHeight + 3}px`;
                     block.style.height = `${height - 6}px`;
-                    block.style.zIndex = "10";
+                    block.style.color = "#ffffff";
 
                     block.onclick = (e) => {
                         e.stopPropagation();
-                        window.openModalForEdit(item.id, item.day, startH, endH, item.status);
+                        window.openModalForEdit(item.id, item.day, startH, endH, item.status, item.isRepeating);
                     };
 
-                    let blockTitle = isBusy ? (item.importedTitle || 'Niet Beschikbaar') : (item.userName || 'Jij');
+                    let dispName = item.userName;
+                    if (!dispName || String(dispName).trim() === '') dispName = currentUserData?.displayName;
+                    if (!dispName || String(dispName).trim() === '') dispName = 'Jij';
+                    
+                    let blockTitle = isBusy ? (item.importedTitle || 'Onbeschikbaar') : dispName;
+                    let blockSubtitle = isBusy ? (item.importedFrom ? 'Google Agenda' : 'Onbeschikbaar') : 'Beschikbaar';
+                    
+                    if (item.isRepeating) blockSubtitle += ' 🔄';
 
                     block.innerHTML = `
-                        <div class="text-[10px] font-bold opacity-75 mb-0.5">${item.startHour}:00 - ${item.endHour}:00</div>
-                        <div class="text-[12px] font-bold leading-tight truncate">${blockTitle}</div>
-                        <div class="text-[10px] truncate mt-0.5 opacity-80">${isBusy && item.importedTitle ? 'Google Agenda' : (isBusy ? 'Niet Beschikbaar' : 'Beschikbaar')}</div>
+                        <div style="pointer-events: none; width: 100%; color: #ffffff;">
+                            <div class="text-[10px] font-bold opacity-90 mb-0.5 tracking-wider">${startH}:00 - ${endH}:00</div>
+                            <div class="text-xs font-bold leading-tight truncate whitespace-normal break-words" style="max-height: 2.5em;">${blockTitle}</div>
+                            <div class="text-[9px] truncate mt-1 opacity-80 uppercase tracking-widest">${blockSubtitle}</div>
+                        </div>
                     `;
                     col.appendChild(block);
                 });
@@ -2282,6 +2954,24 @@
             } 
             else if (currentView === 'group') {
                 const activeGroup = groupsData.find(g => g.id === currentGroupId);
+                
+                if (reqMembersBar && activeGroup) {
+                    reqMembersBar.style.display = 'flex';
+                    const container = document.getElementById('required-members-checkboxes');
+                    container.innerHTML = '';
+
+                    activeGroup.memberIds.forEach(uid => {
+                        const profile = activeGroup.memberProfiles?.[uid] || { name: "Lid" };
+                        const isChecked = window.selectedRequiredMemberUids.includes(uid);
+                        container.innerHTML += `
+                            <label class="inline-flex items-center gap-1.5 text-xs text-on-surface cursor-pointer bg-surface-container px-2.5 py-1 rounded-lg border border-outline-variant hover:border-primary transition-colors">
+                                <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="window.toggleRequiredMember('${uid}', this.checked)" class="w-3.5 h-3.5 accent-primary rounded">
+                                ${profile.name}
+                            </label>
+                        `;
+                    });
+                }
+
                 let weekData = [];
                 if(activeGroup) weekData = weekDataRaw.filter(item => activeGroup.memberIds.includes(item.userId));
 
@@ -2291,10 +2981,11 @@
                     for(let h=minHour; h<maxHour; h++) grid[d][h] = { available: [] };
                 }
 
-                // 1. Iedereen die zich beschikbaar heeft gemeld
                 weekData.forEach(item => {
                     if (item.status === 'available') {
-                        for(let h = Math.max(minHour, Number(item.startHour)); h < Math.min(maxHour, Number(item.endHour)); h++) {
+                        let rawStart = Number(item.startHour) || minHour;
+                        let rawEnd = Number(item.endHour) || maxHour;
+                        for(let h = Math.max(minHour, rawStart); h < Math.min(maxHour, rawEnd); h++) {
                             if(!grid[item.day][h].available.some(u => u.uid === item.userId)) {
                                 grid[item.day][h].available.push({ uid: item.userId, name: item.userName });
                             }
@@ -2302,7 +2993,6 @@
                     }
                 });
                 
-                // 2. Filter iedereen eruit die al in een ANDERE activiteit zit op dat moment (Slimme Substractie met timestamps)
                 const allActsThisWeek = activitiesData.filter(a => a.startTimestamp);
                 allActsThisWeek.forEach(act => {
                     const attendingUids = (act.attending || []).map(u => u.uid);
@@ -2312,8 +3002,8 @@
                         const dayEndTs = new Date(colDate).setHours(23, 59, 59, 999);
                         
                         if (act.startTimestamp <= dayEndTs && act.endTimestamp >= dayStartTs) {
-                            let actStartH = act.startTimestamp < dayStartTs ? 0 : new Date(act.startTimestamp).getHours();
-                            let actEndH = act.endTimestamp > dayEndTs ? 24 : new Date(act.endTimestamp).getHours();
+                            let actStartH = act.startTimestamp < dayStartTs ? minHour : new Date(act.startTimestamp).getHours();
+                            let actEndH = act.endTimestamp > dayEndTs ? maxHour : new Date(act.endTimestamp).getHours();
                             
                             for(let h = actStartH; h < actEndH; h++) {
                                 if (grid[d] && grid[d][h]) {
@@ -2328,16 +3018,27 @@
                 for(let d=1; d<=7; d++) {
                     let currentSlot = null;
                     for(let h=minHour; h<maxHour; h++) {
-                        let people = grid[d][h].available.map(u => u.name).sort();
-                        let count = people.length;
+                        let peopleObj = grid[d][h].available;
+                        let availableUids = peopleObj.map(u => u.uid);
 
-                        if (count > 0) {
-                            let peopleStr = JSON.stringify(people);
+                        let satisfiesRequired = window.selectedRequiredMemberUids.every(reqUid => availableUids.includes(reqUid));
+
+                        if (satisfiesRequired && peopleObj.length > 0) {
+                            let peopleNames = peopleObj.map(u => u.name).sort();
+                            let peopleStr = JSON.stringify(peopleNames);
                             if (currentSlot && currentSlot.peopleStr === peopleStr) {
                                 currentSlot.endHour = h + 1;
                             } else {
                                 if (currentSlot) aggregatedSlots.push(currentSlot);
-                                currentSlot = { day: d, startHour: h, endHour: h + 1, count: count, people: people, peopleStr: peopleStr };
+                                currentSlot = { 
+                                    day: d, 
+                                    startHour: h, 
+                                    endHour: h + 1, 
+                                    count: peopleObj.length, 
+                                    people: peopleNames, 
+                                    peopleObj: peopleObj, 
+                                    peopleStr: peopleStr 
+                                };
                             }
                         } else {
                             if (currentSlot) {
@@ -2359,26 +3060,37 @@
                         optBanner.style.display = 'flex';
                         const bestSlot = aggregatedSlots[0];
                         
-                        window.alternativeSlotsHtml = aggregatedSlots.slice(0, 5).map(slot => `
-                            <div class="p-4 border-b border-outline-variant hover:bg-surface-container/50 transition-colors">
-                                <div class="flex justify-between items-center mb-1">
-                                    <div class="font-bold text-sm text-primary">${dayNames[slot.day]} ${slot.startHour}:00 - ${slot.endHour}:00</div>
-                                    <div class="text-xs font-bold bg-primary-container text-primary px-2 py-0.5 rounded">${slot.count === 1 ? '1 lid' : `${slot.count} leden`}</div>
+                        window.alternativeSlotsHtml = aggregatedSlots.slice(0, 5).map(slot => {
+                            const slotDate = getDateFromWeek(currentWeek, slot.day);
+                            const dateLabel = `${dayNames[slot.day]} ${slotDate.getDate()} ${monthNames[slotDate.getMonth()]}`;
+                            const peopleJson = encodeURIComponent(JSON.stringify(slot.peopleObj));
+
+                            return `
+                                <div class="p-4 border-b border-outline-variant hover:bg-surface-container/50 transition-colors flex justify-between items-center">
+                                    <div>
+                                        <div class="font-bold text-sm text-primary">${dateLabel} ${slot.startHour}:00 - ${slot.endHour}:00</div>
+                                        <div class="text-xs text-on-surface-variant flex items-center gap-1 mt-1">
+                                            <span class="material-symbols-outlined text-[14px]">check_circle</span>
+                                            Kunnen: ${slot.people.join(', ')}
+                                        </div>
+                                    </div>
+                                    <button onclick="window.planActivityFromSlot(${slot.day}, ${slot.startHour}, ${slot.endHour}, '${peopleJson}')" class="px-3 py-1.5 bg-primary text-background font-bold text-xs rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[14px]">event_available</span> Plannen
+                                    </button>
                                 </div>
-                                <div class="text-xs text-on-surface-variant flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-[14px]">check_circle</span>
-                                    Kunnen: ${slot.people.join(', ')}
-                                </div>
-                            </div>
-                        `).join('');
+                            `;
+                        }).join('');
+
+                        const bestDate = getDateFromWeek(currentWeek, bestSlot.day);
+                        const bestDateLabel = `${dayNames[bestSlot.day]} ${bestDate.getDate()} ${monthNames[bestDate.getMonth()]}`;
 
                         optBanner.innerHTML = `
                             <div class="flex justify-between items-center w-full">
                                 <div class="flex items-center gap-3">
                                     <div class="bg-primary/20 p-2 rounded-lg"><span class="material-symbols-outlined text-primary">lightbulb</span></div>
                                     <div>
-                                        <div class="font-bold">Beste moment: ${dayNames[bestSlot.day]} van ${bestSlot.startHour}:00 tot ${bestSlot.endHour}:00</div>
-                                        <div class="text-xs text-primary/80">Hier ${bestSlot.count === 1 ? 'kan 1 lid' : `kunnen ${bestSlot.count} leden`}. Klik voor alternatieven.</div>
+                                        <div class="font-bold">Beste moment: ${bestDateLabel} van ${bestSlot.startHour}:00 tot ${bestSlot.endHour}:00</div>
+                                        <div class="text-xs text-primary/80">Hier ${bestSlot.count === 1 ? 'kan 1 lid' : `kunnen ${bestSlot.count} leden`}. Klik voor alternatieven & plannen.</div>
                                     </div>
                                 </div>
                                 <span class="material-symbols-outlined">chevron_right</span>
@@ -2397,9 +3109,9 @@
                     block.style.top = `${(slot.startHour - minHour) * slotHeight + 3}px`;
                     block.style.height = `${height - 6}px`;
 
-                    let title = slot.count > 1 ? "Groep Beschikbaar:" : slot.people[0];
+                    let title = slot.count > 1 ? "Groep Beschikbaar:" : (slot.people[0] || "Beschikbaar");
                     block.innerHTML = `
-                        <div class="text-xs font-bold leading-tight truncate mb-1">${title}</div>
+                        <div class="text-xs font-bold leading-tight truncate mb-1" style="color: #ffffff;">${title}</div>
                         <div class="text-[10px] font-bold opacity-75 time-label mb-0.5 flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">schedule</span> ${slot.startHour}:00 - ${slot.endHour}:00</div>
                         ${slot.count > 1 ? `<div class="text-[10px] truncate mt-0.5 opacity-80">${slot.people.join(', ')}</div>` : ''}
                     `;
@@ -2421,7 +3133,7 @@
                             <div class="flex items-center gap-2 bg-[#1a1a1a] border border-[#333333] rounded-full p-1.5 pr-4 shadow-sm">
                                 <div class="w-8 h-8 rounded-full bg-primary-container text-primary flex items-center justify-center flex-shrink-0 border border-surface"><span class="material-symbols-outlined text-[16px]">person</span></div>
                                 <span class="text-sm font-bold text-white ml-1">${profile.name}</span>
-                                <div class="w-2 h-2 rounded-full bg-[#5df599] ml-2 shadow-[0_0_5px_#5df599]"></div>
+                                <div class="w-2 h-2 rounded-full bg-primary ml-2 shadow-[0_0_5px_rgba(93,245,153,1)]"></div>
                             </div>
                         `;
                     });
@@ -2438,7 +3150,6 @@
                 }
             }
 
-            // --- RENDER ACTIVITEITEN (TIMESTAMPS OVER MEERDERE DAGEN) ---
             const myActivities = activitiesData.filter(a => {
                 if (!a.startTimestamp) return false;
                 if (currentView === 'personal') return a.attending && a.attending.some(u => u.uid === currentUserData.uid);
@@ -2456,15 +3167,17 @@
                         const col = document.getElementById(`day-column-${d}`);
                         if (!col) continue;
 
-                        let startH = (act.startTimestamp < dayStartTs) ? 0 : new Date(act.startTimestamp).getHours();
-                        let endH = (act.endTimestamp > dayEndTs) ? 24 : new Date(act.endTimestamp).getHours();
+                        let startH = (act.startTimestamp < dayStartTs) ? minHour : new Date(act.startTimestamp).getHours();
+                        let endH = (act.endTimestamp > dayEndTs) ? maxHour : new Date(act.endTimestamp).getHours();
 
-                        if (endH === 0 && act.endTimestamp === dayStartTs) continue;
+                        if (startH < minHour) startH = minHour;
+                        if (endH > maxHour) endH = maxHour;
+                        if (startH >= endH) continue;
 
                         const block = document.createElement('div');
                         const height = (endH - startH) * slotHeight;
 
-                        block.className = `absolute left-1 right-1 rounded-xl p-3 shadow-lg border border-[#5df599] bg-[#1a1a1a] overflow-hidden flex flex-col justify-start cursor-pointer hover:bg-surface-container transition-colors z-20`;
+                        block.className = `absolute left-1 right-1 rounded-xl p-3 shadow-lg border border-primary bg-[#1a1a1a] overflow-hidden flex flex-col justify-start cursor-pointer hover:bg-surface-container transition-colors z-20`;
                         block.style.top = `${(startH - minHour) * slotHeight + 2}px`;
                         block.style.height = `${height - 4}px`;
 
@@ -2485,6 +3198,15 @@
                 }
             });
         }
+
+        window.toggleRequiredMember = (uid, checked) => {
+            if (checked) {
+                if (!window.selectedRequiredMemberUids.includes(uid)) window.selectedRequiredMemberUids.push(uid);
+            } else {
+                window.selectedRequiredMemberUids = window.selectedRequiredMemberUids.filter(id => id !== uid);
+            }
+            updateScheduler();
+        };
         
         window.addEventListener('resize', () => {
             if(currentView === 'personal' || currentView === 'group') {
